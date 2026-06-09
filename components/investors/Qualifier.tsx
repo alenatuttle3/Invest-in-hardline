@@ -7,13 +7,10 @@ import type { InvestorFormData } from '@/lib/qualify'
 import { qualifyInvestor } from '@/lib/qualify'
 import RangeSlider from '@/components/investors/RangeSlider'
 
-const SUBHEAD =
-  "A few questions, both directions — so neither of us spends 30 minutes finding out we're not a fit."
-
 // Check-size range slider config
 const CHECK_MIN = 0
 const CHECK_MAX = 5_000_000
-const CHECK_STEP = 50_000
+const CHECK_STEP = 500_000
 const CHECK_LOW_DEFAULT = 500_000
 const CHECK_HIGH_DEFAULT = 1_500_000
 
@@ -149,8 +146,7 @@ export default function Qualifier() {
             ~90 sec · 6 questions
           </span>
         </div>
-        <div className="border-b border-[color:var(--hl-hairline)]" />
-        <p className="hl-body mt-5 mb-10 text-sm">{SUBHEAD}</p>
+        <div className="mb-10 border-b border-[color:var(--hl-hairline)]" />
 
         {/* Questions */}
         <div className="space-y-5">
