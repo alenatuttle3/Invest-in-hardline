@@ -5,33 +5,52 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { InvestorFormData } from '@/lib/qualify'
 import { qualifyInvestor } from '@/lib/qualify'
+import RangeSlider from '@/components/investors/RangeSlider'
 
 const SUBHEAD =
   "A few questions, both directions — so neither of us spends 30 minutes finding out we're not a fit."
 
-type TapField = 'stage' | 'checkSize' | 'role'
-type OpenField = 'evaluation' | 'whyHardline' | 'valueAdd'
+// Check-size range slider config
+const CHECK_MIN = 0
+const CHECK_MAX = 5_000_000
+const CHECK_STEP = 50_000
+const CHECK_LOW_DEFAULT = 500_000
+const CHECK_HIGH_DEFAULT = 1_500_000
+
+const formatCheck = (v: number) =>
+  v <= 0
+    ? '$0'
+    : v >= CHECK_MAX
+      ? '$5M+'
+      : v >= 1_000_000
+        ? `$${(v / 1_000_000).toFixed(2).replace(/\.?0+$/, '')}M`
+        : `$${Math.round(v / 1000)}K`
+
+const formatRange = (low: number, high: number) => `${formatCheck(low)} – ${formatCheck(high)}`
 
 type Question =
-  | { n: string; tag: string; type: 'tap'; field: TapField; q: string; help?: string; options: string[] }
-  | { n: string; tag: string; type: 'open'; field: OpenField; q: string; help?: string }
+  | { n: string; tag: string; type: 'multi'; field: 'stage'; q: string; help?: string; options: string[] }
+  | { n: string; tag: string; type: 'tap'; field: 'role'; q: string; help?: string; options: string[] }
+  | { n: string; tag: string; type: 'range'; field: 'checkSize'; q: string; help?: string }
+  | { n: string; tag: string; type: 'open'; field: 'evaluation' | 'whyHardline' | 'valueAdd'; q: string; help?: string }
 
 const QUESTIONS: Question[] = [
   {
     n: '01',
     tag: 'Stage gate',
-    type: 'tap',
+    type: 'multi',
     field: 'stage',
     q: 'What stage do you usually write your first check at?',
+    help: 'Select all that apply.',
     options: ['Pre-seed', 'Seed', 'Series A', 'Later'],
   },
   {
     n: '02',
     tag: 'Check size',
-    type: 'tap',
+    type: 'range',
     field: 'checkSize',
     q: "What's your typical check size in a round like this?",
-    options: ['Under $250K', '$250K–$500K', '$500K–$1M', '$1M+'],
+    help: 'Drag to set your range.',
   },
   {
     n: '03',
@@ -39,7 +58,7 @@ const QUESTIONS: Question[] = [
     type: 'open',
     field: 'evaluation',
     q: 'How do you typically evaluate seed-stage companies?',
-    help: 'e.g. revenue, customer count, growth rate, team, design partners — what matters most to you?',
+    help: "What matters most — and do you have any hard revenue or ARR requirements before you'll invest? (e.g. customer count, growth rate, team, design partners.)",
   },
   {
     n: '04',
@@ -47,7 +66,7 @@ const QUESTIONS: Question[] = [
     type: 'open',
     field: 'whyHardline',
     q: 'Based on your thesis, why does Hardline look like a fit?',
-    help: 'A portfolio company, an LP, the wedge, the market — whatever drew you in.',
+    help: 'A portfolio company, an LP, the wedge, the market — whatever drew you in. (Backed something like ServiceTitan, Procore, Fireflies, or Granola? Tell us.)',
   },
   {
     n: '05',
@@ -55,7 +74,7 @@ const QUESTIONS: Question[] = [
     type: 'tap',
     field: 'role',
     q: 'On a round like ours, do you typically…',
-    options: ['Lead', 'Co-lead', 'Follow a lead', 'Depends'],
+    options: ['Lead', 'Co-lead', 'Follow a lead', 'Depends — can do both'],
   },
   {
     n: '06',
@@ -67,12 +86,44 @@ const QUESTIONS: Question[] = [
   },
 ]
 
+const Check = () => (
+  <svg
+    viewBox="0 0 16 16"
+    className="h-3.5 w-3.5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 8.5l3.5 3.5L13 4" />
+  </svg>
+)
+
 export default function Qualifier() {
   const router = useRouter()
-  const [form, setForm] = useState<Partial<InvestorFormData>>({})
+  const [checkLow, setCheckLow] = useState(CHECK_LOW_DEFAULT)
+  const [checkHigh, setCheckHigh] = useState(CHECK_HIGH_DEFAULT)
+  const [form, setForm] = useState<Partial<InvestorFormData>>({
+    stage: [],
+    checkSize: formatRange(CHECK_LOW_DEFAULT, CHECK_HIGH_DEFAULT),
+  })
 
-  const update = (key: keyof InvestorFormData, value: string) => {
+  const update = (key: keyof InvestorFormData, value: unknown) => {
     setForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  const toggleStage = (s: string) => {
+    const current = form.stage ?? []
+    const updated = current.includes(s) ? current.filter(x => x !== s) : [...current, s]
+    update('stage', updated)
+  }
+
+  const onRangeChange = (low: number, high: number) => {
+    setCheckLow(low)
+    setCheckHigh(high)
+    update('checkSize', formatRange(low, high))
   }
 
   const handleSubmit = () => {
@@ -103,42 +154,82 @@ export default function Qualifier() {
 
         {/* Questions */}
         <div className="space-y-5">
-          {QUESTIONS.map(item => (
-            <div key={item.n} className="card-dark">
-              <div className="flex items-start justify-between gap-4">
-                <span className="text-sm font-bold text-mint">{item.n}</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-                  {item.type === 'tap' ? 'Tap' : 'Open'} · {item.tag}
-                </span>
-              </div>
+          {QUESTIONS.map(item => {
+            const typeLabel =
+              item.type === 'range' ? 'Slider' : item.type === 'open' ? 'Open' : 'Tap'
 
-              <h3 className="hl-h3 mt-3 text-[1.15rem] text-[color:var(--hl-text)]">{item.q}</h3>
-              {item.help && <p className="hl-body mt-1.5 text-sm">{item.help}</p>}
-
-              {item.type === 'tap' ? (
-                <div className="mt-4 flex flex-wrap gap-2.5">
-                  {item.options.map(opt => (
-                    <button
-                      key={opt}
-                      onClick={() => update(item.field, opt)}
-                      data-active={form[item.field] === opt}
-                      className="hl-chip px-4 py-2.5 text-sm"
-                    >
-                      {opt}
-                    </button>
-                  ))}
+            return (
+              <div key={item.n} className="card-dark">
+                <div className="flex items-start justify-between gap-4">
+                  <span className="text-sm font-bold text-mint">{item.n}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+                    {typeLabel} · {item.tag}
+                  </span>
                 </div>
-              ) : (
-                <textarea
-                  placeholder="Type your answer…"
-                  value={form[item.field] ?? ''}
-                  onChange={e => update(item.field, e.target.value)}
-                  rows={2}
-                  className="hl-input mt-4 resize-none"
-                />
-              )}
-            </div>
-          ))}
+
+                <h3 className="hl-h3 mt-3 text-[1.15rem] text-[color:var(--hl-text)]">{item.q}</h3>
+                {item.help && <p className="hl-body mt-1.5 text-sm">{item.help}</p>}
+
+                {item.type === 'multi' && (
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    {item.options.map(opt => {
+                      const active = form.stage?.includes(opt)
+                      return (
+                        <button
+                          key={opt}
+                          onClick={() => toggleStage(opt)}
+                          data-active={active}
+                          className="hl-chip inline-flex items-center gap-1.5 px-4 py-2.5 text-sm"
+                        >
+                          {active && <Check />}
+                          {opt}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {item.type === 'tap' && (
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    {item.options.map(opt => (
+                      <button
+                        key={opt}
+                        onClick={() => update(item.field, opt)}
+                        data-active={form.role === opt}
+                        className="hl-chip px-4 py-2.5 text-sm"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {item.type === 'range' && (
+                  <div className="mt-5">
+                    <RangeSlider
+                      min={CHECK_MIN}
+                      max={CHECK_MAX}
+                      step={CHECK_STEP}
+                      low={checkLow}
+                      high={checkHigh}
+                      onChange={onRangeChange}
+                      format={formatCheck}
+                    />
+                  </div>
+                )}
+
+                {item.type === 'open' && (
+                  <textarea
+                    placeholder="Type your answer…"
+                    value={form[item.field] ?? ''}
+                    onChange={e => update(item.field, e.target.value)}
+                    rows={2}
+                    className="hl-input mt-4 resize-none"
+                  />
+                )}
+              </div>
+            )
+          })}
         </div>
 
         {/* Footer */}

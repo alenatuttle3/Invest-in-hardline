@@ -7,8 +7,8 @@ export type InvestorFormData = {
   email?: string
 
   // The fit check (6 questions)
-  stage: string          // Q1 — stage they write their first check at
-  checkSize: string      // Q2 — typical check size
+  stage: string[]        // Q1 — stage(s) they write their first check at (multi)
+  checkSize: string      // Q2 — typical check size range
   evaluation: string     // Q3 — how they evaluate seed-stage companies (open)
   whyHardline: string    // Q4 — why Hardline looks like a fit (open)
   role: string           // Q5 — lead capability
