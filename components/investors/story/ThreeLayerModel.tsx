@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useEffect, useRef, useState, type ComponentType } from 'react'
-import { ChevronDown, RadioTower, Route, Waypoints, type LucideProps } from 'lucide-react'
+import { RadioTower, Route, Waypoints, type LucideProps } from 'lucide-react'
 
 type DevicePill = { label: string; status: 'live' | 'beta' }
 type Motif = 'wave' | 'map' | 'sync'
@@ -19,13 +19,12 @@ const LAYERS: Layer[] = [
   {
     index: '01',
     title: 'Passive capture layer',
-    body: 'No recording, no new phone number. Time-to-value under 5 minutes for the end user — the only app in the world that does this.',
+    body: 'Inbound and outbound calls, on-site meetings, photos, and video — captured with no recording and no new phone number. Time-to-value under 5 minutes, the only app in the world that does this.',
     Icon: RadioTower,
     motif: 'wave',
     pills: [
       { label: 'iOS · live', status: 'live' },
       { label: 'Android · live', status: 'live' },
-      { label: 'iPad & Mac', status: 'live' },
       { label: 'Meta glasses · beta', status: 'beta' },
       { label: 'Walkie-talkies · beta', status: 'beta' },
     ],
@@ -257,13 +256,6 @@ export default function ThreeLayerModel() {
                     </>
                   )}
                 </span>
-                <ChevronDown
-                  className="-mt-1 h-4 w-4 text-mint transition-opacity duration-500"
-                  style={{
-                    opacity: revealed ? 1 : 0,
-                    transitionDelay: `${delay((i + 1) * STAGGER)}ms`,
-                  }}
-                />
               </div>
             )}
           </Fragment>
