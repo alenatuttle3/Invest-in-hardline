@@ -462,6 +462,49 @@ body {
   }
 }
 
+/* ==========================================================================
+   Story — three-layer "data flow" demo (decorative, runs alongside the copy)
+   Call (waveform) -> insights (knowledge map) -> data into systems of record.
+   ========================================================================== */
+@keyframes hlWave {
+  0%, 100% { transform: scaleY(0.3); }
+  50%      { transform: scaleY(1); }
+}
+@keyframes hlFlowDown {
+  0%   { transform: translateY(-4px); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(34px); opacity: 0; }
+}
+@keyframes hlFlowRight {
+  0%   { transform: translateX(0);    opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateX(26px); opacity: 0; }
+}
+@keyframes hlNodePulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.82); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+@keyframes hlLinkPulse {
+  0%, 100% { stroke-opacity: 0.15; }
+  50%      { stroke-opacity: 0.85; }
+}
+
+.hl-wave-bar   { transform-origin: center bottom; animation: hlWave 1.2s ease-in-out infinite; }
+.hl-flow-dot   { animation: hlFlowDown 1.8s linear infinite; }
+.hl-flow-dot-x { animation: hlFlowRight 1.6s linear infinite; }
+.hl-node       { transform-box: fill-box; transform-origin: center; animation: hlNodePulse 2.2s ease-in-out infinite; }
+.hl-link       { animation: hlLinkPulse 2.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-wave-bar { animation: none; transform: scaleY(0.6); }
+  .hl-flow-dot,
+  .hl-flow-dot-x { animation: none; opacity: 0; }
+  .hl-node { animation: none; opacity: 1; transform: none; }
+  .hl-link { animation: none; stroke-opacity: 0.7; }
+}
+
 /* Dual-thumb range slider (check-size range) */
 .hl-range-dual {
   position: relative;
