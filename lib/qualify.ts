@@ -1,23 +1,18 @@
 // Types for the investor qualifier form
 
 export type InvestorFormData = {
-  // Identity
-  name: string
-  firm: string
-  email: string
+  // Identity (gate removed for testing — re-add later)
+  name?: string
+  firm?: string
+  email?: string
 
-  // Thesis
-  constructionThesis: string         // Free text — what's their lens on construction tech?
-  whyHardline: string                // Why did they reach out specifically?
-
-  // Check mechanics
-  role: 'lead' | 'follow' | 'either'
-  checkSize: string                  // e.g. "$500K–$1M", "$1M–$3M"
-  stage: string[]                    // pre-seed, seed, series-a
-
-  // Hard requirements
-  revenueRequirement: string         // Free text — do they need ARR, # of customers, etc.
-  hardNos: string                    // Free text — anything that would disqualify
+  // The fit check (6 questions)
+  stage: string          // Q1 — stage they write their first check at
+  checkSize: string      // Q2 — typical check size
+  evaluation: string     // Q3 — how they evaluate seed-stage companies (open)
+  whyHardline: string    // Q4 — why Hardline looks like a fit (open)
+  role: string           // Q5 — lead capability
+  valueAdd: string       // Q6 — what they actually contribute (open)
 }
 
 // Routing decision returned after form submission
@@ -28,17 +23,8 @@ export type QualificationResult =
 
 // Hardcoded routing rules — will be replaced with AI-driven logic later
 export function qualifyInvestor(data: InvestorFormData): QualificationResult {
-  // Hard no: too large a check size expectation for seed
-  if (data.checkSize === '$5M+') {
-    return {
-      status: 'not_a_fit',
-      reason: "We're raising a seed round and your typical check size is above our target range.",
-      followUpDate: '12 months',
-    }
-  }
-
-  // Hard no: won't lead
-  if (data.role === 'follow') {
+  // Hard no: won't lead — we're looking for a lead for this round
+  if (data.role === 'Follow a lead') {
     return {
       status: 'not_a_fit',
       reason: "We're actively looking for a lead investor for this round.",
@@ -46,12 +32,9 @@ export function qualifyInvestor(data: InvestorFormData): QualificationResult {
     }
   }
 
-  // Hard no: has specific revenue requirements we can't meet
-  // TODO: add logic once revenue requirements are known
-
   // Default: qualified
   return {
     status: 'qualified',
-    message: "You're a fit. Here's more about Hardline — then let's find time to talk.",
+    message: "You're a fit. Here's the story — then let's find time to talk.",
   }
 }
