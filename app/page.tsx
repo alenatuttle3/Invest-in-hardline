@@ -5,18 +5,37 @@ import { useRouter } from 'next/navigation'
 import type { InvestorFormData } from '@/lib/qualify'
 import { qualifyInvestor } from '@/lib/qualify'
 
-const CHECK_SIZES = ['Under $250K', '$250K–$500K', '$500K–$1M', '$1M–$3M', '$3M–$5M', '$5M+']
 const STAGES = ['Pre-seed', 'Seed', 'Series A']
+
+// Check-size slider config
+const CHECK_MIN = 25_000
+const CHECK_MAX = 5_000_000
+const CHECK_STEP = 25_000
+const CHECK_DEFAULT = 500_000
+
+const formatCheck = (v: number) =>
+  v >= CHECK_MAX
+    ? '$5M+'
+    : v >= 1_000_000
+      ? `$${(v / 1_000_000).toFixed(2).replace(/\.?0+$/, '')}M`
+      : `$${Math.round(v / 1000)}K`
 
 export default function QualifierPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const [checkSizeUSD, setCheckSizeUSD] = useState(CHECK_DEFAULT)
   const [form, setForm] = useState<Partial<InvestorFormData>>({
     stage: [],
+    checkSize: formatCheck(CHECK_DEFAULT),
   })
 
   const update = (key: keyof InvestorFormData, value: unknown) => {
     setForm(prev => ({ ...prev, [key]: value }))
+  }
+
+  const onCheckChange = (v: number) => {
+    setCheckSizeUSD(v)
+    update('checkSize', formatCheck(v))
   }
 
   const toggleStage = (s: string) => {
@@ -56,7 +75,7 @@ export default function QualifierPage() {
 
         {/* Progress */}
         <div className="flex gap-1.5 mb-10">
-          {[1, 2, 3].map(n => (
+          {[1, 2].map(n => (
             <div
               key={n}
               className={`h-1 flex-1 rounded-full transition-all ${
@@ -66,45 +85,8 @@ export default function QualifierPage() {
           ))}
         </div>
 
-        {/* Step 1 — Who are you */}
+        {/* Step 1 — Thesis + mechanics */}
         {step === 1 && (
-          <div className="space-y-6">
-            <h2 className="hl-h3">Who are you?</h2>
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Your name"
-                value={form.name ?? ''}
-                onChange={e => update('name', e.target.value)}
-                className="hl-input"
-              />
-              <input
-                type="text"
-                placeholder="Firm or fund"
-                value={form.firm ?? ''}
-                onChange={e => update('firm', e.target.value)}
-                className="hl-input"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={form.email ?? ''}
-                onChange={e => update('email', e.target.value)}
-                className="hl-input"
-              />
-            </div>
-            <button
-              onClick={() => setStep(2)}
-              disabled={!form.name || !form.firm || !form.email}
-              className="btn-primary mt-2 w-full"
-            >
-              Continue
-            </button>
-          </div>
-        )}
-
-        {/* Step 2 — Thesis + mechanics */}
-        {step === 2 && (
           <div className="space-y-6">
             <h2 className="hl-h3">Your thesis</h2>
 
@@ -143,17 +125,26 @@ export default function QualifierPage() {
               <label className="section-label-dark block mb-2">
                 Typical check size
               </label>
-              <div className="grid grid-cols-3 gap-2">
-                {CHECK_SIZES.map(size => (
-                  <button
-                    key={size}
-                    onClick={() => update('checkSize', size)}
-                    data-active={form.checkSize === size}
-                    className="hl-chip py-2 px-3 text-xs"
-                  >
-                    {size}
-                  </button>
-                ))}
+              <div className="card-dark !p-5">
+                <div className="flex items-baseline justify-between mb-4">
+                  <span className="text-2xl font-medium text-mint">{formatCheck(checkSizeUSD)}</span>
+                  <span className="hl-body text-xs">per check</span>
+                </div>
+                <input
+                  type="range"
+                  min={CHECK_MIN}
+                  max={CHECK_MAX}
+                  step={CHECK_STEP}
+                  value={checkSizeUSD}
+                  onChange={e => onCheckChange(Number(e.target.value))}
+                  className="hl-range"
+                  aria-label="Typical check size"
+                  aria-valuetext={formatCheck(checkSizeUSD)}
+                />
+                <div className="flex justify-between mt-2 hl-body text-[11px]">
+                  <span>{formatCheck(CHECK_MIN)}</span>
+                  <span>$5M+</span>
+                </div>
               </div>
             </div>
 
@@ -175,23 +166,18 @@ export default function QualifierPage() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="btn-outline-dark">
-                Back
-              </button>
-              <button
-                onClick={() => setStep(3)}
-                disabled={!form.constructionThesis || !form.role || !form.checkSize}
-                className="btn-primary flex-1"
-              >
-                Continue
-              </button>
-            </div>
+            <button
+              onClick={() => setStep(2)}
+              disabled={!form.constructionThesis || !form.role}
+              className="btn-primary w-full"
+            >
+              Continue
+            </button>
           </div>
         )}
 
-        {/* Step 3 — Hard requirements */}
-        {step === 3 && (
+        {/* Step 2 — Hard requirements */}
+        {step === 2 && (
           <div className="space-y-6">
             <h2 className="hl-h3">Any hard requirements?</h2>
             <p className="hl-body text-sm">
@@ -238,7 +224,7 @@ export default function QualifierPage() {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={() => setStep(2)} className="btn-outline-dark">
+              <button onClick={() => setStep(1)} className="btn-outline-dark">
                 Back
               </button>
               <button onClick={handleSubmit} className="btn-primary flex-1">

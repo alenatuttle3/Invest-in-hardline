@@ -351,6 +351,39 @@ body {
       0 0 0 1px rgba(89, 175, 140, 0.5);
   }
 
+  /* Range slider — inset track, raised mint thumb */
+  .hl-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--hl-base);
+    box-shadow: inset 3px 3px 7px var(--hl-inset-dark),
+      inset -3px -3px 7px var(--hl-inset-light);
+    cursor: pointer;
+  }
+  .hl-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--hl-mint);
+    border: 3px solid var(--hl-base);
+    box-shadow: 3px 3px 8px var(--hl-sd), -3px -3px 8px var(--hl-sl);
+    cursor: pointer;
+  }
+  .hl-range::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--hl-base);
+    border-radius: 50%;
+    background: var(--hl-mint);
+    box-shadow: 3px 3px 8px var(--hl-sd), -3px -3px 8px var(--hl-sl);
+    cursor: pointer;
+  }
+
   /* Selectable chip (raised; pressed when active) */
   .hl-chip {
     background: var(--hl-base);
