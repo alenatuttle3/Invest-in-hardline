@@ -53,6 +53,18 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Visible focus on every interactive element */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--hl-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 body {
   font-family: var(--hl-font);
   background-color: var(--hl-base);
