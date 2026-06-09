@@ -4,20 +4,20 @@ const CARDS = [
   {
     n: '1',
     title: 'Quick fit check',
-    duration: '~90 SEC',
-    body: 'A few questions, both directions. We make sure we’re a real fit before either of us blocks 30 minutes.',
+    duration: '30 seconds',
+    body: "A few questions to make sure we're a real fit before either of us blocks 30 minutes.",
   },
   {
     n: '2',
     title: 'The story',
-    duration: '~4 MIN',
+    duration: '5 min',
     body: 'Short videos: why we built this, what it actually does, and the traction behind it. No 40-slide deck to sit through.',
   },
   {
     n: '3',
-    title: 'Ask anything',
-    duration: 'SELF-PACED',
-    body: 'The questions every investor asks us — moat, pricing, GTM — answered. Dig into whatever you’d grill us on live.',
+    title: 'The deep dive',
+    duration: '30 min',
+    body: 'Set up time to dig in deep.',
   },
 ]
 

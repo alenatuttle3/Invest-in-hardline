@@ -1,6 +1,6 @@
 const PARAGRAPHS = [
-  "We're an AI-first company — which means we pay close attention to the repetitive, tedious work nobody should be doing by hand. Fundraising turned out to be exactly that: 10–15 hours a month giving the same intro pitch, just to figure out whether it's worth building a relationship.",
-  "So, naturally, we automated it. Go through this at your own pace — and if you want to dig in after, grab a time on our calendar. Let's dig in.",
+  "We're an AI-first company, which means we pay close attention to the repetitive, tedious work taking hours every month. Fundraising turned out to be exactly that: 10–15 hours a month giving the same intro pitch, just to figure out whether it's worth building a relationship.",
+  'So, naturally, we automated it. Go through this at your own pace and if you want to dig in after, grab a time on our calendar.',
 ]
 
 const SIGNATURE = '— Alena & Karly · Co-founders, Hardline'
