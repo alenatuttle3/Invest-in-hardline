@@ -129,7 +129,7 @@ export default function Qualifier() {
     sessionStorage.setItem('investorForm', JSON.stringify(form))
 
     if (result.status === 'qualified') {
-      router.push('/portal')
+      router.push('/investors/story')
     } else {
       router.push('/not-a-fit')
     }
