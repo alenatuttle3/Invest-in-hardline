@@ -7,18 +7,21 @@ const SIGNATURE = '— Alena & Karly · Co-founders, Hardline'
 
 export default function WhyWeDoThis() {
   return (
-    <section className="spec-frame">
-      <span className="spec-marker hidden sm:block">③ Why we’re doing this</span>
+    <section className="hl-dark bg-[color:var(--hl-base)]">
+      <div className="section-container max-w-3xl py-20 md:py-28">
+        <p className="section-label mb-6">Why we&apos;re doing this</p>
 
-      <p className="eyebrow mb-6">Why we’re doing this</p>
-
-      <div className="max-w-2xl space-y-4 leading-relaxed text-[color:var(--text-2)]">
-        {PARAGRAPHS.map((p, i) => (
-          <p key={i}>{p}</p>
-        ))}
+        <div className="card-dark border-l-2 border-mint">
+          <div className="space-y-5 leading-relaxed text-[color:var(--hl-text)]">
+            {PARAGRAPHS.map((p, i) => (
+              <p key={i}>{p}</p>
+            ))}
+          </div>
+          <p className="mt-8 text-sm uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+            {SIGNATURE}
+          </p>
+        </div>
       </div>
-
-      <p className="mono mt-7 text-[12px] tracking-wider text-[color:var(--muted)]">{SIGNATURE}</p>
     </section>
   )
 }

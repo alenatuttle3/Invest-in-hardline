@@ -1,3 +1,5 @@
+const HEADING = "Here's how the next five minutes go."
+
 const CARDS = [
   {
     n: '1',
@@ -21,24 +23,27 @@ const CARDS = [
 
 export default function WhatToExpect() {
   return (
-    <section className="spec-frame">
-      <span className="spec-marker hidden sm:block">② What to expect</span>
+    <section className="hl-light bg-[color:var(--hl-base)]">
+      <div className="section-container py-20 md:py-28">
+        <p className="section-label mb-4">What to expect</p>
+        <h2 className="hl-h2 mb-12 max-w-xl text-[color:var(--hl-text)]">{HEADING}</h2>
 
-      <p className="eyebrow mb-6">What to expect</p>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {CARDS.map(c => (
-          <div key={c.n} className="spec-card flex flex-col gap-3">
-            <span className="spec-num">{c.n}</span>
-            <div>
-              <h3 className="font-semibold text-[color:var(--text)]">{c.title}</h3>
-              <p className="mono mt-1 text-[11px] tracking-wider text-[color:var(--muted)]">
-                {c.duration}
-              </p>
+        <div className="grid gap-6 md:grid-cols-3">
+          {CARDS.map(c => (
+            <div key={c.n} className="card flex flex-col gap-4">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-mint font-semibold text-white shadow-neu-sm">
+                {c.n}
+              </span>
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="hl-h3 text-[color:var(--hl-text)]">{c.title}</h3>
+                <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-mint">
+                  {c.duration}
+                </span>
+              </div>
+              <p className="leading-relaxed text-hardline-800">{c.body}</p>
             </div>
-            <p className="text-sm leading-relaxed text-[color:var(--text-2)]">{c.body}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )

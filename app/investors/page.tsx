@@ -15,15 +15,15 @@ export const metadata: Metadata = {
 
 export default function InvestorsPage() {
   return (
-    <main className="min-h-screen px-3 py-4 sm:px-4 sm:py-6">
-      <div className="mx-auto max-w-3xl animate-fade-up space-y-2.5 rounded-[20px] border border-[color:var(--border)] p-2.5 sm:space-y-3.5 sm:p-3.5">
-        <Navbar />
+    <>
+      <Navbar />
+      <main>
         <Hero />
         <WhatToExpect />
         <WhyWeDoThis />
         <InvestorsCTA />
-        <Footer />
-      </div>
-    </main>
+      </main>
+      <Footer />
+    </>
   )
 }
