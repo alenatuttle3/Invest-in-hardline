@@ -58,7 +58,7 @@ export default function Qualifier() {
   }
 
   return (
-    <main className="hl-dark min-h-screen flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
       <div className="w-full max-w-xl animate-fade-up">
 
         {/* Header */}
@@ -79,7 +79,7 @@ export default function Qualifier() {
             <div
               key={n}
               className={`h-1 flex-1 rounded-full transition-all ${
-                n <= step ? 'bg-mint' : 'bg-hardline-950/60'
+                n <= step ? 'bg-[color:var(--hl-text)]' : 'bg-[color:var(--hl-hairline)]'
               }`}
             />
           ))}
@@ -127,7 +127,7 @@ export default function Qualifier() {
               </label>
               <div className="card-dark !p-5">
                 <div className="flex items-baseline justify-between mb-4">
-                  <span className="text-2xl font-medium text-mint">{formatCheck(checkSizeUSD)}</span>
+                  <span className="text-2xl font-medium text-[color:var(--hl-text)]">{formatCheck(checkSizeUSD)}</span>
                   <span className="hl-body text-xs">per check</span>
                 </div>
                 <input
@@ -234,7 +234,7 @@ export default function Qualifier() {
           </div>
         )}
 
-        <p className="mt-8 text-xs text-hardline-300 text-center">
+        <p className="mt-8 text-xs text-[color:var(--hl-text-muted)] text-center">
           Your answers are shared only with Alena. This page is not indexed by search engines.
         </p>
       </div>

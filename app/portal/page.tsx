@@ -46,7 +46,7 @@ export default function PortalPage() {
   }, [])
 
   return (
-    <main className="hl-dark min-h-screen">
+    <main className="min-h-screen">
 
       {/* Nav */}
       <nav className="px-8 py-5 flex items-center justify-between border-b border-[color:var(--hl-hairline)]">
@@ -77,7 +77,7 @@ export default function PortalPage() {
           <p className="section-label-dark mb-4">From the founder</p>
           <div className="w-full aspect-video card-dark flex items-center justify-center">
             {/* TODO: Drop Loom embed here */}
-            <p className="text-hardline-300 text-sm">[Founder video — Loom embed goes here]</p>
+            <p className="text-[color:var(--hl-text-muted)] text-sm">[Founder video — Loom embed goes here]</p>
           </div>
           <p className="hl-body text-xs mt-3">~4 minutes — company story, problem, and where we&apos;re going</p>
         </section>
@@ -88,7 +88,7 @@ export default function PortalPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {TRACTION_STATS.map(stat => (
               <div key={stat.label} className="card-dark p-5">
-                <p className="text-2xl font-medium text-mint">{stat.value}</p>
+                <p className="text-2xl font-medium text-[color:var(--hl-text)]">{stat.value}</p>
                 <p className="hl-body text-xs mt-1">{stat.label}</p>
               </div>
             ))}
@@ -100,7 +100,7 @@ export default function PortalPage() {
           <p className="section-label-dark mb-4">Product</p>
           <div className="w-full aspect-video card-dark flex items-center justify-center">
             {/* TODO: Drop product demo video here */}
-            <p className="text-hardline-300 text-sm">[Product demo — 60-90 second clip goes here]</p>
+            <p className="text-[color:var(--hl-text-muted)] text-sm">[Product demo — 60-90 second clip goes here]</p>
           </div>
         </section>
 
@@ -115,7 +115,7 @@ export default function PortalPage() {
                   className="w-full text-left px-5 py-4 flex justify-between items-center"
                 >
                   <span className="text-sm font-medium">{item.q}</span>
-                  <span className="text-mint text-lg leading-none">{openFaq === i ? '−' : '+'}</span>
+                  <span className="text-[color:var(--hl-text)] text-lg leading-none">{openFaq === i ? '−' : '+'}</span>
                 </button>
                 {openFaq === i && (
                   <div className="px-5 pb-4 hl-body text-sm border-t border-[color:var(--hl-hairline)] pt-4">
