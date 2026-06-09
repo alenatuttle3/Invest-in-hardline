@@ -21,6 +21,31 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Design system
+
+This portal follows the **Hardline design system** (`DESIGN.md`):
+
+- **Neumorphic (soft-UI)** surfaces — soft extruded shadows on a single-hue
+  surface, switched between a dark forest (`#1F3F33`) and light sage (`#DDE6E2`)
+  via `.hl-dark` / `.hl-light` token aliases.
+- **One accent** — mint (`#59AF8C`) for CTAs, eyebrows, active states, stats.
+- **Montserrat only** — loaded in `app/layout.tsx` via `next/font`.
+- Tokens, neumorphic components (`.btn-*`, `.card`, `.hl-input`, `.hl-chip`,
+  `.icon-neumorph`), and motion live in `styles/globals.css`; the color and
+  neumorphic shadow scales live in `tailwind.config.js`.
+
+### File structure
+
+```
+app/
+  layout.tsx        Montserrat + theme wiring + noindex metadata
+  page.tsx          Qualifier form (3 steps)
+  portal/page.tsx   Unlocked investor content
+  not-a-fit/page.tsx  Graceful exit
+lib/qualify.ts      Routing logic + form types
+styles/globals.css  Design tokens + neumorphic components
+```
+
 ## Deploying
 
 This is a Next.js app. Recommended: deploy to Vercel, set a custom path on hardlineapp.com (e.g. `/raise` or a subdomain `investors.hardlineapp.com`).

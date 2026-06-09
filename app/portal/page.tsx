@@ -46,51 +46,50 @@ export default function PortalPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-[#F5F2ED]">
+    <main className="hl-dark min-h-screen">
 
       {/* Nav */}
-      <nav className="px-8 py-5 flex items-center justify-between border-b border-[#1A1A1A]">
-        <p className="text-sm font-semibold tracking-tight">Hardline AI</p>
-        <span className="text-xs text-[#8A8A8A]">Investor Portal — Confidential</span>
+      <nav className="px-8 py-5 flex items-center justify-between border-b border-[color:var(--hl-hairline)]">
+        <p className="text-sm font-semibold tracking-tight">Hardline</p>
+        <span className="section-label-dark">Investor Portal — Confidential</span>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-16 space-y-20">
 
         {/* Hero */}
-        <section>
+        <section className="animate-fade-up">
           {investorName && (
-            <p className="text-xs text-[#8A8A8A] uppercase tracking-widest mb-4">
-              Welcome, {investorName}
-            </p>
+            <p className="section-label-dark mb-4">Welcome, {investorName}</p>
           )}
-          <h1 className="text-4xl font-semibold leading-tight mb-6">
-            Construction runs on phone calls.<br />
+          <h1 className="hl-h1 text-4xl md:text-5xl mb-6">
+            <span className="hl-gradient-text">Construction runs on phone calls.</span>
+            <br />
             We capture what happens on them.
           </h1>
-          <p className="text-[#8A8A8A] leading-relaxed max-w-xl">
+          <p className="hl-body max-w-xl">
             {/* TODO: 2-sentence company summary from Granola/pitch calls */}
-            [TODO: Pull 2-sentence company summary — what Hardline does, who it's for, why it matters now]
+            [TODO: Pull 2-sentence company summary — what Hardline does, who it&apos;s for, why it matters now]
           </p>
         </section>
 
         {/* Founder video */}
         <section>
-          <p className="text-xs text-[#8A8A8A] uppercase tracking-widest mb-4">From the founder</p>
-          <div className="w-full aspect-video bg-[#141414] border border-[#2A2A2A] rounded-lg flex items-center justify-center">
+          <p className="section-label-dark mb-4">From the founder</p>
+          <div className="w-full aspect-video card-dark flex items-center justify-center">
             {/* TODO: Drop Loom embed here */}
-            <p className="text-[#4A4A4A] text-sm">[Founder video — Loom embed goes here]</p>
+            <p className="text-hardline-300 text-sm">[Founder video — Loom embed goes here]</p>
           </div>
-          <p className="text-xs text-[#8A8A8A] mt-3">~4 minutes — company story, problem, and where we're going</p>
+          <p className="hl-body text-xs mt-3">~4 minutes — company story, problem, and where we&apos;re going</p>
         </section>
 
         {/* Traction */}
         <section>
-          <p className="text-xs text-[#8A8A8A] uppercase tracking-widest mb-6">Traction</p>
+          <p className="section-label-dark mb-6">Traction</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {TRACTION_STATS.map(stat => (
-              <div key={stat.label} className="bg-[#141414] border border-[#2A2A2A] rounded-lg p-5">
-                <p className="text-2xl font-semibold text-[#E85A1B]">{stat.value}</p>
-                <p className="text-xs text-[#8A8A8A] mt-1">{stat.label}</p>
+              <div key={stat.label} className="card-dark p-5">
+                <p className="text-2xl font-medium text-mint">{stat.value}</p>
+                <p className="hl-body text-xs mt-1">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -98,28 +97,28 @@ export default function PortalPage() {
 
         {/* Product demo */}
         <section>
-          <p className="text-xs text-[#8A8A8A] uppercase tracking-widest mb-4">Product</p>
-          <div className="w-full aspect-video bg-[#141414] border border-[#2A2A2A] rounded-lg flex items-center justify-center">
+          <p className="section-label-dark mb-4">Product</p>
+          <div className="w-full aspect-video card-dark flex items-center justify-center">
             {/* TODO: Drop product demo video here */}
-            <p className="text-[#4A4A4A] text-sm">[Product demo — 60-90 second clip goes here]</p>
+            <p className="text-hardline-300 text-sm">[Product demo — 60-90 second clip goes here]</p>
           </div>
         </section>
 
         {/* FAQ */}
         <section>
-          <p className="text-xs text-[#8A8A8A] uppercase tracking-widest mb-6">Common questions</p>
-          <div className="space-y-2">
+          <p className="section-label-dark mb-6">Common questions</p>
+          <div className="space-y-3">
             {FAQ_ITEMS.map((item, i) => (
-              <div key={i} className="border border-[#2A2A2A] rounded-lg overflow-hidden">
+              <div key={i} className="card-dark !p-0 overflow-hidden">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left px-5 py-4 flex justify-between items-center hover:bg-[#141414] transition-colors"
+                  className="w-full text-left px-5 py-4 flex justify-between items-center"
                 >
                   <span className="text-sm font-medium">{item.q}</span>
-                  <span className="text-[#8A8A8A] text-lg">{openFaq === i ? '−' : '+'}</span>
+                  <span className="text-mint text-lg leading-none">{openFaq === i ? '−' : '+'}</span>
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-[#8A8A8A] leading-relaxed border-t border-[#2A2A2A] pt-4">
+                  <div className="px-5 pb-4 hl-body text-sm border-t border-[color:var(--hl-hairline)] pt-4">
                     {item.a}
                   </div>
                 )}
@@ -129,17 +128,17 @@ export default function PortalPage() {
         </section>
 
         {/* CTA */}
-        <section className="border-t border-[#2A2A2A] pt-12">
-          <h2 className="text-xl font-semibold mb-3">Ready to connect?</h2>
-          <p className="text-[#8A8A8A] text-sm mb-6">
-            Book a 30-minute call with Alena. Come with questions — I'll come with numbers.
+        <section className="border-t border-[color:var(--hl-hairline)] pt-12">
+          <h2 className="hl-h3 mb-3">Ready to connect?</h2>
+          <p className="hl-body text-sm mb-6">
+            Book a 30-minute call with Alena. Come with questions — I&apos;ll come with numbers.
           </p>
           {/* TODO: Replace with Calendly/Cal.com embed */}
           <a
             href="https://cal.com/alena-hardline" // TODO: update link
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block bg-[#E85A1B] text-white px-8 py-3 rounded text-sm font-medium hover:bg-[#d14e14] transition-colors"
+            className="btn-primary"
           >
             Book a call →
           </a>

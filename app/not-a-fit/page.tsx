@@ -17,29 +17,29 @@ export default function NotAFitPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-[#0A0A0A] text-[#F5F2ED] flex items-center justify-center px-6">
-      <div className="max-w-md text-center space-y-6">
-        <p className="text-xs text-[#8A8A8A] uppercase tracking-widest">Hardline AI</p>
-        <h1 className="text-2xl font-semibold leading-snug">
+    <main className="hl-dark min-h-screen flex items-center justify-center px-6">
+      <div className="max-w-md text-center space-y-6 animate-fade-up">
+        <p className="section-label-dark">Hardline</p>
+        <h1 className="hl-h2 !text-2xl">
           Probably not the right fit right now
         </h1>
         {reason && (
-          <p className="text-[#8A8A8A] text-sm leading-relaxed">{reason}</p>
+          <p className="hl-body text-sm">{reason}</p>
         )}
         {followUpDate && (
-          <p className="text-[#8A8A8A] text-sm">
+          <p className="hl-body text-sm">
             Check back in {followUpDate} — things move fast.
           </p>
         )}
-        <p className="text-[#4A4A4A] text-xs leading-relaxed">
-          This isn't a hard no forever. If the timing or parameters change, reach out directly to{' '}
-          <a href="mailto:alena@hardlineapp.com" className="text-[#E85A1B] hover:underline">
+        <p className="text-hardline-300 text-xs leading-relaxed">
+          This isn&apos;t a hard no forever. If the timing or parameters change, reach out directly to{' '}
+          <a href="mailto:alena@hardlineapp.com" className="text-mint hover:underline">
             alena@hardlineapp.com
           </a>
         </p>
         <Link
           href="https://hardlineapp.com"
-          className="inline-block text-xs text-[#8A8A8A] hover:text-[#F5F2ED] transition-colors mt-4"
+          className="inline-block text-xs text-hardline-300 hover:text-[color:var(--hl-text)] transition-colors mt-4"
         >
           ← Back to hardlineapp.com
         </Link>
