@@ -5,11 +5,13 @@ A gated, async-first investor funnel. Qualifies inbound investors before they ge
 ## Flow
 
 ```
-/ (Qualifier form, 3 steps)
-  ↓ qualified
-/portal (Unlocked content — video, traction, FAQ, calendar)
-  ↓ not qualified
-/not-a-fit (Graceful exit with reason + follow-up timeline)
+/investors            Landing page (the interactive "first call")
+  ↓
+/investors/qualifier  Stage 1 — the fit check (6 questions)
+  ↓ qualified                        ↓ not a fit
+/investors/story      Stage 2       /not-a-fit (graceful exit + follow-up)
+  ↓
+/investors/qa         Stage 3 — Q&A, then book a call
 ```
 
 ## Running locally
@@ -38,12 +40,16 @@ This portal follows the **Hardline design system** (`DESIGN.md`):
 
 ```
 app/
-  layout.tsx        Montserrat + theme wiring + noindex metadata
-  page.tsx          Qualifier form (3 steps)
-  portal/page.tsx   Unlocked investor content
-  not-a-fit/page.tsx  Graceful exit
-lib/qualify.ts      Routing logic + form types
-styles/globals.css  Design tokens + neumorphic components
+  layout.tsx                  Montserrat + theme wiring + noindex metadata
+  page.tsx                    Redirects to /investors
+  investors/page.tsx          Landing page
+  investors/qualifier/page.tsx  Stage 1 — the fit check
+  investors/story/page.tsx    Stage 2 — the story
+  investors/qa/page.tsx       Stage 3 — Q&A (placeholder)
+  not-a-fit/page.tsx          Graceful exit
+lib/qualify.ts                Routing logic + form types
+lib/tier.ts                   Investor tier (gates the booking CTA)
+styles/globals.css            Design tokens + neumorphic components
 ```
 
 ## Deploying
