@@ -1,5 +1,5 @@
 const SUBCOPY =
-  "We're Hardline — the voice-first layer for construction. Rather than give the same intro pitch for the hundredth time, we built it once. This is our first call, made interactive — you drive."
+  "We're Hardline, the first voice operations platform for the field. Rather than give the same intro pitch for the hundredth time, we built it once."
 
 export default function Hero() {
   return (
