@@ -446,14 +446,16 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
-    // Node labels are real (selectable) DOM positioned over the canvas.
+    // Node labels are real (selectable) DOM positioned over the canvas,
+    // centered above each dot so edges (which run dot-to-dot) pass under
+    // the text instead of through it.
     function updateLabels(alphas: number[], s1: number) {
       const reveal = clamp((s1 - 0.5) * 2)
       nodes.forEach((n, i) => {
         const el = labelEls[i]
         if (!el) return
         el.style.opacity = (reveal * alphas[i]).toFixed(3)
-        el.style.transform = `translate(${(n.px + n.r + 6).toFixed(1)}px, ${(n.py - 7).toFixed(1)}px)`
+        el.style.transform = `translate(${n.px.toFixed(1)}px, ${(n.py - n.r - 24).toFixed(1)}px) translateX(-50%)`
       })
     }
 
