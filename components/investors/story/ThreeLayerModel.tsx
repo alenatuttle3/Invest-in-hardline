@@ -3,7 +3,6 @@
 import { Fragment, useEffect, useRef, useState, type ComponentType } from 'react'
 import { RadioTower, Route, Waypoints, type LucideProps } from 'lucide-react'
 
-type DevicePill = { label: string; status: 'live' | 'beta' }
 type Motif = 'wave' | 'map' | 'sync'
 
 type Layer = {
@@ -12,22 +11,15 @@ type Layer = {
   body: string
   Icon: ComponentType<LucideProps>
   motif: Motif
-  pills?: DevicePill[]
 }
 
 const LAYERS: Layer[] = [
   {
     index: '01',
     title: 'Passive capture layer',
-    body: 'Inbound and outbound calls, on-site meetings, photos, and video — captured with no recording and no new phone number. Time-to-value under 5 minutes, the only app in the world that does this.',
+    body: 'Hardline passively captures inbound and outbound calls, on-site meetings, photos, and video — captured without recording or a new phone number. Time-to-value under 5 minutes, the only app in the field that does this. Live on iOS and Android, in beta on Meta glasses and walkie-talkies.',
     Icon: RadioTower,
     motif: 'wave',
-    pills: [
-      { label: 'iOS · live', status: 'live' },
-      { label: 'Android · live', status: 'live' },
-      { label: 'Meta glasses · beta', status: 'beta' },
-      { label: 'Walkie-talkies · beta', status: 'beta' },
-    ],
   },
   {
     index: '02',
@@ -143,32 +135,6 @@ function StageMotif({ motif }: { motif: Motif }) {
   return <SyncMotif />
 }
 
-function DevicePillRow({ pills }: { pills: DevicePill[] }) {
-  return (
-    <div className="mt-5 flex flex-wrap gap-2">
-      {pills.map(pill =>
-        pill.status === 'live' ? (
-          <span
-            key={pill.label}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--hl-base)] px-3 py-1 text-xs font-medium text-[color:var(--hl-text)] shadow-neu-sm"
-          >
-            <span className="h-1.5 w-1.5 rounded-full bg-mint" aria-hidden="true" />
-            {pill.label}
-          </span>
-        ) : (
-          <span
-            key={pill.label}
-            className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-mint/60 px-3 py-1 text-xs font-medium text-hardline-800"
-          >
-            <span className="h-1.5 w-1.5 rounded-full ring-1 ring-inset ring-mint/70" aria-hidden="true" />
-            {pill.label}
-          </span>
-        ),
-      )}
-    </div>
-  )
-}
-
 export default function ThreeLayerModel() {
   const ref = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(false)
@@ -232,30 +198,33 @@ export default function ThreeLayerModel() {
                 </div>
               </div>
 
-              {layer.pills && <DevicePillRow pills={layer.pills} />}
             </div>
 
             {i < LAYERS.length - 1 && (
               <div className="flex flex-col items-center py-2" aria-hidden="true">
-                <span className="relative h-9 w-px bg-[color:var(--hl-hairline)]">
-                  <span
-                    className="absolute inset-0 origin-top bg-mint transition-transform duration-500 ease-out"
-                    style={{
-                      transform: revealed ? 'scaleY(1)' : 'scaleY(0)',
-                      transitionDelay: `${delay(i * STAGGER + STAGGER / 2)}ms`,
-                    }}
-                  />
+                {/* w-1.5 wrapper == dot width, so dots center without an x-transform
+                    (the flow animation owns `transform`, so we can't rely on it). */}
+                <div className="relative h-9 w-1.5">
+                  <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[color:var(--hl-hairline)]">
+                    <span
+                      className="absolute inset-0 origin-top bg-mint transition-transform duration-500 ease-out"
+                      style={{
+                        transform: revealed ? 'scaleY(1)' : 'scaleY(0)',
+                        transitionDelay: `${delay(i * STAGGER + STAGGER / 2)}ms`,
+                      }}
+                    />
+                  </span>
                   {/* data points flowing down into the next stage */}
                   {revealed && !reduce && (
                     <>
-                      <span className="hl-flow-dot absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-mint" />
+                      <span className="hl-flow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint" />
                       <span
-                        className="hl-flow-dot absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-mint"
+                        className="hl-flow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint"
                         style={{ animationDelay: '0.9s' }}
                       />
                     </>
                   )}
-                </span>
+                </div>
               </div>
             )}
           </Fragment>
