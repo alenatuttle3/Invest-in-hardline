@@ -54,7 +54,7 @@ const VISION =
 
 const CTA_HEADING = 'Got questions? Good — ask them.'
 const CTA_SUB =
-  'The ones every investor asks us — moat, pricing, GTM — answered in our words.'
+  "If you believe in what we're building and have questions, let's meet."
 const CTA_PRIMARY = 'Ask us anything →'
 const CTA_BOOK = '…seen enough? grab a time on our calendar'
 const CTA_UPDATES = 'join our investor updates'
@@ -169,11 +169,9 @@ export default function Story() {
 
           {/* 5 · Vision line */}
           <ScrollAnimator>
-            <div className="hl-dark rounded-card bg-[color:var(--hl-base)] px-7 py-9 shadow-neu-md md:px-10 md:py-11">
-              <p className="border-l-2 border-mint pl-6 text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
-                {VISION}
-              </p>
-            </div>
+            <blockquote className="border-l-2 border-mint pl-6 text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
+              {VISION}
+            </blockquote>
           </ScrollAnimator>
 
           {/* 6 · Handoff CTA */}
