@@ -48,7 +48,7 @@ function WaveformMotif() {
       {Array.from({ length: 22 }).map((_, i) => (
         <span
           key={i}
-          className="hl-wave-bar h-full w-[3px] rounded-full bg-mint"
+          className="hl-wave-bar hl-glow-line h-full w-[3px] rounded-full bg-mint"
           style={{ animationDelay: `${(i % 11) * 0.08}s`, opacity: 0.85 }}
         />
       ))}
@@ -56,50 +56,57 @@ function WaveformMotif() {
   )
 }
 
-// Layer 02 — analysis into a personalized knowledge map: a constellation.
+// Layer 02 — analysis into a personalized knowledge map: a glowing constellation.
 const MAP_NODES = [
-  { cx: 90, cy: 60, r: 5.5, d: 0 },
-  { cx: 38, cy: 30, r: 4, d: 0.5 },
-  { cx: 144, cy: 28, r: 4, d: 0.9 },
-  { cx: 152, cy: 84, r: 4, d: 1.3 },
-  { cx: 92, cy: 102, r: 4, d: 0.7 },
-  { cx: 34, cy: 88, r: 4, d: 1.1 },
+  { cx: 92, cy: 60, r: 5.5, d: 0 }, // 0 — center
+  { cx: 38, cy: 28, r: 4, d: 0.5 }, // 1 — top-left
+  { cx: 148, cy: 26, r: 4, d: 0.9 }, // 2 — top-right
+  { cx: 156, cy: 86, r: 4, d: 1.3 }, // 3 — bottom-right
+  { cx: 94, cy: 104, r: 4, d: 0.7 }, // 4 — bottom
+  { cx: 32, cy: 90, r: 4, d: 1.1 }, // 5 — bottom-left
+]
+// [from, to, animationDelay] — center spokes + an outer mesh, like the reference.
+const MAP_LINKS: [number, number, number][] = [
+  [0, 1, 0.1], [0, 2, 0.4], [0, 3, 0.7], [0, 4, 1.0], [0, 5, 1.3],
+  [1, 2, 0.3], [2, 3, 0.6], [3, 4, 0.9], [4, 5, 1.2], [5, 1, 1.5],
 ]
 function KnowledgeMapMotif() {
-  const [center, ...spokes] = MAP_NODES
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 180 120"
-      className="h-[112px] w-[180px] max-w-full"
-      fill="none"
-    >
-      <g stroke="var(--hl-mint)" strokeWidth="1.5">
-        {spokes.map((n, i) => (
-          <line
-            key={i}
-            className="hl-link"
-            x1={center.cx}
-            y1={center.cy}
-            x2={n.cx}
-            y2={n.cy}
-            style={{ animationDelay: `${n.d}s` }}
-          />
-        ))}
-      </g>
-      <g fill="var(--hl-mint)">
-        {MAP_NODES.map((n, i) => (
-          <circle
-            key={i}
-            className="hl-node"
-            cx={n.cx}
-            cy={n.cy}
-            r={n.r}
-            style={{ animationDelay: `${n.d}s` }}
-          />
-        ))}
-      </g>
-    </svg>
+    <div className="rounded-xl bg-hardline-950 p-3 shadow-[inset_0_1px_4px_rgba(0,0,0,0.55)] ring-1 ring-black/20">
+      <svg aria-hidden="true" viewBox="0 0 188 120" className="h-[104px] w-[188px] max-w-full" fill="none">
+        <g className="hl-glow-line" stroke="#6FC49F" strokeWidth="1.4">
+          {MAP_LINKS.map(([a, b, d], i) => (
+            <line
+              key={i}
+              className="hl-link"
+              x1={MAP_NODES[a].cx}
+              y1={MAP_NODES[a].cy}
+              x2={MAP_NODES[b].cx}
+              y2={MAP_NODES[b].cy}
+              style={{ animationDelay: `${d}s` }}
+            />
+          ))}
+        </g>
+        <g className="hl-glow-node" fill="#6FC49F">
+          {MAP_NODES.map((n, i) => (
+            <circle key={i} className="hl-node" cx={n.cx} cy={n.cy} r={n.r} style={{ animationDelay: `${n.d}s` }} />
+          ))}
+        </g>
+        {/* bright cores */}
+        <g fill="#EAF7F0">
+          {MAP_NODES.map((n, i) => (
+            <circle
+              key={`core-${i}`}
+              className="hl-node"
+              cx={n.cx}
+              cy={n.cy}
+              r={Math.max(1.4, n.r * 0.45)}
+              style={{ animationDelay: `${n.d}s` }}
+            />
+          ))}
+        </g>
+      </svg>
+    </div>
   )
 }
 
@@ -112,13 +119,13 @@ function SyncMotif() {
         <div key={name} className="flex items-center gap-2">
           <span className="relative h-px w-7 bg-[color:var(--hl-hairline)]">
             <span
-              className="hl-flow-dot-x absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-mint"
+              className="hl-flow-dot-x hl-glow-dot absolute -top-[3px] left-0 h-1.5 w-1.5 rounded-full bg-mint"
               style={{ animationDelay: `${i * 0.5}s` }}
             />
           </span>
           <span className="inline-flex flex-1 items-center gap-1.5 rounded-full bg-[color:var(--hl-base)] px-3 py-1 text-xs font-medium text-[color:var(--hl-text)] shadow-neu-sm">
             <span
-              className="hl-node h-1.5 w-1.5 rounded-full bg-mint"
+              className="hl-node hl-glow-dot h-1.5 w-1.5 rounded-full bg-mint"
               style={{ animationDelay: `${i * 0.5 + 0.4}s` }}
             />
             {name}
@@ -207,7 +214,7 @@ export default function ThreeLayerModel() {
                 <div className="relative h-9 w-1.5">
                   <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[color:var(--hl-hairline)]">
                     <span
-                      className="absolute inset-0 origin-top bg-mint transition-transform duration-500 ease-out"
+                      className="hl-glow-line absolute inset-0 origin-top bg-mint transition-transform duration-500 ease-out"
                       style={{
                         transform: revealed ? 'scaleY(1)' : 'scaleY(0)',
                         transitionDelay: `${delay(i * STAGGER + STAGGER / 2)}ms`,
@@ -217,9 +224,9 @@ export default function ThreeLayerModel() {
                   {/* data points flowing down into the next stage */}
                   {revealed && !reduce && (
                     <>
-                      <span className="hl-flow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint" />
+                      <span className="hl-flow-dot hl-glow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint" />
                       <span
-                        className="hl-flow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint"
+                        className="hl-flow-dot hl-glow-dot absolute left-0 top-0 h-1.5 w-1.5 rounded-full bg-mint"
                         style={{ animationDelay: '0.9s' }}
                       />
                     </>

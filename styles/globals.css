@@ -491,6 +491,11 @@ body {
   50%      { stroke-opacity: 0.85; }
 }
 
+/* Neon-green glow for the network lines / nodes / data dots */
+.hl-glow-line { filter: drop-shadow(0 0 2px rgba(111, 196, 159, 0.8)); }
+.hl-glow-node { filter: drop-shadow(0 0 3px rgba(159, 227, 196, 0.95)) drop-shadow(0 0 8px rgba(89, 175, 140, 0.55)); }
+.hl-glow-dot  { filter: drop-shadow(0 0 3px rgba(111, 196, 159, 0.9)); }
+
 .hl-wave-bar   { transform-origin: center bottom; animation: hlWave 1.2s ease-in-out infinite; }
 .hl-flow-dot   { animation: hlFlowDown 1.8s linear infinite; }
 .hl-flow-dot-x { animation: hlFlowRight 1.6s linear infinite; }
