@@ -105,7 +105,7 @@ const INTEGRATIONS: Integration[] = [
     name: 'Procore',
     dot: '#4fae70',
     border: 'rgba(79,174,112,0.25)',
-    topOffset: -118,
+    topOffset: -210,
     items: ['→ Daily Log drafted', '→ RFI #47 created', '→ Task assigned'],
     group: ['wf_log', 'wf_rfi', 'wf_task'],
   },
@@ -114,7 +114,7 @@ const INTEGRATIONS: Integration[] = [
     name: 'Autodesk ACC',
     dot: '#5bc4f5',
     border: 'rgba(91,196,245,0.22)',
-    topOffset: -14,
+    topOffset: -36,
     items: ['→ Drawing rev flagged', '→ Model conflict noted'],
     group: ['wf_draw', 'wf_model'],
   },
@@ -123,7 +123,7 @@ const INTEGRATIONS: Integration[] = [
     name: 'Fieldwire',
     dot: '#a78bfa',
     border: 'rgba(167,139,250,0.22)',
-    topOffset: 90,
+    topOffset: 140,
     items: ['→ Punch item logged', '→ Inspection task set'],
     group: ['wf_punch', 'wf_insp'],
   },
@@ -133,17 +133,17 @@ const STEPS = [
   {
     tag: '01 / Capture',
     title: 'Every conversation. Automatically.',
-    body: 'Hardline passively captures every call, site meeting, and field conversation — no new phone number, no behavior change. Live on iOS, Android, Meta glasses, and walkie-talkies.',
+    body: 'Hardline captures inbound and outbound calls, site meetings, and every field conversation — no new phone number, no behavior change. Hardline ingests audio, photos, and video, and is compatible with cell phones, Meta AI glasses, and walkie-talkies.',
   },
   {
     tag: '02 / Intelligence',
     title: "A superintendent's complete knowledge map.",
-    body: "Projects, phases, subcontractors, issues, and decisions — all cross-linked in real time. The institutional knowledge that lives in one person's head, finally structured.",
+    body: "Projects, phases, subcontractors, issues, and decisions — all cross-linked in real time. The institutional knowledge that lives in one person's head, finally structured, searchable, and sharable.",
   },
   {
     tag: '03 / Automation',
     title: 'Straight into the tools that run the job.',
-    body: 'Daily logs, RFIs, tasks, and drawings sync automatically to Procore, Autodesk ACC, and Fieldwire the moment a conversation ends. Zero manual entry.',
+    body: 'Hardline powers touchless workflows — daily log updated, task created, punch item closed out, safety form filed — the moment the conversation ends.',
   },
 ]
 
@@ -163,14 +163,14 @@ export default function HowItWorks() {
     if (!ctx) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // Canvas ctx.font can't read CSS vars; resolve the DM Sans family name that
-    // next/font exposes via --hl-font-sans-dm (falls back to system sans).
-    const dmFam =
-      getComputedStyle(root).getPropertyValue('--hl-font-sans-dm').trim() ||
+    // Canvas ctx.font can't read CSS vars; resolve the Montserrat family name.
+    const montFam =
+      getComputedStyle(root).getPropertyValue('--hl-font').trim() ||
       'system-ui, sans-serif'
     const stepEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-step'))
     const dotEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-dot'))
     const badgeEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-badge'))
+    const labelEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-nodelabel'))
     const ghostEl = root.querySelector<HTMLElement>('.hiw-ghostnum')
 
     // ---- math helpers ----
@@ -196,7 +196,6 @@ export default function HowItWorks() {
       r: n.imp === 3 ? 7 : n.imp === 2 ? 5 : 3.5,
       sx: 0, sy: 0, // scatter start (px)
       tx: 0, ty: 0, // map target (px)
-      dx: 0, dy: 0, // stage-3 destination (px)
       px: 0, py: 0, // current (px)
       seed: i + 1,
     }))
@@ -204,8 +203,6 @@ export default function HowItWorks() {
     let W = 0
     let H = 0
     let dpr = 1
-    let mapCx = 0
-    let mapCy = 0
     const badgeAnchor: Record<string, { x: number; y: number }> = {}
 
     function layout() {
@@ -216,30 +213,18 @@ export default function HowItWorks() {
       canvas!.height = Math.round(H * dpr)
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-      let sumX = 0
-      let sumY = 0
       for (const n of nodes) {
         n.tx = W * 0.02 + (n.def.x / 100) * W * 0.96
         n.ty = H * 0.02 + (n.def.y / 100) * H * 0.96
         n.sx = (0.38 + rng(n.seed * 12.9898) * (0.9 - 0.38)) * W
         n.sy = (0.08 + rng(n.seed * 78.233 + 1) * (0.92 - 0.08)) * H
-        sumX += n.tx
-        sumY += n.ty
       }
-      mapCx = sumX / nodes.length
-      mapCy = sumY / nodes.length
 
-      // integration anchors (left-middle of each DOM badge) + workflow destinations
+      // integration anchors = left-middle of each DOM badge
       for (const integ of INTEGRATIONS) {
         const ax = W - 36 - BADGE_W
         const ay = H / 2 + integ.topOffset + 18
         badgeAnchor[integ.key] = { x: ax, y: ay }
-        const stagingX = ax - 86
-        integ.group.forEach((id, k) => {
-          const node = nodes[idx.get(id)!]
-          node.dx = stagingX
-          node.dy = ay + (k - (integ.group.length - 1) / 2) * 22
-        })
       }
     }
 
@@ -309,7 +294,7 @@ export default function HowItWorks() {
       ctx!.arc(sx + sw * 0.2, sy + sh * 0.08 + 13, 4, 0, Math.PI * 2)
       ctx!.fill()
       ctx!.fillStyle = '#cfe7d8'
-      ctx!.font = `600 12px ${dmFam}`
+      ctx!.font = `600 12px ${montFam}`
       ctx!.textAlign = 'left'
       ctx!.textBaseline = 'middle'
       ctx!.fillText('Capturing live…', sx + sw * 0.28, sy + sh * 0.08 + 13)
@@ -368,37 +353,26 @@ export default function HowItWorks() {
 
       ctx!.clearRect(0, 0, W, H)
 
-      // node current positions + alphas
-      const collapse = easeInOut(clamp(s2 * 1.6))
-      const fly = easeOut5(s2)
+      // node current positions + alphas. Nodes settle at their map positions
+      // and stay there; in stage 3 everything that doesn't wire to a system
+      // simply fades out, leaving the workflow nodes (and their links to the
+      // integrations) in focus.
+      const blackout = easeInOut(clamp(s2 * 1.4))
       const alphas: number[] = []
       nodes.forEach((n, i) => {
         const form = easeOut5(clamp((s1 - (i / nodes.length) * 0.12) / 0.88))
-        let bx = lerp(n.sx, n.tx, form)
-        let by = lerp(n.sy, n.ty, form)
+        n.px = lerp(n.sx, n.tx, form)
+        n.py = lerp(n.sy, n.ty, form)
         let a = clamp(form * 1.4)
-        if (n.def.cat === 'workflow') {
-          bx = lerp(bx, n.dx, fly)
-          by = lerp(by, n.dy, fly)
-        } else {
-          bx = lerp(bx, mapCx, collapse)
-          by = lerp(by, mapCy, collapse)
-          a *= 1 - collapse
-        }
-        n.px = bx
-        n.py = by
+        if (n.def.cat !== 'workflow') a *= 1 - blackout
         alphas[i] = a
       })
 
-      // category halos
-      drawHalos(s1 * (1 - collapse))
-      // edges
+      drawHalos(s1 * (1 - blackout))
       drawEdges(alphas)
-      // stage-3 trunks + feeders + particles
       if (s2 > 0.001) drawAutomation(s2)
-      // nodes + labels
       drawNodes(alphas, s1)
-      // phone on top during capture
+      updateLabels(alphas, s1)
       drawPhone(phoneAlpha)
     }
 
@@ -529,17 +503,19 @@ export default function HowItWorks() {
           ctx!.arc(n.px, n.py, r + 3, 0, Math.PI * 2)
           ctx!.stroke()
         }
-        // label
-        const la = clamp((s1 - 0.5) * 2) * a
-        if (la > 0.04) {
-          ctx!.globalAlpha = la
-          ctx!.fillStyle = '#d6e7dc'
-          ctx!.font = `500 11px ${dmFam}`
-          ctx!.fillText(n.def.label, n.px + r + 5, n.py)
-          ctx!.globalAlpha = 1
-        }
       })
       ctx!.restore()
+    }
+
+    // Node labels are real (selectable) DOM positioned over the canvas.
+    function updateLabels(alphas: number[], s1: number) {
+      const reveal = clamp((s1 - 0.5) * 2)
+      nodes.forEach((n, i) => {
+        const el = labelEls[i]
+        if (!el) return
+        el.style.opacity = (reveal * alphas[i]).toFixed(3)
+        el.style.transform = `translate(${(n.px + n.r + 6).toFixed(1)}px, ${(n.py - 7).toFixed(1)}px)`
+      })
     }
 
     // ---- loop / observation ----
@@ -595,6 +571,15 @@ export default function HowItWorks() {
       <style>{CSS}</style>
       <div className="hiw-sticky">
         <canvas ref={canvasRef} className="hiw-canvas" />
+
+        {/* Real, selectable node labels positioned over the canvas */}
+        <div className="hiw-labels">
+          {NODES.map(n => (
+            <span key={n.id} className="hiw-nodelabel">
+              {n.label}
+            </span>
+          ))}
+        </div>
 
         <div className="hiw-panel">
           {STEPS.map((s, i) => (
@@ -652,20 +637,22 @@ function hexA(hex: string, a: number) {
 }
 
 const CSS = `
-.hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font-sans-dm), system-ui, sans-serif; }
+.hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font), system-ui, sans-serif; }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: 14px; color: #d6e7dc; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
 .hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; max-width: 540px; padding: 0 clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #0c1812 0%, rgba(12,24,18,0.86) 55%, rgba(12,24,18,0) 100%); }
-.hl-howitworks .hiw-step { position: absolute; left: clamp(24px, 5vw, 72px); right: clamp(24px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-.hl-howitworks .hiw-step.is-active { opacity: 1; transform: none; }
-.hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #4fae70; font-weight: 600; margin: 0 0 18px; }
-.hl-howitworks .hiw-title { font-family: var(--hl-font-serif), Georgia, serif; font-weight: 400; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.08; margin: 0 0 18px; color: #f3f8f4; }
+.hl-howitworks .hiw-step { position: absolute; left: clamp(24px, 5vw, 72px); right: clamp(24px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
+.hl-howitworks .hiw-step.is-active { opacity: 1; transform: none; pointer-events: auto; }
+.hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #4fae70; font-weight: 700; margin: 0 0 18px; }
+.hl-howitworks .hiw-title { font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.08; margin: 0 0 18px; color: #f3f8f4; }
 .hl-howitworks .hiw-body { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.6; color: #a9bdb2; max-width: 40ch; margin: 0; }
 .hl-howitworks .hiw-dots { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 4; }
 .hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); transition: all .4s ease; }
 .hl-howitworks .hiw-dot.is-active { background: #4fae70; transform: scale(1.5); box-shadow: 0 0 12px rgba(79,174,112,0.85); }
 .hl-howitworks .hiw-badges { position: absolute; right: 36px; top: 0; bottom: 0; width: ${BADGE_W}px; z-index: 3; pointer-events: none; }
-.hl-howitworks .hiw-badge { position: absolute; right: 0; width: ${BADGE_W}px; background: rgba(12,24,18,0.74); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; opacity: 0; transform: translateX(22px); transition: opacity .5s ease, transform .5s ease; }
+.hl-howitworks .hiw-badge { position: absolute; right: 0; width: ${BADGE_W}px; background: rgba(12,24,18,0.74); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; opacity: 0; transform: translateX(22px); transition: opacity .5s ease, transform .5s ease; pointer-events: auto; }
 .hl-howitworks .hiw-badge.is-in { opacity: 1; transform: none; }
 .hl-howitworks .hiw-badge:nth-child(1) { transition-delay: 0s; }
 .hl-howitworks .hiw-badge:nth-child(2) { transition-delay: .1s; }
@@ -673,7 +660,7 @@ const CSS = `
 .hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: #eaf2ec; margin-bottom: 8px; }
 .hl-howitworks .hiw-badge-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
 .hl-howitworks .hiw-badge-item { font-size: 12.5px; color: #9fb3a8; line-height: 1.75; }
-.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font-serif), serif; font-size: 150px; line-height: 1; color: #fff; opacity: 0.022; z-index: 1; pointer-events: none; user-select: none; }
+.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #fff; opacity: 0.022; z-index: 1; pointer-events: none; user-select: none; }
 @media (max-width: 760px) {
   .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #0c1812 0%, rgba(12,24,18,0.7) 58%, rgba(12,24,18,0) 100%); }
   .hl-howitworks .hiw-badges { display: none; }
