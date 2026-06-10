@@ -145,7 +145,7 @@ export default function Qualifier() {
   }
 
   return (
-    <main className="hl-dark min-h-screen px-6 py-16">
+    <main className="hl-dark hl-dark-rich min-h-screen px-6 py-16">
       <div className="mx-auto w-full max-w-2xl animate-fade-up">
 
         {/* Header */}

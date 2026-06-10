@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react'
    Self-contained: all CSS scoped under .hl-howitworks, all animation runs on a
    single canvas driven by this section's scroll position. An IntersectionObserver
    only runs the rAF loop while the section is on screen. prefers-reduced-motion
-   freezes the ambient motion (pulse / dashes / particles) but keeps the
+   freezes the ambient motion (pulse / particles) but keeps the
    scroll-mapped stages so the story still reads.
    ============================================================================= */
 
@@ -322,11 +322,14 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
+    // Edges are solid quadratic arcs. Bowing each line away from the straight
+    // chord (alternating sides) keeps them from tracking straight through
+    // node labels and stacking on top of one another.
     function drawEdges(alphas: number[]) {
       ctx!.save()
       ctx!.lineCap = 'round'
-      const dash = reduced ? 0 : -animT * 30
-      for (const [aId, bId] of EDGES) {
+      for (let e = 0; e < EDGES.length; e++) {
+        const [aId, bId] = EDGES[e]
         const ia = idx.get(aId)!
         const ib = idx.get(bId)!
         const na = nodes[ia]
@@ -334,16 +337,19 @@ export default function HowItWorks() {
         const ea = Math.min(alphas[ia], alphas[ib])
         if (ea <= 0.02) continue
         const owner = CAT_RANK[na.def.cat] >= CAT_RANK[nb.def.cat] ? na : nb
-        ctx!.strokeStyle = hexA(owner.color, 0.28 * ea)
-        ctx!.lineWidth = na.def.imp === 3 || nb.def.imp === 3 ? 1 : 0.6
-        ctx!.setLineDash([5, 5])
-        ctx!.lineDashOffset = dash
+        const dx = nb.px - na.px
+        const dy = nb.py - na.py
+        const len = Math.hypot(dx, dy) || 1
+        const bow = Math.min(len * 0.18, 44) * (e % 2 ? 1 : -1)
+        const cx = (na.px + nb.px) / 2 - (dy / len) * bow
+        const cy = (na.py + nb.py) / 2 + (dx / len) * bow
+        ctx!.strokeStyle = hexA(owner.color, 0.3 * ea)
+        ctx!.lineWidth = na.def.imp === 3 || nb.def.imp === 3 ? 1.2 : 0.8
         ctx!.beginPath()
         ctx!.moveTo(na.px, na.py)
-        ctx!.lineTo(nb.px, nb.py)
+        ctx!.quadraticCurveTo(cx, cy, nb.px, nb.py)
         ctx!.stroke()
       }
-      ctx!.setLineDash([])
       ctx!.restore()
     }
 
@@ -363,20 +369,25 @@ export default function HowItWorks() {
         const p1y = p0y
         const p2x = p3x - 26
         const p2y = p3y
-        // feeders (each secondary node -> badge; the origin is served by the trunk)
-        ctx!.setLineDash([3, 4])
-        ctx!.lineDashOffset = reduced ? 0 : -animT * 24
-        ctx!.lineWidth = 0.6
+        // feeders (each secondary node -> badge; the origin is served by the
+        // trunk). Solid curves that flatten into the badge like the trunk does.
+        ctx!.lineWidth = 1
         for (const n of grp) {
           if (n === origin) continue
-          ctx!.strokeStyle = hexA(n.color, 0.3 * s2)
+          ctx!.strokeStyle = hexA(n.color, 0.35 * s2)
           ctx!.beginPath()
           ctx!.moveTo(n.px, n.py)
-          ctx!.lineTo(anchor.x, anchor.y)
+          ctx!.bezierCurveTo(
+            lerp(n.px, anchor.x, 0.45),
+            n.py,
+            anchor.x - 26,
+            anchor.y,
+            anchor.x,
+            anchor.y,
+          )
           ctx!.stroke()
         }
         // trunk
-        ctx!.setLineDash([])
         ctx!.lineWidth = 2
         ctx!.strokeStyle = hexA(integ.dot, 0.55 * drawT)
         ctx!.beginPath()
@@ -575,13 +586,13 @@ const CSS = `
 .hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; filter: drop-shadow(14px 14px 30px rgba(179,191,187,0.8)); }
 @media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 600; line-height: 14px; color: #3c574e; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
-.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; max-width: 540px; padding: 0 clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #dde6e2 0%, rgba(221,230,226,0.88) 55%, rgba(221,230,226,0) 100%); }
-.hl-howitworks .hiw-step { position: absolute; left: clamp(24px, 5vw, 72px); right: clamp(24px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
+.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 13px; font-weight: 600; line-height: 16px; color: #3c574e; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
+.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 46%; max-width: 620px; padding: 0 clamp(28px, 5vw, 72px) 0 clamp(56px, 9vw, 140px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #dde6e2 0%, rgba(221,230,226,0.88) 55%, rgba(221,230,226,0) 100%); }
+.hl-howitworks .hiw-step { position: absolute; left: clamp(56px, 9vw, 140px); right: clamp(28px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
 .hl-howitworks .hiw-step.is-active { opacity: 1; transform: none; pointer-events: auto; }
 .hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #59af8c; font-weight: 700; margin: 0 0 18px; }
 .hl-howitworks .hiw-title { font-family: var(--hl-font), system-ui, sans-serif; font-weight: 500; letter-spacing: -0.01em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.1; margin: 0 0 18px; color: #1f3f33; }
-.hl-howitworks .hiw-body { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: #7e908c; max-width: 40ch; margin: 0; }
+.hl-howitworks .hiw-body { font-size: clamp(16px, 1.2vw, 19px); line-height: 1.65; color: #7e908c; max-width: 40ch; margin: 0; }
 .hl-howitworks .hiw-dots { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 4; }
 .hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(31,63,51,0.18); transition: all .4s ease; }
 .hl-howitworks .hiw-dot.is-active { background: #59af8c; transform: scale(1.5); box-shadow: 0 0 12px rgba(89,175,140,0.85); }
@@ -591,9 +602,9 @@ const CSS = `
 .hl-howitworks .hiw-badge:nth-child(1) { transition-delay: 0s; }
 .hl-howitworks .hiw-badge:nth-child(2) { transition-delay: .1s; }
 .hl-howitworks .hiw-badge:nth-child(3) { transition-delay: .2s; }
-.hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: #1f3f33; margin-bottom: 8px; }
+.hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: #1f3f33; margin-bottom: 8px; }
 .hl-howitworks .hiw-badge-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.hl-howitworks .hiw-badge-item { font-size: 12.5px; color: #7e908c; line-height: 1.75; }
+.hl-howitworks .hiw-badge-item { font-size: 13.5px; color: #7e908c; line-height: 1.75; }
 .hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #1f3f33; opacity: 0.05; z-index: 1; pointer-events: none; user-select: none; }
 @media (max-width: 760px) {
   .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #dde6e2 0%, rgba(221,230,226,0.7) 58%, rgba(221,230,226,0) 100%); }

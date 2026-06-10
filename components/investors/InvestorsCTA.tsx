@@ -4,7 +4,7 @@ const HEADLINE = "Ready? Let's see if it's a fit."
 
 export default function InvestorsCTA() {
   return (
-    <section id="start" className="hl-dark hl-dark-rich scroll-mt-20">
+    <section id="start" className="scroll-mt-20">
       <div className="section-container py-20 text-center md:py-28">
         <h2 className="hl-h2 text-[color:var(--hl-text)]">{HEADLINE}</h2>
 
