@@ -27,8 +27,8 @@ const TRACTION_LEAD_BOLD = "phone calls don't need adoption — they already hap
 const TRACTION_STATS = [
   {
     value: '~$60',
-    label: 'Cost per MQL',
-    sub: 'Blended CPL of $59 against a $237 B2B SaaS average, because our ICP finds us first.',
+    label: 'Cost per qualified lead',
+    sub: 'Blended CPQL of $59 against a $237 B2B SaaS average, because our ICP finds us first.',
   },
   {
     value: '92%',
