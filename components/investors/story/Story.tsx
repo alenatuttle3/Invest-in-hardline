@@ -21,10 +21,35 @@ const REFRAME_EYEBROW = 'The reframe'
 const REFRAME_QUOTE =
   "You've seen the stats — wasted time, unused data, rework everywhere. Those aren't problems. They're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
 
-const ADOPTION_PRE = 'And it lands the day we turn it on: '
-const ADOPTION_BOLD = "phone calls don't need adoption — they already happen."
-const ADOPTION_MID = ' One super, Sam at HWA, had '
-const ADOPTION_POST = ' calls summarized in his first 24 hours.'
+const TRACTION_LEAD_PRE = 'And it lands the day we turn it on: '
+const TRACTION_LEAD_BOLD = "phone calls don't need adoption — they already happen."
+
+const TRACTION_STATS = [
+  {
+    value: '~$60',
+    label: 'Cost per MQL',
+    sub: 'Product-market pull is strong enough that people come find us — not the other way around.',
+  },
+  {
+    value: '92%',
+    label: 'Pipeline from warm channels',
+    sub: 'Inbound, warm intros, and events.',
+  },
+  {
+    value: '86',
+    label: 'Calls summarized, day one',
+    sub: 'Sam Espinoza · HWA Construction — 164 minutes transcribed in his first 24 hours.',
+  },
+]
+
+const LEAD_SOURCES = [
+  { label: 'Inbound', pct: 100, warm: true },
+  { label: 'Warm Intro', pct: 80, warm: true },
+  { label: 'Event', pct: 66, warm: true },
+  { label: 'Cold Outbound', pct: 30, warm: false },
+]
+
+const TRACTION_ASOF = 'As of 4/13/26'
 
 const VISION =
   'Today it’s the phone. The vision: every conversation on the jobsite, captured — the system that runs construction.'
@@ -97,15 +122,56 @@ export default function Story() {
 
       <div className="mx-auto w-full max-w-[720px] px-6">
         <div className="space-y-20 py-20 md:space-y-28 md:py-28">
-          {/* 4 · Adoption proof */}
+          {/* 4 · Traction */}
           <ScrollAnimator>
-            <p className="text-xl leading-relaxed text-[color:var(--hl-text)]">
-              {ADOPTION_PRE}
-              <strong className="font-bold">{ADOPTION_BOLD}</strong>
-              {ADOPTION_MID}
-              <span className="font-bold text-mint">86</span>
-              {ADOPTION_POST}
-            </p>
+            <section>
+              <Eyebrow>Traction</Eyebrow>
+              <p className="text-xl leading-relaxed text-[color:var(--hl-text)]">
+                {TRACTION_LEAD_PRE}
+                <strong className="font-bold">{TRACTION_LEAD_BOLD}</strong>
+              </p>
+
+              <div className="mt-8 grid gap-5 sm:grid-cols-3">
+                {TRACTION_STATS.map(s => (
+                  <div key={s.label} className="card">
+                    <p className="text-4xl font-black leading-none text-[color:var(--hl-text)]">
+                      {s.value}
+                    </p>
+                    <p className="mt-3 text-sm font-bold text-[color:var(--hl-text)]">{s.label}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-hardline-800">{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="card mt-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg font-bold text-[color:var(--hl-text)]">
+                    Pipeline by lead source
+                  </h3>
+                  <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-hardline-800">
+                    {TRACTION_ASOF}
+                  </span>
+                </div>
+                <div className="mt-5 space-y-3">
+                  {LEAD_SOURCES.map(s => (
+                    <div key={s.label} className="flex items-center gap-3">
+                      <span className="w-28 shrink-0 text-sm font-semibold text-[color:var(--hl-text)]">
+                        {s.label}
+                      </span>
+                      <span className="relative h-3 flex-1 rounded-full bg-[color:var(--hl-base)] shadow-neu-inset">
+                        <span
+                          className="absolute inset-y-0 left-0 rounded-full"
+                          style={{
+                            width: `${s.pct}%`,
+                            background: s.warm ? 'var(--hl-mint)' : 'rgba(89,175,140,0.4)',
+                          }}
+                        />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
           </ScrollAnimator>
 
           {/* 5 · Vision line */}
