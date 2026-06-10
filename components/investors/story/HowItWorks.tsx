@@ -570,7 +570,7 @@ const CSS = `
 .hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font), system-ui, sans-serif; }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 735 / 1600; border-radius: 42px; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: 50% 49%; background-size: 147% auto; z-index: 2; pointer-events: none; opacity: 1; }
+.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 735 / 1600; border-radius: 42px; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: 50% 46%; background-size: 149% auto; z-index: 2; pointer-events: none; opacity: 1; }
 @media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: 14px; color: #d6e7dc; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
