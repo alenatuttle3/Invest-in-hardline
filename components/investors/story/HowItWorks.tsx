@@ -137,7 +137,7 @@ const STEPS = [
   },
   {
     tag: '02 / Intelligence',
-    title: "A superintendent's complete knowledge map.",
+    title: 'A personalized knowledge map for every user.',
     body: "Projects, phases, subcontractors, issues, and decisions — all cross-linked in real time. The institutional knowledge that lives in one person's head, finally structured, searchable, and sharable.",
   },
   {
