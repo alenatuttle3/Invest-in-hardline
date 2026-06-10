@@ -5,7 +5,7 @@ import Link from 'next/link'
 import BookCall from '@/components/CalEmbed'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
-import ThreeLayerModel from '@/components/investors/story/ThreeLayerModel'
+import HowItWorks from '@/components/investors/story/HowItWorks'
 import { readInvestorTier, type InvestorTier } from '@/lib/tier'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
@@ -20,10 +20,6 @@ const VIDEO_LINE =
 const REFRAME_EYEBROW = 'The reframe'
 const REFRAME_QUOTE =
   "You've seen the stats — wasted time, unused data, rework everywhere. Those aren't problems. They're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
-
-const MODEL_EYEBROW = "How it works — and why it's different"
-const MODEL_INTRO =
-  'Three layers. Everyone else automates data entry — we remove the need for it.'
 
 const ADOPTION_PRE = 'And it lands the day we turn it on: '
 const ADOPTION_BOLD = "phone calls don't need adoption — they already happen."
@@ -93,17 +89,14 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 3 · How it works — the three-layer model */}
-          <ScrollAnimator>
-            <section>
-              <Eyebrow>{MODEL_EYEBROW}</Eyebrow>
-              <p className="mb-8 max-w-xl text-lg leading-relaxed text-[color:var(--hl-text)]">
-                {MODEL_INTRO}
-              </p>
-              <ThreeLayerModel />
-            </section>
-          </ScrollAnimator>
+        </div>
+      </div>
 
+      {/* 3 · How it works — full-bleed, scroll-driven scene */}
+      <HowItWorks />
+
+      <div className="mx-auto w-full max-w-[720px] px-6">
+        <div className="space-y-20 py-20 md:space-y-28 md:py-28">
           {/* 4 · Adoption proof */}
           <ScrollAnimator>
             <p className="text-xl leading-relaxed text-[color:var(--hl-text)]">
