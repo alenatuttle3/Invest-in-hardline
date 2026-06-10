@@ -426,21 +426,22 @@ export default function HowItWorks() {
       for (const integ of INTEGRATIONS) {
         const anchor = badgeAnchor[integ.key]
         const grp = integ.group.map(id => nodes[idx.get(id)!])
-        const cx = grp.reduce((s, n) => s + n.px, 0) / grp.length
-        const cy = grp.reduce((s, n) => s + n.py, 0) / grp.length
-        const p0x = cx
-        const p0y = cy
+        // Trunk originates from the group's primary node so the line touches a dot.
+        const origin = grp[0]
+        const p0x = origin.px
+        const p0y = origin.py
         const p3x = anchor.x
         const p3y = anchor.y
         const p1x = lerp(p0x, p3x, 0.45)
         const p1y = p0y
         const p2x = p3x - 26
         const p2y = p3y
-        // feeders (node -> badge)
+        // feeders (each secondary node -> badge; the origin is served by the trunk)
         ctx!.setLineDash([3, 4])
         ctx!.lineDashOffset = reduced ? 0 : -animT * 24
         ctx!.lineWidth = 0.6
         for (const n of grp) {
+          if (n === origin) continue
           ctx!.strokeStyle = hexA(n.color, 0.3 * s2)
           ctx!.beginPath()
           ctx!.moveTo(n.px, n.py)
