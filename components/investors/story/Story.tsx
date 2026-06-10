@@ -19,8 +19,8 @@ const REFRAME_EYEBROW = 'The reframe'
 const REFRAME_QUOTE =
   "You've seen the stats — wasted time, unused data, rework everywhere. Those aren't problems. They're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
 
-const TRACTION_LEAD_PRE = 'And it lands the day we turn it on: '
-const TRACTION_LEAD_BOLD = "phone calls don't need adoption — they already happen."
+const TRACTION_LEAD =
+  "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
 
 const TRACTION_STATS = [
   {
@@ -44,7 +44,7 @@ const TRACTION_STATS = [
 ]
 
 const VISION =
-  'Today, the phone. In the future, Hardline is the eyes and ears of every jobsite — the source of truth on every build, and the connective tissue that links the job to the office.'
+  'The phone is the entry point and the highest-leverage UI on a jobsite. Hardline will be the eyes and ears of every jobsite — the source of truth on every build, and the connective tissue that links the job to the office.'
 
 const CTA_SUB =
   "If you believe in what we're building and have questions, let's meet."
@@ -104,10 +104,8 @@ export default function Story() {
           {/* 4 · Traction */}
           <ScrollAnimator>
             <section>
-              <Eyebrow>Traction</Eyebrow>
-              <p className="text-xl leading-relaxed text-[color:var(--hl-text)]">
-                {TRACTION_LEAD_PRE}
-                <strong className="font-bold">{TRACTION_LEAD_BOLD}</strong>
+              <p className="text-xl font-bold leading-relaxed text-[color:var(--hl-text)]">
+                {TRACTION_LEAD}
               </p>
 
               <div className="mt-8 grid gap-5 sm:grid-cols-3">
