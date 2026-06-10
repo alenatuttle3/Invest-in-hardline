@@ -28,12 +28,12 @@ const TRACTION_STATS = [
   {
     value: '~$60',
     label: 'Cost per MQL',
-    sub: 'Product-market pull is strong enough that people come find us — not the other way around.',
+    sub: 'Blended CPL of $59 against a $237 B2B SaaS average, because our ICP finds us first.',
   },
   {
     value: '92%',
     label: 'Pipeline from warm channels',
-    sub: 'Inbound, warm intros, and events.',
+    sub: 'Product-market pull is strong enough that people come find us — not the other way around.',
   },
   {
     value: '86',
