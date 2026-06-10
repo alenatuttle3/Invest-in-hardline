@@ -5,7 +5,7 @@ const SUBCOPY =
 
 export default function Hero() {
   return (
-    <section className="hl-dark bg-[color:var(--hl-base)]">
+    <section className="hl-dark hl-dark-rich">
       <div className="section-container py-20 md:py-28 animate-fade-up">
         <div className="grid items-center gap-12 md:grid-cols-2 md:gap-16">
           <div>

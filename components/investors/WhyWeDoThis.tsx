@@ -7,7 +7,7 @@ const SIGNATURE = '— Alena & Karly · Co-founders, Hardline'
 
 export default function WhyWeDoThis() {
   return (
-    <section className="hl-dark bg-[color:var(--hl-base)]">
+    <section className="hl-dark hl-dark-rich">
       <div className="section-container max-w-3xl py-20 md:py-28">
         <p className="section-label mb-6">Why we&apos;re doing this</p>
 

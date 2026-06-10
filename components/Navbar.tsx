@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Navbar() {
   return (
-    <header className="hl-dark sticky top-0 z-50 bg-[color:var(--hl-base)] border-b border-[color:var(--hl-hairline)]">
+    <header className="hl-dark hl-dark-rich sticky top-0 z-50 border-b border-[color:var(--hl-hairline)]">
       <nav className="section-container flex h-16 items-center justify-between">
         <Link
           href="/"

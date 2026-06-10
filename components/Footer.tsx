@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="hl-dark bg-[color:var(--hl-base)] border-t border-[color:var(--hl-hairline)]">
+    <footer className="hl-dark hl-dark-rich border-t border-[color:var(--hl-hairline)]">
       <div className="section-container flex flex-col gap-8 py-12 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-base font-semibold text-[color:var(--hl-text)]">Hardline</p>

@@ -49,6 +49,26 @@
   --hl-hairline: rgba(232, 240, 236, 0.1);
 }
 
+/* --- Rich dark surface (matches the marketing-site hero) ------------------
+   Near-black forest with a soft mint glow. Pair with .hl-dark so the text and
+   accent tokens stay correct; shadow tokens are re-tuned for the darker base.
+   The glow fades out well before the section edges so consecutive rich
+   sections stack seamlessly. */
+.hl-dark-rich {
+  --hl-base: #0c1a12;
+  --hl-sd: rgba(0, 0, 0, 0.55);
+  --hl-sl: rgba(140, 202, 174, 0.08);
+  --hl-inset-dark: rgba(0, 0, 0, 0.55);
+  --hl-inset-light: rgba(140, 202, 174, 0.08);
+  background-color: #0c1a12;
+  background-image: radial-gradient(
+    60% 55% at 50% 55%,
+    rgba(89, 175, 140, 0.13) 0%,
+    rgba(89, 175, 140, 0) 70%
+  );
+  background-repeat: no-repeat;
+}
+
 html {
   scroll-behavior: smooth;
 }
