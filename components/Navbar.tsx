@@ -15,9 +15,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Flat #0c1a12 (the rich surface's edge color) so the header reads as one
+  // seamless band with the hero — the soft glow only appears once, below.
   return (
     <header
-      className={`hl-dark hl-dark-rich sticky top-0 z-50 border-b border-[color:var(--hl-hairline)] transition-transform duration-300 ${
+      className={`hl-dark sticky top-0 z-50 bg-[#0c1a12] transition-transform duration-300 ${
         hidden ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
