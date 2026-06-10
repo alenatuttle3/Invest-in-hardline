@@ -49,8 +49,6 @@ const LEAD_SOURCES = [
   { label: 'Cold Outbound', pct: 30, warm: false },
 ]
 
-const TRACTION_ASOF = 'As of 4/13/26'
-
 const VISION =
   'Today it’s the phone. The vision: every conversation on the jobsite, captured — the system that runs construction.'
 
@@ -144,14 +142,9 @@ export default function Story() {
               </div>
 
               <div className="card mt-5">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg font-bold text-[color:var(--hl-text)]">
-                    Pipeline by lead source
-                  </h3>
-                  <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-hardline-800">
-                    {TRACTION_ASOF}
-                  </span>
-                </div>
+                <h3 className="text-lg font-bold text-[color:var(--hl-text)]">
+                  Pipeline by lead source
+                </h3>
                 <div className="mt-5 space-y-3">
                   {LEAD_SOURCES.map(s => (
                     <div key={s.label} className="flex items-center gap-3">
