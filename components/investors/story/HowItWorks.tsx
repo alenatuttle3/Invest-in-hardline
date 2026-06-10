@@ -498,8 +498,8 @@ export default function HowItWorks() {
       <div className="hiw-sticky">
         <canvas ref={canvasRef} className="hiw-canvas" />
 
-        {/* Stage-1 phone (live Hardline call). Cropped to the device so the
-            GIF's white background doesn't show; fades out as the map forms. */}
+        {/* Stage-1 phone (live Hardline call). The GIF has a transparent
+            background, so it's shown uncropped; fades out as the map forms. */}
         <div className="hiw-phone" aria-hidden="true" />
 
         {/* Real, selectable node labels positioned over the canvas */}
@@ -570,7 +570,7 @@ const CSS = `
 .hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font), system-ui, sans-serif; }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 735 / 1600; border-radius: 42px; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: 50% 46%; background-size: 149% auto; z-index: 2; pointer-events: none; opacity: 1; }
+.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; }
 @media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: 14px; color: #d6e7dc; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
