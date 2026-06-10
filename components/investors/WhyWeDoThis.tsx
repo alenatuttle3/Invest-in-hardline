@@ -12,12 +12,12 @@ export default function WhyWeDoThis() {
         <p className="section-label mb-6">Why we&apos;re doing this</p>
 
         <div className="card-dark border-l-2 border-mint">
-          <div className="space-y-5 leading-relaxed text-[color:var(--hl-text)]">
+          <div className="space-y-6 text-xl leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
             {PARAGRAPHS.map((p, i) => (
               <p key={i}>{p}</p>
             ))}
           </div>
-          <p className="mt-8 text-sm uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+          <p className="mt-8 text-sm uppercase tracking-widest text-[color:var(--hl-text-muted)] md:text-base">
             {SIGNATURE}
           </p>
         </div>
