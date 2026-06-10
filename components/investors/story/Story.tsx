@@ -1,12 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import BookCall from '@/components/CalEmbed'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
-import { readInvestorTier, type InvestorTier } from '@/lib/tier'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
 const MARKER = 'Stage 2 of 3 · The Story'
@@ -50,30 +48,17 @@ const LEAD_SOURCES = [
 ]
 
 const VISION =
-  'Today it’s the phone. The vision: every conversation on the jobsite, captured — the system that runs construction.'
+  'Today, the phone. In the future, Hardline is the eyes and ears of every jobsite — the source of truth on every build, and the connective tissue that links the job to the office.'
 
-const CTA_HEADING = 'Got questions? Good — ask them.'
 const CTA_SUB =
   "If you believe in what we're building and have questions, let's meet."
-const CTA_PRIMARY = 'Ask us anything →'
-const CTA_BOOK = '…seen enough? grab a time on our calendar'
-const CTA_UPDATES = 'join our investor updates'
+const CTA_BOOK = 'Schedule meeting →'
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="section-label mb-4">{children}</p>
 }
 
 export default function Story() {
-  // Tier governs the secondary CTA. Default to a tier that shows booking, then
-  // refine on mount once we can read the query param / session on the client.
-  const [tier, setTier] = useState<InvestorTier>('soft')
-
-  useEffect(() => {
-    setTier(readInvestorTier())
-  }, [])
-
-  const showBooking = tier !== 'park'
-
   return (
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
       <div className="mx-auto w-full max-w-[720px] px-6 py-14 md:py-16">
@@ -174,29 +159,15 @@ export default function Story() {
             </blockquote>
           </ScrollAnimator>
 
-          {/* 6 · Handoff CTA */}
+          {/* 6 · Handoff CTA — booking only */}
           <ScrollAnimator>
             <div className="card text-center">
-              <h2 className="hl-h3 text-[color:var(--hl-text)]">{CTA_HEADING}</h2>
-              <p className="mx-auto mt-3 max-w-md text-[color:var(--hl-text)]">{CTA_SUB}</p>
+              <p className="mx-auto max-w-md text-lg leading-relaxed text-[color:var(--hl-text)]">
+                {CTA_SUB}
+              </p>
 
-              <div className="mt-8 flex flex-col items-center gap-5">
-                <Link href="/investors/qa" className="btn-primary">
-                  {CTA_PRIMARY}
-                </Link>
-
-                {showBooking ? (
-                  <BookCall className="text-sm font-medium text-hardline-800 underline-offset-4 transition-colors hover:text-mint hover:underline">
-                    {CTA_BOOK}
-                  </BookCall>
-                ) : (
-                  <a
-                    href="mailto:alena@hardlineapp.com?subject=Hardline%20investor%20updates"
-                    className="text-sm font-medium text-hardline-800 underline-offset-4 transition-colors hover:text-mint hover:underline"
-                  >
-                    {CTA_UPDATES}
-                  </a>
-                )}
+              <div className="mt-8 flex justify-center">
+                <BookCall className="btn-primary">{CTA_BOOK}</BookCall>
               </div>
             </div>
           </ScrollAnimator>

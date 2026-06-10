@@ -24,13 +24,15 @@ type NodeDef = {
   color?: string
 }
 
+// Brand-tonal palette: one hue family (forest → mint → sage) so the map reads
+// as part of the light neumorphic system used across the site.
 const CAT_COLOR: Record<Cat, string> = {
-  project: '#e8a245',
-  phase: '#4fae70',
-  person: '#b8d4b8',
-  issue: '#e87b45',
-  decision: '#7dd3a8',
-  workflow: '#4fae70',
+  project: '#1f3f33',
+  phase: '#2c5a45',
+  person: '#7e908c',
+  issue: '#59af8c',
+  decision: '#6fc49f',
+  workflow: '#59af8c',
 }
 const CAT_RANK: Record<Cat, number> = {
   project: 6,
@@ -63,13 +65,13 @@ const NODES: NodeDef[] = [
   { id: 'dec_pour', cat: 'decision', imp: 2, x: 36, y: 42, label: 'Pour date: Tue 7am' },
   { id: 'dec_sub', cat: 'decision', imp: 1, x: 60, y: 70, label: 'Sub swap approved' },
   { id: 'dec_rfi', cat: 'decision', imp: 2, x: 60, y: 18, label: 'RFI #47 resolved' },
-  { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#4fae70', imp: 3, x: 34, y: 32, label: 'Daily Log' },
-  { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#4fae70', imp: 2, x: 54, y: 38, label: 'RFI' },
-  { id: 'wf_task', cat: 'workflow', dest: 'procore', color: '#4fae70', imp: 2, x: 46, y: 58, label: 'Task' },
-  { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#5bc4f5', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
-  { id: 'wf_model', cat: 'workflow', dest: 'acc', color: '#5bc4f5', imp: 1, x: 76, y: 52, label: 'Model Conflict' },
-  { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#a78bfa', imp: 2, x: 42, y: 74, label: 'Punch Item' },
-  { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#a78bfa', imp: 1, x: 58, y: 86, label: 'Inspection' },
+  { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 3, x: 34, y: 32, label: 'Daily Log' },
+  { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 54, y: 38, label: 'RFI' },
+  { id: 'wf_task', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 46, y: 58, label: 'Task' },
+  { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
+  { id: 'wf_model', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 1, x: 76, y: 52, label: 'Model Conflict' },
+  { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Punch Item' },
+  { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 1, x: 58, y: 86, label: 'Inspection' },
 ]
 
 const EDGES: [string, string][] = [
@@ -103,8 +105,8 @@ const INTEGRATIONS: Integration[] = [
   {
     key: 'procore',
     name: 'Procore',
-    dot: '#4fae70',
-    border: 'rgba(79,174,112,0.25)',
+    dot: '#59af8c',
+    border: 'rgba(89,175,140,0.35)',
     topOffset: -210,
     items: ['→ Daily Log drafted', '→ RFI #47 created', '→ Task assigned'],
     group: ['wf_log', 'wf_rfi', 'wf_task'],
@@ -112,8 +114,8 @@ const INTEGRATIONS: Integration[] = [
   {
     key: 'acc',
     name: 'Autodesk ACC',
-    dot: '#5bc4f5',
-    border: 'rgba(91,196,245,0.22)',
+    dot: '#3c7a64',
+    border: 'rgba(60,122,100,0.32)',
     topOffset: -36,
     items: ['→ Drawing rev flagged', '→ Model conflict noted'],
     group: ['wf_draw', 'wf_model'],
@@ -121,8 +123,8 @@ const INTEGRATIONS: Integration[] = [
   {
     key: 'fieldwire',
     name: 'Fieldwire',
-    dot: '#a78bfa',
-    border: 'rgba(167,139,250,0.22)',
+    dot: '#1f3f33',
+    border: 'rgba(31,63,51,0.28)',
     topOffset: 140,
     items: ['→ Punch item logged', '→ Inspection task set'],
     group: ['wf_punch', 'wf_insp'],
@@ -423,7 +425,7 @@ export default function HowItWorks() {
         ctx!.fill()
         // ring for imp3 / workflow
         if (n.def.imp === 3 || n.def.cat === 'workflow') {
-          ctx!.strokeStyle = hexA('#eaf7f0', 0.5 * a)
+          ctx!.strokeStyle = hexA('#1f3f33', 0.4 * a)
           ctx!.lineWidth = 1
           ctx!.beginPath()
           ctx!.arc(n.px, n.py, r + 3, 0, Math.PI * 2)
@@ -567,34 +569,34 @@ function hexA(hex: string, a: number) {
 }
 
 const CSS = `
-.hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font), system-ui, sans-serif; }
+.hl-howitworks { position: relative; height: 500vh; background: #dde6e2; color: #1f3f33; font-family: var(--hl-font), system-ui, sans-serif; }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; }
+.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; filter: drop-shadow(14px 14px 30px rgba(179,191,187,0.8)); }
 @media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: 14px; color: #d6e7dc; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
-.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; max-width: 540px; padding: 0 clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #0c1812 0%, rgba(12,24,18,0.86) 55%, rgba(12,24,18,0) 100%); }
+.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 600; line-height: 14px; color: #3c574e; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
+.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; max-width: 540px; padding: 0 clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #dde6e2 0%, rgba(221,230,226,0.88) 55%, rgba(221,230,226,0) 100%); }
 .hl-howitworks .hiw-step { position: absolute; left: clamp(24px, 5vw, 72px); right: clamp(24px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
 .hl-howitworks .hiw-step.is-active { opacity: 1; transform: none; pointer-events: auto; }
-.hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #4fae70; font-weight: 700; margin: 0 0 18px; }
-.hl-howitworks .hiw-title { font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; letter-spacing: -0.02em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.08; margin: 0 0 18px; color: #f3f8f4; }
-.hl-howitworks .hiw-body { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.6; color: #a9bdb2; max-width: 40ch; margin: 0; }
+.hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #59af8c; font-weight: 700; margin: 0 0 18px; }
+.hl-howitworks .hiw-title { font-family: var(--hl-font), system-ui, sans-serif; font-weight: 500; letter-spacing: -0.01em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.1; margin: 0 0 18px; color: #1f3f33; }
+.hl-howitworks .hiw-body { font-size: clamp(15px, 1.1vw, 17px); line-height: 1.65; color: #7e908c; max-width: 40ch; margin: 0; }
 .hl-howitworks .hiw-dots { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 4; }
-.hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); transition: all .4s ease; }
-.hl-howitworks .hiw-dot.is-active { background: #4fae70; transform: scale(1.5); box-shadow: 0 0 12px rgba(79,174,112,0.85); }
+.hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(31,63,51,0.18); transition: all .4s ease; }
+.hl-howitworks .hiw-dot.is-active { background: #59af8c; transform: scale(1.5); box-shadow: 0 0 12px rgba(89,175,140,0.85); }
 .hl-howitworks .hiw-badges { position: absolute; right: 36px; top: 0; bottom: 0; width: ${BADGE_W}px; z-index: 3; pointer-events: none; }
-.hl-howitworks .hiw-badge { position: absolute; right: 0; width: ${BADGE_W}px; background: rgba(12,24,18,0.74); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; opacity: 0; transform: translateX(22px); transition: opacity .5s ease, transform .5s ease; pointer-events: auto; }
+.hl-howitworks .hiw-badge { position: absolute; right: 0; width: ${BADGE_W}px; background: #dde6e2; border: 1px solid rgba(31,63,51,0.1); border-radius: 18px; padding: 14px 16px; box-shadow: 8px 8px 18px #b3bfbb, -8px -8px 18px #ffffff; opacity: 0; transform: translateX(22px); transition: opacity .5s ease, transform .5s ease; pointer-events: auto; }
 .hl-howitworks .hiw-badge.is-in { opacity: 1; transform: none; }
 .hl-howitworks .hiw-badge:nth-child(1) { transition-delay: 0s; }
 .hl-howitworks .hiw-badge:nth-child(2) { transition-delay: .1s; }
 .hl-howitworks .hiw-badge:nth-child(3) { transition-delay: .2s; }
-.hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: #eaf2ec; margin-bottom: 8px; }
+.hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; color: #1f3f33; margin-bottom: 8px; }
 .hl-howitworks .hiw-badge-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.hl-howitworks .hiw-badge-item { font-size: 12.5px; color: #9fb3a8; line-height: 1.75; }
-.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #fff; opacity: 0.022; z-index: 1; pointer-events: none; user-select: none; }
+.hl-howitworks .hiw-badge-item { font-size: 12.5px; color: #7e908c; line-height: 1.75; }
+.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #1f3f33; opacity: 0.05; z-index: 1; pointer-events: none; user-select: none; }
 @media (max-width: 760px) {
-  .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #0c1812 0%, rgba(12,24,18,0.7) 58%, rgba(12,24,18,0) 100%); }
+  .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #dde6e2 0%, rgba(221,230,226,0.7) 58%, rgba(221,230,226,0) 100%); }
   .hl-howitworks .hiw-badges { display: none; }
   .hl-howitworks .hiw-ghostnum { font-size: 96px; }
 }

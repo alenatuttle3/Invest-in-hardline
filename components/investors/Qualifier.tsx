@@ -128,6 +128,15 @@ export default function Qualifier() {
     sessionStorage.setItem('qualification', JSON.stringify(result))
     sessionStorage.setItem('investorForm', JSON.stringify(form))
 
+    // Deliver answers to the backend (shared to Slack). Fire-and-forget with
+    // keepalive so routing to the next page never waits on the network.
+    void fetch('/api/qualifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ form, result: result.status }),
+      keepalive: true,
+    }).catch(() => {})
+
     if (result.status === 'qualified') {
       router.push('/investors/story')
     } else {
