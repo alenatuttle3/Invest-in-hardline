@@ -163,15 +163,12 @@ export default function HowItWorks() {
     if (!ctx) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    // Canvas ctx.font can't read CSS vars; resolve the Montserrat family name.
-    const montFam =
-      getComputedStyle(root).getPropertyValue('--hl-font').trim() ||
-      'system-ui, sans-serif'
     const stepEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-step'))
     const dotEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-dot'))
     const badgeEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-badge'))
     const labelEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-nodelabel'))
     const ghostEl = root.querySelector<HTMLElement>('.hiw-ghostnum')
+    const phoneEl = root.querySelector<HTMLElement>('.hiw-phone')
 
     // ---- math helpers ----
     const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
@@ -255,78 +252,6 @@ export default function HowItWorks() {
     // ---- drawing ----
     let animT = 0
 
-    function drawPhone(alpha: number) {
-      if (alpha <= 0.01) return
-      const cx = W * 0.7
-      const cy = H * 0.5
-      const ph = Math.min(H * 0.6, 460)
-      const pw = ph * 0.49
-      const x = cx - pw / 2
-      const y = cy - ph / 2
-      const rad = pw * 0.13
-      ctx!.save()
-      ctx!.globalAlpha = alpha
-      // body
-      ctx!.beginPath()
-      roundRect(x, y, pw, ph, rad)
-      ctx!.fillStyle = '#0a140f'
-      ctx!.fill()
-      ctx!.lineWidth = 2
-      ctx!.strokeStyle = 'rgba(79,174,112,0.35)'
-      ctx!.stroke()
-      // screen
-      const sx = x + pw * 0.06
-      const sy = y + ph * 0.05
-      const sw = pw * 0.88
-      const sh = ph * 0.9
-      ctx!.beginPath()
-      roundRect(sx, sy, sw, sh, rad * 0.7)
-      ctx!.fillStyle = '#0c1d15'
-      ctx!.fill()
-      // "Capturing live" pill
-      const pulse = reduced ? 0.7 : 0.5 + 0.5 * Math.sin(animT * 3)
-      ctx!.fillStyle = `rgba(79,174,112,${0.18 + 0.12 * pulse})`
-      ctx!.beginPath()
-      roundRect(sx + sw * 0.12, sy + sh * 0.08, sw * 0.76, 26, 13)
-      ctx!.fill()
-      ctx!.fillStyle = '#4fae70'
-      ctx!.beginPath()
-      ctx!.arc(sx + sw * 0.2, sy + sh * 0.08 + 13, 4, 0, Math.PI * 2)
-      ctx!.fill()
-      ctx!.fillStyle = '#cfe7d8'
-      ctx!.font = `600 12px ${montFam}`
-      ctx!.textAlign = 'left'
-      ctx!.textBaseline = 'middle'
-      ctx!.fillText('Capturing live…', sx + sw * 0.28, sy + sh * 0.08 + 13)
-      // waveform bars
-      const bars = 26
-      const bw = (sw * 0.78) / bars
-      const bx0 = sx + sw * 0.11
-      const midY = sy + sh * 0.5
-      ctx!.fillStyle = '#4fae70'
-      for (let i = 0; i < bars; i++) {
-        const phase = reduced ? 1 : Math.abs(Math.sin(animT * 2 + i * 0.5))
-        const bh = sh * (0.04 + 0.26 * phase)
-        const bxi = bx0 + i * bw
-        ctx!.globalAlpha = alpha * 0.9
-        ctx!.beginPath()
-        roundRect(bxi, midY - bh / 2, bw * 0.55, bh, bw * 0.27)
-        ctx!.fill()
-      }
-      ctx!.restore()
-    }
-
-    function roundRect(x: number, y: number, w: number, h: number, r: number) {
-      const rr = Math.min(r, w / 2, h / 2)
-      ctx!.beginPath()
-      ctx!.moveTo(x + rr, y)
-      ctx!.arcTo(x + w, y, x + w, y + h, rr)
-      ctx!.arcTo(x + w, y + h, x, y + h, rr)
-      ctx!.arcTo(x, y + h, x, y, rr)
-      ctx!.arcTo(x, y, x + w, y, rr)
-      ctx!.closePath()
-    }
-
     function draw() {
       const p = scrollProgress()
       let s1: number
@@ -373,7 +298,7 @@ export default function HowItWorks() {
       if (s2 > 0.001) drawAutomation(s2)
       drawNodes(alphas, s1)
       updateLabels(alphas, s1)
-      drawPhone(phoneAlpha)
+      if (phoneEl) phoneEl.style.opacity = phoneAlpha.toFixed(3)
     }
 
     function drawHalos(strength: number) {
@@ -573,6 +498,10 @@ export default function HowItWorks() {
       <div className="hiw-sticky">
         <canvas ref={canvasRef} className="hiw-canvas" />
 
+        {/* Stage-1 phone (live Hardline call). Cropped to the device so the
+            GIF's white background doesn't show; fades out as the map forms. */}
+        <div className="hiw-phone" aria-hidden="true" />
+
         {/* Real, selectable node labels positioned over the canvas */}
         <div className="hiw-labels">
           {NODES.map(n => (
@@ -641,6 +570,8 @@ const CSS = `
 .hl-howitworks { position: relative; height: 500vh; background: #0c1812; color: #e8f0ec; font-family: var(--hl-font), system-ui, sans-serif; }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 735 / 1600; border-radius: 42px; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: 50% 49%; background-size: 147% auto; z-index: 2; pointer-events: none; opacity: 1; }
+@media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 11px; font-weight: 500; line-height: 14px; color: #d6e7dc; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
 .hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 42%; max-width: 540px; padding: 0 clamp(24px, 5vw, 72px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #0c1812 0%, rgba(12,24,18,0.86) 55%, rgba(12,24,18,0) 100%); }
