@@ -24,27 +24,23 @@ const TRACTION_LEAD_BOLD = "phone calls don't need adoption — they already hap
 
 const TRACTION_STATS = [
   {
+    takeaway: 'Scalable growth strategy',
     value: '~$60',
     label: 'Cost per qualified lead',
     sub: 'Blended CPQL of $59 against a $237 B2B SaaS average, because our ICP finds us first.',
   },
   {
+    takeaway: 'Product-market pull',
     value: '92%',
     label: 'Pipeline from warm channels',
     sub: 'Product-market pull is strong enough that people come find us — not the other way around.',
   },
   {
+    takeaway: 'Immediate time to value',
     value: '86',
     label: 'Calls summarized, day one',
     sub: 'Sam Espinoza · HWA Construction — 164 minutes transcribed in his first 24 hours.',
   },
-]
-
-const LEAD_SOURCES = [
-  { label: 'Inbound', pct: 100, warm: true },
-  { label: 'Warm Intro', pct: 80, warm: true },
-  { label: 'Event', pct: 66, warm: true },
-  { label: 'Cold Outbound', pct: 30, warm: false },
 ]
 
 const VISION =
@@ -116,38 +112,19 @@ export default function Story() {
 
               <div className="mt-8 grid gap-5 sm:grid-cols-3">
                 {TRACTION_STATS.map(s => (
-                  <div key={s.label} className="card">
-                    <p className="text-4xl font-black leading-none text-[color:var(--hl-text)]">
-                      {s.value}
+                  <div key={s.label} className="flex flex-col gap-3">
+                    <p className="min-h-[34px] text-[11px] font-bold uppercase tracking-widest text-mint sm:content-end">
+                      {s.takeaway}
                     </p>
-                    <p className="mt-3 text-sm font-bold text-[color:var(--hl-text)]">{s.label}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-hardline-800">{s.sub}</p>
+                    <div className="card flex-1">
+                      <p className="text-4xl font-black leading-none text-[color:var(--hl-text)]">
+                        {s.value}
+                      </p>
+                      <p className="mt-3 text-sm font-bold text-[color:var(--hl-text)]">{s.label}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-hardline-800">{s.sub}</p>
+                    </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="card mt-5">
-                <h3 className="text-lg font-bold text-[color:var(--hl-text)]">
-                  Pipeline by lead source
-                </h3>
-                <div className="mt-5 space-y-3">
-                  {LEAD_SOURCES.map(s => (
-                    <div key={s.label} className="flex items-center gap-3">
-                      <span className="w-28 shrink-0 text-sm font-semibold text-[color:var(--hl-text)]">
-                        {s.label}
-                      </span>
-                      <span className="relative h-3 flex-1 rounded-full bg-[color:var(--hl-base)] shadow-neu-inset">
-                        <span
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{
-                            width: `${s.pct}%`,
-                            background: s.warm ? 'var(--hl-mint)' : 'rgba(89,175,140,0.4)',
-                          }}
-                        />
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             </section>
           </ScrollAnimator>
