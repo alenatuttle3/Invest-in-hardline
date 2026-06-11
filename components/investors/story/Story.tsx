@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import BookCall from '@/components/CalEmbed'
 import ScrollAnimator from '@/components/ScrollAnimator'
@@ -88,6 +88,36 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="section-label mb-4">{children}</p>
 }
 
+// Slim reading-progress bar. The pinned scroll scenes break the scrollbar as
+// a progress meter, so this restores the reader's sense of how much is left.
+function ReadingProgress() {
+  const [p, setP] = useState(0)
+
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement
+      const total = doc.scrollHeight - window.innerHeight
+      setP(total > 0 ? Math.min(1, window.scrollY / total) : 0)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  return (
+    <div className="fixed inset-x-0 top-0 z-50 h-[3px]" aria-hidden="true">
+      <div
+        className="h-full rounded-r-full bg-mint transition-[width] duration-150 ease-out"
+        style={{ width: `${(p * 100).toFixed(2)}%` }}
+      />
+    </div>
+  )
+}
+
 // Hover (or tap) flips the card from the person to their track record.
 function TeamFlipCard({ name, role, bio, photo }: (typeof TEAM)[number]) {
   const [flipped, setFlipped] = useState(false)
@@ -134,6 +164,7 @@ function TeamFlipCard({ name, role, bio, photo }: (typeof TEAM)[number]) {
 export default function Story() {
   return (
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
+      <ReadingProgress />
       <div className="mx-auto w-full max-w-[720px] px-6 py-14 md:py-16">
         {/* Top marker */}
         <header className="flex items-end justify-between gap-4">
