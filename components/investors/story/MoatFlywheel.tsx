@@ -10,7 +10,11 @@ import { useEffect, useRef, useState } from 'react'
 
 const STEPS = [
   { n: '01', title: 'Passive capture', body: 'Field data collected with zero behavior change.' },
-  { n: '02', title: 'Immediate value', body: 'Voice becomes a living knowledge map on day one.' },
+  {
+    n: '02',
+    title: 'Immediate value',
+    body: 'Most construction tech is built for someone else. Hardline pays off for the user on the first call.',
+  },
   { n: '03', title: 'Stickiness', body: 'Every conversation raises the switching cost.' },
   {
     n: '04',
