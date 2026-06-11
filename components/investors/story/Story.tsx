@@ -17,9 +17,11 @@ const VIDEO_HEADING = 'Why we built Hardline'
 const VIDEO_LINE =
   'The two of us, on camera: a two-inch change, communicated over the phone, $150,000 in rework — and why that happens on every job, every day.'
 
-const REFRAME_EYEBROW = 'The reframe'
-const REFRAME_QUOTE =
-  "Wasted hours, unused data, rework everywhere — those aren't problems, they're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
+// The bridge — carries the reader from the problem (the video) into the
+// solution (the how-it-works scene that follows).
+const BRIDGE_PRE = "That $150K call wasn't rare. Every problem on a jobsite starts the same way — "
+const BRIDGE_EM = 'as a conversation the tools never heard.'
+const BRIDGE_TURN = 'So we built the one that listens. Watch what happens when the field talks.'
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
@@ -161,13 +163,29 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 2 · The reframe */}
+          {/* 2 · The bridge — problem video → solution scene */}
           <ScrollAnimator>
-            <section>
-              <Eyebrow>{REFRAME_EYEBROW}</Eyebrow>
-              <blockquote className="border-l-2 border-mint pl-6 text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
-                {REFRAME_QUOTE}
-              </blockquote>
+            <section className="text-center">
+              <p className="mx-auto max-w-2xl text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
+                {BRIDGE_PRE}
+                <span className="text-mint">{BRIDGE_EM}</span>
+              </p>
+              <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-hardline-800">
+                {BRIDGE_TURN}
+              </p>
+              <div className="mt-10 flex justify-center" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-7 w-7 animate-bounce text-mint"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 4v15m0 0l-6-6m6 6l6-6" />
+                </svg>
+              </div>
             </section>
           </ScrollAnimator>
 
