@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
 import Hero from '@/components/investors/Hero'
 import WhatToExpect from '@/components/investors/WhatToExpect'
 import WhyWeDoThis from '@/components/investors/WhyWeDoThis'
@@ -20,10 +19,13 @@ export default function InvestorsPage() {
       <main>
         <Hero />
         <WhatToExpect />
-        <WhyWeDoThis />
-        <InvestorsCTA />
+        {/* One shared rich surface so the dark band gets a single soft glow
+            instead of one per section. */}
+        <div className="hl-dark hl-dark-rich">
+          <WhyWeDoThis />
+          <InvestorsCTA />
+        </div>
       </main>
-      <Footer />
     </>
   )
 }

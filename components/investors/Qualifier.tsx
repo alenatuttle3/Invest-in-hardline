@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { InvestorFormData } from '@/lib/qualify'
@@ -100,6 +100,8 @@ const Check = () => (
 
 export default function Qualifier() {
   const router = useRouter()
+  const identityRef = useRef<HTMLDivElement>(null)
+  const [identityError, setIdentityError] = useState(false)
   const [checkLow, setCheckLow] = useState(CHECK_LOW_DEFAULT)
   const [checkHigh, setCheckHigh] = useState(CHECK_HIGH_DEFAULT)
   const [form, setForm] = useState<Partial<InvestorFormData>>({
@@ -124,9 +126,25 @@ export default function Qualifier() {
   }
 
   const handleSubmit = () => {
+    if (!form.name?.trim() || !form.firm?.trim()) {
+      setIdentityError(true)
+      identityRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    setIdentityError(false)
+
     const result = qualifyInvestor(form as InvestorFormData)
     sessionStorage.setItem('qualification', JSON.stringify(result))
     sessionStorage.setItem('investorForm', JSON.stringify(form))
+
+    // Deliver answers to the backend (shared to Slack). Fire-and-forget with
+    // keepalive so routing to the next page never waits on the network.
+    void fetch('/api/qualifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ form, result: result.status }),
+      keepalive: true,
+    }).catch(() => {})
 
     if (result.status === 'qualified') {
       router.push('/investors/story')
@@ -136,7 +154,7 @@ export default function Qualifier() {
   }
 
   return (
-    <main className="hl-dark min-h-screen px-6 py-16">
+    <main className="hl-dark hl-dark-rich min-h-screen px-6 py-16">
       <div className="mx-auto w-full max-w-2xl animate-fade-up">
 
         {/* Header */}
@@ -147,6 +165,47 @@ export default function Qualifier() {
           </span>
         </div>
         <div className="mb-10 border-b border-[color:var(--hl-hairline)]" />
+
+        {/* Identity — required before the questions */}
+        <div ref={identityRef} className="card-dark mb-5">
+          <div className="flex items-start justify-between gap-4">
+            <span className="text-sm font-bold text-mint">00</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+              Required · About you
+            </span>
+          </div>
+
+          <h3 className="hl-h3 mt-3 text-[1.15rem] text-[color:var(--hl-text)]">
+            First — who are we talking to?
+          </h3>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <input
+              type="text"
+              required
+              placeholder="Your name *"
+              autoComplete="name"
+              value={form.name ?? ''}
+              onChange={e => update('name', e.target.value)}
+              className="hl-input"
+            />
+            <input
+              type="text"
+              required
+              placeholder="Firm / company *"
+              autoComplete="organization"
+              value={form.firm ?? ''}
+              onChange={e => update('firm', e.target.value)}
+              className="hl-input"
+            />
+          </div>
+
+          {identityError && (
+            <p className="mt-3 text-sm font-semibold text-[#e8a08a]">
+              Please add your name and company before submitting.
+            </p>
+          )}
+        </div>
 
         {/* Questions */}
         <div className="space-y-5">

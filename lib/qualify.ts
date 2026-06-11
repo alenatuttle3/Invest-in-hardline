@@ -1,7 +1,7 @@
 // Types for the investor qualifier form
 
 export type InvestorFormData = {
-  // Identity (gate removed for testing — re-add later)
+  // Identity (name + firm required by the form; email still optional)
   name?: string
   firm?: string
   email?: string

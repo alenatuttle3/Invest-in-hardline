@@ -49,6 +49,26 @@
   --hl-hairline: rgba(232, 240, 236, 0.1);
 }
 
+/* --- Rich dark surface (matches the marketing-site hero) ------------------
+   Near-black forest with a soft mint glow. Pair with .hl-dark so the text and
+   accent tokens stay correct; shadow tokens are re-tuned for the darker base.
+   The glow fades out well before the section edges so consecutive rich
+   sections stack seamlessly. */
+.hl-dark-rich {
+  --hl-base: #0c1a12;
+  --hl-sd: rgba(0, 0, 0, 0.55);
+  --hl-sl: rgba(140, 202, 174, 0.08);
+  --hl-inset-dark: rgba(0, 0, 0, 0.55);
+  --hl-inset-light: rgba(140, 202, 174, 0.08);
+  background-color: #0c1a12;
+  background-image: radial-gradient(
+    60% 55% at 50% 55%,
+    rgba(89, 175, 140, 0.13) 0%,
+    rgba(89, 175, 140, 0) 70%
+  );
+  background-repeat: no-repeat;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -462,8 +482,36 @@ body {
   }
 }
 
-/* Dual-thumb range slider (check-size range) */
-.hl-range-dual {
+/* Team flip cards — front shows the person, back flips to the bio */
+.hl-flip {
+  perspective: 1200px;
+}
+.hl-flip-inner {
+  position: relative;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+.hl-flip:hover .hl-flip-inner,
+.hl-flip-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.hl-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.hl-flip-back {
+  transform: rotateY(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hl-flip-inner {
+    transition: none;
+  }
+}
+
+/* Dual-thumb range slider (check-size range) */.hl-range-dual {
   position: relative;
   height: 24px;
 }
