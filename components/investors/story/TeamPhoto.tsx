@@ -84,8 +84,10 @@ export default function TeamPhoto() {
         ))}
       </h2>
 
-      {/* Photo + blurbs — breaks out wider than the reading column */}
-      <div className="mt-8 grid gap-8 lg:-mx-28 lg:grid-cols-[7fr_5fr] lg:items-center">
+      {/* Photo + blurbs — breaks out wider than the reading column. The 9fr/5fr
+          split plus the xl breakout renders the photo ~30% wider than the old
+          7fr/5fr · -mx-28 layout while the blurb column keeps its width. */}
+      <div className="mt-8 grid gap-8 lg:-mx-28 lg:grid-cols-[9fr_5fr] lg:items-center xl:-mx-48">
         {/* The photo, with a dot floating above each of us */}
         <div className="relative">
           {PHOTO ? (
