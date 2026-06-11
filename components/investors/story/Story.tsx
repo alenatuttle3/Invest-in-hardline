@@ -13,11 +13,11 @@ const READ_TIME = '~4 min'
 const VIDEO_EYEBROW = 'From us'
 const VIDEO_HEADING = 'Why we built Hardline'
 const VIDEO_LINE =
-  'The two of us, on camera — the founding story, and the $150K phone call that started it.'
+  'The two of us, on camera: a two-inch change, communicated over the phone, $150,000 in rework — and why that happens on every job, every day.'
 
 const REFRAME_EYEBROW = 'The reframe'
 const REFRAME_QUOTE =
-  "You've seen the stats — wasted time, unused data, rework everywhere. Those aren't problems. They're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
+  "Wasted hours, unused data, rework everywhere — those aren't problems, they're symptoms. The real issue: construction runs on conversation, but the tools don't listen."
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
