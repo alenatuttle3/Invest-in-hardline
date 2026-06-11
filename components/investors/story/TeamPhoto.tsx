@@ -2,11 +2,20 @@
 
 import { useState } from 'react'
 
-// TODO: drop the group shot at public/investors/team/founders.jpg, set PHOTO
-// to '/investors/team/founders.jpg', then nudge each `pin` (percent coords,
-// x from left / y from top) onto the right person in the frame.
-const PHOTO: string | null = null
+// Group shot lives at public/investors/team/founders.png; each `pin` is
+// percent coords (x from left / y from top) of the dot floating above that
+// person's head.
+const PHOTO: string | null = '/investors/team/founders.png'
 const PHOTO_ALT = 'Karly, Kimball, and Alena — the Hardline founding team'
+
+// Fades the photo's top and side edges fully out so it dissolves into the
+// page background; the bottom edge stays crisp so we aren't cut off at the
+// knees. Two gradients (one per axis) intersected, because a single radial
+// mask can't hit zero alpha at the edge midpoints without swallowing the
+// whole photo.
+const PHOTO_MASK =
+  'linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), ' +
+  'linear-gradient(to bottom, transparent, #000 18%, #000)'
 
 type Member = {
   name: string
@@ -23,32 +32,26 @@ const TEAM: Member[] = [
     role: 'Co-founder · COO',
     tag: 'Built construction.',
     bio: 'Built a commercial GC from $0 to $20M in revenue. Operations & strategy at Rex.',
-    pin: { x: 24, y: 42 },
+    pin: { x: 50, y: 25 },
   },
   {
     name: 'Kimball Hill',
     role: 'CTO',
     tag: 'Built voice AI.',
     bio: 'Took an agentic enterprise platform from 0 to $8M ARR in under a year. 7 years scaling AI products.',
-    pin: { x: 50, y: 36 },
+    pin: { x: 29.5, y: 21 },
   },
   {
     name: 'Alena Tuttle',
     role: 'Co-founder · CEO',
     tag: 'Built to exit.',
     bio: '8+ years GTM, strategy, and product. Scaled OpenInvest to a $200M+ exit.',
-    pin: { x: 76, y: 42 },
+    pin: { x: 68, y: 27 },
   },
 ]
 
-const initialsOf = (name: string) =>
-  name
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-
 // One photo of the three of us, tagged like a photo of friends — not a row of
-// corporate headshots. The heading clauses, the pins on the photo, and the
+// corporate headshots. The heading clauses, the dots above our heads, and the
 // blurbs all point at the same person: hover (or tap) any one of them and the
 // other two light up.
 export default function TeamPhoto() {
@@ -83,15 +86,25 @@ export default function TeamPhoto() {
 
       {/* Photo + blurbs — breaks out wider than the reading column */}
       <div className="mt-8 grid gap-8 lg:-mx-28 lg:grid-cols-[7fr_5fr] lg:items-center">
-        {/* The photo, with a pin on each of us */}
-        <div className="relative overflow-hidden rounded-card shadow-neu-md">
+        {/* The photo, with a dot floating above each of us */}
+        <div className="relative">
           {PHOTO ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={PHOTO} alt={PHOTO_ALT} className="block aspect-[4/3] w-full object-cover" />
+            <img
+              src={PHOTO}
+              alt={PHOTO_ALT}
+              className="block aspect-[4/3] w-full object-cover"
+              style={{
+                WebkitMaskImage: PHOTO_MASK,
+                maskImage: PHOTO_MASK,
+                WebkitMaskComposite: 'source-in',
+                maskComposite: 'intersect',
+              }}
+            />
           ) : (
-            <div className="flex aspect-[4/3] w-full items-end justify-center bg-[color:var(--hl-base)] pb-6 shadow-neu-inset">
+            <div className="flex aspect-[4/3] w-full items-end justify-center rounded-card bg-[color:var(--hl-base)] pb-6 shadow-neu-inset">
               <p className="px-6 text-center text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-                Group photo goes here · public/investors/team/founders.jpg
+                Group photo goes here · public/investors/team/founders.png
               </p>
             </div>
           )}
@@ -102,20 +115,20 @@ export default function TeamPhoto() {
               type="button"
               {...bind(i)}
               aria-label={m.name}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
+              className="absolute -translate-x-1/2 -translate-y-1/2 p-2"
               style={{ left: `${m.pin.x}%`, top: `${m.pin.y}%` }}
             >
               <span
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold shadow-neu-sm transition-all duration-200 ${
+                className={`block h-3 w-3 rounded-full bg-mint transition-all duration-200 ${
                   active === i
-                    ? 'scale-110 bg-mint text-white'
-                    : 'bg-[color:var(--hl-base)]/85 text-mint backdrop-blur-sm'
+                    ? 'scale-150 shadow-[0_0_0_6px_rgba(89,175,140,0.25)]'
+                    : active !== null
+                      ? 'opacity-40 shadow-[0_0_0_4px_rgba(89,175,140,0.15)]'
+                      : 'shadow-[0_0_0_4px_rgba(89,175,140,0.2)]'
                 }`}
-              >
-                {initialsOf(m.name)}
-              </span>
+              />
               <span
-                className={`pointer-events-none absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-mint px-3 py-1 text-[11px] font-bold text-white transition-opacity duration-200 ${
+                className={`pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-mint px-3 py-1 text-[11px] font-bold text-white transition-opacity duration-200 ${
                   active === i ? 'opacity-100' : 'opacity-0'
                 }`}
               >
