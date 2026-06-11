@@ -80,9 +80,6 @@ const TEAM: { name: string; role: string; bio: string; photo?: string }[] = [
 const TEAM_BACKERS =
   'Backed by Mucker Capital, Suffolk Tech, Nirman Ventures, and StandUp Ventures.'
 
-const VISION =
-  'The phone is the entry point and the highest-leverage UI on a jobsite. Hardline will be the eyes and ears of every jobsite — the source of truth on every build, and the connective tissue that links the job to the office.'
-
 const CTA_SUB =
   "If you believe in what we're building and have questions, let's meet."
 const CTA_BOOK = 'Schedule meeting →'
@@ -238,17 +235,7 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 6 · Why now */}
-          <ScrollAnimator>
-            <section>
-              <Eyebrow>{WHYNOW_EYEBROW}</Eyebrow>
-              <blockquote className="border-l-2 border-mint pl-6 text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
-                {WHYNOW_QUOTE}
-              </blockquote>
-            </section>
-          </ScrollAnimator>
-
-          {/* 7 · Why us — team flip cards (hover/tap for the track record) */}
+          {/* 6 · Why us — team flip cards (hover/tap for the track record) */}
           <ScrollAnimator>
             <section>
               <Eyebrow>{TEAM_EYEBROW}</Eyebrow>
@@ -266,12 +253,12 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 8 · The close — vision and booking, one dark container */}
+          {/* 7 · The close — why now and booking, one dark container */}
           <ScrollAnimator>
             <div className="hl-dark hl-dark-rich overflow-hidden rounded-[22px] px-8 py-12 text-center md:px-14 md:py-16">
-              <p className="section-label">The vision</p>
+              <p className="section-label">{WHYNOW_EYEBROW}</p>
               <p className="mx-auto mt-5 max-w-xl text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
-                {VISION}
+                {WHYNOW_QUOTE}
               </p>
 
               <p className="mx-auto mt-8 max-w-md text-base leading-relaxed text-[color:var(--hl-text-muted)]">
