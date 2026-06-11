@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import BookCall from '@/components/CalEmbed'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
+import MoatFlywheel from '@/components/investors/story/MoatFlywheel'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
 const MARKER = 'Stage 2 of 3 · The Story'
@@ -44,32 +46,9 @@ const TRACTION_STATS = [
 ]
 
 const MOAT_EYEBROW = 'Why this compounds'
-const MOAT_LEAD = 'The knowledge map is the moat.'
+const MOAT_LEAD = 'The data & intelligence is the moat.'
 const MOAT_SUB =
   'Every conversation makes the map smarter — and the longer Hardline runs, the more expensive it is to leave.'
-const MOAT_STEPS = [
-  { n: '01', title: 'Passive capture', body: 'Field data collected with zero behavior change.' },
-  { n: '02', title: 'Immediate value', body: 'Voice becomes a living knowledge map on day one.' },
-  { n: '03', title: 'Stickiness', body: 'Every conversation raises the switching cost.' },
-  { n: '04', title: 'Intelligence', body: 'The layer that runs voice-operated jobsites.' },
-]
-const MOAT_FOOT =
-  'Procore, Autodesk, and Fieldwire stay the systems of record. Hardline becomes the gatekeeper of the live field data that feeds them.'
-
-const ICP_EYEBROW = 'Who it’s for'
-const ICP_LEAD = 'Anyone who runs the job by phone.'
-const ICP_SUB =
-  'The wedge is the field leader who lives in coordination — supers, PMs, foremen, owners. And because every side of the job runs on the same conversations, the value lands across trades and GCs alike: one wedge, horizontal across the field.'
-const ICP_SEGMENTS = [
-  {
-    title: 'General contractors',
-    body: 'Every sub, schedule change, and decision across the job — captured and pushed to the office.',
-  },
-  {
-    title: 'Specialty trades',
-    body: 'Crews, change orders, and client calls documented without anyone breaking stride.',
-  },
-]
 
 const WHYNOW_EYEBROW = 'Why now'
 const WHYNOW_QUOTE =
@@ -77,7 +56,9 @@ const WHYNOW_QUOTE =
 
 const TEAM_EYEBROW = 'Why us'
 const TEAM_HEADING = 'Built construction. Built voice AI. Built to exit.'
-const TEAM = [
+// TODO: set `photo` to e.g. '/investors/team/alena.jpg' once headshots are
+// uploaded to public/investors/team/ — cards show initials until then.
+const TEAM: { name: string; role: string; bio: string; photo?: string }[] = [
   {
     name: 'Alena Tuttle',
     role: 'Co-founder · CEO',
@@ -106,6 +87,49 @@ const CTA_BOOK = 'Schedule meeting →'
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="section-label mb-4">{children}</p>
+}
+
+// Hover (or tap) flips the card from the person to their track record.
+function TeamFlipCard({ name, role, bio, photo }: (typeof TEAM)[number]) {
+  const [flipped, setFlipped] = useState(false)
+  const initials = name
+    .split(' ')
+    .map(w => w[0])
+    .join('')
+
+  return (
+    <button
+      type="button"
+      onClick={() => setFlipped(f => !f)}
+      aria-pressed={flipped}
+      aria-label={`About ${name}`}
+      className="hl-flip h-[280px] w-full cursor-pointer text-left"
+    >
+      <div className={`hl-flip-inner${flipped ? ' is-flipped' : ''}`}>
+        <div className="hl-flip-face card flex flex-col items-center justify-center text-center">
+          {photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photo}
+              alt={name}
+              className="h-28 w-28 rounded-full object-cover shadow-neu-sm"
+            />
+          ) : (
+            <span className="flex h-28 w-28 items-center justify-center rounded-full bg-[color:var(--hl-base)] text-2xl font-bold text-mint shadow-neu-sm">
+              {initials}
+            </span>
+          )}
+          <p className="mt-4 text-base font-bold text-[color:var(--hl-text)]">{name}</p>
+          <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-mint">{role}</p>
+        </div>
+
+        <div className="hl-flip-face hl-flip-back hl-dark hl-dark-rich flex flex-col items-center justify-center rounded-[18px] px-6 text-center">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-mint">{role}</p>
+          <p className="mt-3 text-sm leading-relaxed text-[color:var(--hl-text)]">{bio}</p>
+        </div>
+      </div>
+    </button>
+  )
 }
 
 export default function Story() {
@@ -155,7 +179,7 @@ export default function Story() {
 
       <div className="mx-auto w-full max-w-[720px] px-6">
         <div className="space-y-20 py-20 md:space-y-28 md:py-28">
-          {/* 4 · Why this compounds — the moat */}
+          {/* 4 · Why this compounds — the moat, as a self-feeding flywheel */}
           <ScrollAnimator>
             <section>
               <Eyebrow>{MOAT_EYEBROW}</Eyebrow>
@@ -164,17 +188,7 @@ export default function Story() {
                 {MOAT_SUB}
               </p>
 
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                {MOAT_STEPS.map(s => (
-                  <div key={s.n} className="card">
-                    <p className="text-xs font-bold text-mint">{s.n}</p>
-                    <p className="mt-2 text-base font-bold text-[color:var(--hl-text)]">{s.title}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-hardline-800">{s.body}</p>
-                  </div>
-                ))}
-              </div>
-
-              <p className="mt-6 text-sm leading-relaxed text-hardline-800">{MOAT_FOOT}</p>
+              <MoatFlywheel />
             </section>
           </ScrollAnimator>
 
@@ -206,27 +220,7 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 6 · Who it's for — ICP, horizontal across the field */}
-          <ScrollAnimator>
-            <section>
-              <Eyebrow>{ICP_EYEBROW}</Eyebrow>
-              <h2 className="hl-h3 text-[color:var(--hl-text)]">{ICP_LEAD}</h2>
-              <p className="mt-3 max-w-xl text-lg leading-relaxed text-[color:var(--hl-text)]">
-                {ICP_SUB}
-              </p>
-
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
-                {ICP_SEGMENTS.map(s => (
-                  <div key={s.title} className="card">
-                    <p className="text-base font-bold text-[color:var(--hl-text)]">{s.title}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-hardline-800">{s.body}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </ScrollAnimator>
-
-          {/* 7 · Why now */}
+          {/* 6 · Why now */}
           <ScrollAnimator>
             <section>
               <Eyebrow>{WHYNOW_EYEBROW}</Eyebrow>
@@ -236,7 +230,7 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 8 · Why us — team */}
+          {/* 7 · Why us — team flip cards (hover/tap for the track record) */}
           <ScrollAnimator>
             <section>
               <Eyebrow>{TEAM_EYEBROW}</Eyebrow>
@@ -244,13 +238,7 @@ export default function Story() {
 
               <div className="mt-8 grid gap-5 sm:grid-cols-3">
                 {TEAM.map(m => (
-                  <div key={m.name} className="card">
-                    <p className="text-base font-bold text-[color:var(--hl-text)]">{m.name}</p>
-                    <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-mint">
-                      {m.role}
-                    </p>
-                    <p className="mt-3 text-sm leading-relaxed text-hardline-800">{m.bio}</p>
-                  </div>
+                  <TeamFlipCard key={m.name} {...m} />
                 ))}
               </div>
 
@@ -260,17 +248,15 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 9 · Vision line */}
+          {/* 8 · The close — vision and booking, one dark container */}
           <ScrollAnimator>
-            <blockquote className="border-l-2 border-mint pl-6 text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
-              {VISION}
-            </blockquote>
-          </ScrollAnimator>
+            <div className="hl-dark hl-dark-rich overflow-hidden rounded-[22px] px-8 py-12 text-center md:px-14 md:py-16">
+              <p className="section-label">The vision</p>
+              <p className="mx-auto mt-5 max-w-xl text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
+                {VISION}
+              </p>
 
-          {/* 10 · Handoff CTA — booking only */}
-          <ScrollAnimator>
-            <div className="card text-center">
-              <p className="mx-auto max-w-md text-lg leading-relaxed text-[color:var(--hl-text)]">
+              <p className="mx-auto mt-8 max-w-md text-base leading-relaxed text-[color:var(--hl-text-muted)]">
                 {CTA_SUB}
               </p>
 
