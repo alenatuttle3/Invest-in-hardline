@@ -24,19 +24,19 @@ const TRACTION_LEAD =
 
 const TRACTION_STATS = [
   {
-    takeaway: 'Scalable growth strategy',
+    takeaway: ['Scalable', 'growth strategy'],
     value: '~$60',
     label: 'Cost per qualified lead',
     sub: 'Blended CPQL of $59 against a $237 B2B SaaS average, because our ICP finds us first.',
   },
   {
-    takeaway: 'Product-market pull',
+    takeaway: ['Product-market', 'pull'],
     value: '92%',
     label: 'Pipeline from warm channels',
     sub: 'Product-market pull is strong enough that people come find us — not the other way around.',
   },
   {
-    takeaway: 'Immediate time to value',
+    takeaway: ['Immediate', 'time to value'],
     value: '86',
     label: 'Calls summarized, day one',
     sub: 'Sam Espinoza · HWA Construction — 164 minutes transcribed in his first 24 hours.',
@@ -108,11 +108,13 @@ export default function Story() {
                 {TRACTION_LEAD}
               </p>
 
-              <div className="mt-8 grid gap-5 sm:grid-cols-3">
+              <div className="mt-10 grid gap-5 sm:grid-cols-3">
                 {TRACTION_STATS.map(s => (
-                  <div key={s.label} className="flex flex-col gap-3">
-                    <p className="min-h-[34px] text-[11px] font-bold uppercase tracking-widest text-mint sm:content-end">
-                      {s.takeaway}
+                  <div key={s.label} className="flex flex-col gap-4">
+                    <p className="whitespace-nowrap text-center text-[15px] font-extrabold uppercase leading-snug tracking-[0.12em] text-mint">
+                      {s.takeaway[0]}
+                      <br />
+                      {s.takeaway[1]}
                     </p>
                     <div className="card flex-1">
                       <p className="text-4xl font-black leading-none text-[color:var(--hl-text)]">
