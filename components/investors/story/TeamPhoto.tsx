@@ -8,13 +8,14 @@ import { useState } from 'react'
 const PHOTO: string | null = '/investors/team/founders.png'
 const PHOTO_ALT = 'Karly, Kimball, and Alena — the Hardline founding team'
 
-// Fades the photo's edges fully out so it dissolves into the page background
-// with no visible border. Two gradients (one per axis) intersected, because a
-// single radial mask can't hit zero alpha at the edge midpoints without
-// swallowing the whole photo.
+// Fades the photo's top and side edges fully out so it dissolves into the
+// page background; the bottom edge stays crisp so we aren't cut off at the
+// knees. Two gradients (one per axis) intersected, because a single radial
+// mask can't hit zero alpha at the edge midpoints without swallowing the
+// whole photo.
 const PHOTO_MASK =
   'linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), ' +
-  'linear-gradient(to bottom, transparent, #000 18%, #000 68%, transparent 97%)'
+  'linear-gradient(to bottom, transparent, #000 18%, #000)'
 
 type Member = {
   name: string
