@@ -482,35 +482,6 @@ body {
   }
 }
 
-/* Team flip cards — front shows the person, back flips to the bio */
-.hl-flip {
-  perspective: 1200px;
-}
-.hl-flip-inner {
-  position: relative;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s ease;
-}
-.hl-flip:hover .hl-flip-inner,
-.hl-flip-inner.is-flipped {
-  transform: rotateY(180deg);
-}
-.hl-flip-face {
-  position: absolute;
-  inset: 0;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.hl-flip-back {
-  transform: rotateY(180deg);
-}
-@media (prefers-reduced-motion: reduce) {
-  .hl-flip-inner {
-    transition: none;
-  }
-}
-
 /* Dual-thumb range slider (check-size range) */.hl-range-dual {
   position: relative;
   height: 24px;
