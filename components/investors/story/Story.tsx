@@ -7,6 +7,7 @@ import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
 import MoatFlywheel from '@/components/investors/story/MoatFlywheel'
+import TeamPhoto from '@/components/investors/story/TeamPhoto'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
 const MARKER = 'Stage 2 of 3 · The Story'
@@ -57,26 +58,6 @@ const WHYNOW_QUOTE =
   'Voice is becoming consensus as the interface of the jobsite. Hands are full, gloves are on, and the work never stops for a keyboard — the field was always going to talk. The technology finally listens.'
 
 const TEAM_EYEBROW = 'Why us'
-const TEAM_HEADING = 'Built construction. Built voice AI. Built to exit.'
-// TODO: set `photo` to e.g. '/investors/team/alena.jpg' once headshots are
-// uploaded to public/investors/team/ — cards show initials until then.
-const TEAM: { name: string; role: string; bio: string; photo?: string }[] = [
-  {
-    name: 'Alena Tuttle',
-    role: 'Co-founder · CEO',
-    bio: '8+ years GTM, strategy, and product. Scaled OpenInvest to a $200M+ exit.',
-  },
-  {
-    name: 'Karly Heffernan',
-    role: 'Co-founder · COO',
-    bio: 'Built a commercial GC from $0 to $20M in revenue. Operations & strategy at Rex.',
-  },
-  {
-    name: 'Kimball Hill',
-    role: 'CTO',
-    bio: 'Took an agentic enterprise platform from 0 to $8M ARR in under a year. 7 years scaling AI products.',
-  },
-]
 const TEAM_BACKERS =
   'Backed by Mucker Capital, Suffolk Tech, Nirman Ventures, and StandUp Ventures.'
 
@@ -115,49 +96,6 @@ function ReadingProgress() {
         style={{ width: `${(p * 100).toFixed(2)}%` }}
       />
     </div>
-  )
-}
-
-// Hover (or tap) flips the card from the person to their track record.
-function TeamFlipCard({ name, role, bio, photo }: (typeof TEAM)[number]) {
-  const [flipped, setFlipped] = useState(false)
-  const initials = name
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-
-  return (
-    <button
-      type="button"
-      onClick={() => setFlipped(f => !f)}
-      aria-pressed={flipped}
-      aria-label={`About ${name}`}
-      className="hl-flip h-[280px] w-full cursor-pointer text-left"
-    >
-      <div className={`hl-flip-inner${flipped ? ' is-flipped' : ''}`}>
-        <div className="hl-flip-face card flex flex-col items-center justify-center text-center">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={photo}
-              alt={name}
-              className="h-28 w-28 rounded-full object-cover shadow-neu-sm"
-            />
-          ) : (
-            <span className="flex h-28 w-28 items-center justify-center rounded-full bg-[color:var(--hl-base)] text-2xl font-bold text-mint shadow-neu-sm">
-              {initials}
-            </span>
-          )}
-          <p className="mt-4 text-base font-bold text-[color:var(--hl-text)]">{name}</p>
-          <p className="mt-0.5 text-[11px] font-bold uppercase tracking-widest text-mint">{role}</p>
-        </div>
-
-        <div className="hl-flip-face hl-flip-back hl-dark hl-dark-rich flex flex-col items-center justify-center rounded-[18px] px-6 text-center">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-mint">{role}</p>
-          <p className="mt-3 text-sm leading-relaxed text-[color:var(--hl-text)]">{bio}</p>
-        </div>
-      </div>
-    </button>
   )
 }
 
@@ -266,19 +204,13 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 6 · Why us — team flip cards (hover/tap for the track record) */}
+          {/* 6 · Why us — one photo of the three of us, tagged like a photo */}
           <ScrollAnimator>
             <section>
               <Eyebrow>{TEAM_EYEBROW}</Eyebrow>
-              <h2 className="hl-h3 text-[color:var(--hl-text)]">{TEAM_HEADING}</h2>
+              <TeamPhoto />
 
-              <div className="mt-8 grid gap-5 sm:grid-cols-3">
-                {TEAM.map(m => (
-                  <TeamFlipCard key={m.name} {...m} />
-                ))}
-              </div>
-
-              <p className="mt-6 text-sm font-semibold text-[color:var(--hl-text)]">
+              <p className="mt-8 text-sm font-semibold text-[color:var(--hl-text)]">
                 {TEAM_BACKERS}
               </p>
             </section>
