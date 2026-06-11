@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 
-// TODO: drop the group shot at public/investors/team/founders.jpg, set PHOTO
-// to '/investors/team/founders.jpg', then nudge each `pin` (percent coords,
-// x from left / y from top) onto the right person in the frame.
-const PHOTO: string | null = null
+// Group shot lives at public/investors/team/founders.png; each `pin` is
+// percent coords (x from left / y from top) on that frame.
+const PHOTO: string | null = '/investors/team/founders.png'
 const PHOTO_ALT = 'Karly, Kimball, and Alena — the Hardline founding team'
 
 type Member = {
@@ -23,21 +22,21 @@ const TEAM: Member[] = [
     role: 'Co-founder · COO',
     tag: 'Built construction.',
     bio: 'Built a commercial GC from $0 to $20M in revenue. Operations & strategy at Rex.',
-    pin: { x: 24, y: 42 },
+    pin: { x: 50, y: 60 },
   },
   {
     name: 'Kimball Hill',
     role: 'CTO',
     tag: 'Built voice AI.',
     bio: 'Took an agentic enterprise platform from 0 to $8M ARR in under a year. 7 years scaling AI products.',
-    pin: { x: 50, y: 36 },
+    pin: { x: 28, y: 58 },
   },
   {
     name: 'Alena Tuttle',
     role: 'Co-founder · CEO',
     tag: 'Built to exit.',
     bio: '8+ years GTM, strategy, and product. Scaled OpenInvest to a $200M+ exit.',
-    pin: { x: 76, y: 42 },
+    pin: { x: 68, y: 60 },
   },
 ]
 
@@ -91,7 +90,7 @@ export default function TeamPhoto() {
           ) : (
             <div className="flex aspect-[4/3] w-full items-end justify-center bg-[color:var(--hl-base)] pb-6 shadow-neu-inset">
               <p className="px-6 text-center text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-                Group photo goes here · public/investors/team/founders.jpg
+                Group photo goes here · public/investors/team/founders.png
               </p>
             </div>
           )}
