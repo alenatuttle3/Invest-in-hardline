@@ -149,19 +149,33 @@ export default function MoatFlywheel() {
             </g>
           </svg>
 
-          {/* step cards — circle corners on desktop, stacked on mobile */}
+          {/* step cards — circle corners on desktop, stacked on mobile. As a
+              card fades in it also warms toward the mint accent: a mint wash
+              over the base plus a mint keyline on the card shadow. */}
           <div className="mt-6 grid gap-4 md:mt-0 md:block">
-            {STEPS.map((s, i) => (
-              <div
-                key={s.n}
-                className={`card md:absolute md:w-[230px] ${CORNERS[i]}`}
-                style={{ opacity: nodeOn(i) ? 1 : 0.4, transition: 'opacity .4s ease' }}
-              >
-                <p className="text-xs font-bold text-mint">{s.n}</p>
-                <p className="mt-1.5 text-base font-bold text-[color:var(--hl-text)]">{s.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-hardline-800">{s.body}</p>
-              </div>
-            ))}
+            {STEPS.map((s, i) => {
+              const on = nodeOn(i)
+              return (
+                <div
+                  key={s.n}
+                  className={`card md:absolute md:w-[230px] ${CORNERS[i]}`}
+                  style={{
+                    opacity: on ? 1 : 0.4,
+                    backgroundColor: on
+                      ? 'color-mix(in srgb, var(--hl-mint) 12%, var(--hl-base))'
+                      : undefined,
+                    boxShadow: on
+                      ? '10px 10px 22px var(--hl-sd), -10px -10px 22px var(--hl-sl), 0 0 0 1px rgba(89,175,140,0.45)'
+                      : undefined,
+                    transition: 'opacity .4s ease, background-color .4s ease, box-shadow .4s ease',
+                  }}
+                >
+                  <p className="text-xs font-bold text-mint">{s.n}</p>
+                  <p className="mt-1.5 text-base font-bold text-[color:var(--hl-text)]">{s.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-hardline-800">{s.body}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
