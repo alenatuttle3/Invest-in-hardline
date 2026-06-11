@@ -8,9 +8,13 @@ import { useState } from 'react'
 const PHOTO: string | null = '/investors/team/founders.png'
 const PHOTO_ALT = 'Karly, Kimball, and Alena — the Hardline founding team'
 
-// Fades the photo's edges out so it dissolves into the page background
-// instead of sitting in a card.
-const PHOTO_MASK = 'radial-gradient(75% 85% at 50% 48%, #000 55%, transparent 99%)'
+// Fades the photo's edges fully out so it dissolves into the page background
+// with no visible border. Two gradients (one per axis) intersected, because a
+// single radial mask can't hit zero alpha at the edge midpoints without
+// swallowing the whole photo.
+const PHOTO_MASK =
+  'linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), ' +
+  'linear-gradient(to bottom, transparent, #000 18%, #000 68%, transparent 97%)'
 
 type Member = {
   name: string
@@ -89,7 +93,12 @@ export default function TeamPhoto() {
               src={PHOTO}
               alt={PHOTO_ALT}
               className="block aspect-[4/3] w-full object-cover"
-              style={{ WebkitMaskImage: PHOTO_MASK, maskImage: PHOTO_MASK }}
+              style={{
+                WebkitMaskImage: PHOTO_MASK,
+                maskImage: PHOTO_MASK,
+                WebkitMaskComposite: 'source-in',
+                maskComposite: 'intersect',
+              }}
             />
           ) : (
             <div className="flex aspect-[4/3] w-full items-end justify-center rounded-card bg-[color:var(--hl-base)] pb-6 shadow-neu-inset">
