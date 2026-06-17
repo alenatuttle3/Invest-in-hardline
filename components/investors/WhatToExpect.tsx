@@ -16,7 +16,7 @@ const CARDS = [
   {
     n: '3',
     title: 'If it’s a fit, let’s talk',
-    duration: 'When you’re ready',
+    duration: '',
     body: 'A couple quick questions so we can get to know you, then grab a time on our calendar.',
   },
 ]
@@ -36,9 +36,11 @@ export default function WhatToExpect() {
               </span>
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="hl-h3 text-[color:var(--hl-text)]">{c.title}</h3>
-                <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-mint">
-                  {c.duration}
-                </span>
+                {c.duration && (
+                  <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-mint">
+                    {c.duration}
+                  </span>
+                )}
               </div>
               <p className="leading-relaxed text-hardline-800">{c.body}</p>
             </div>
