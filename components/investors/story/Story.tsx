@@ -16,11 +16,11 @@ const READ_TIME = '~4 min'
 const VIDEO_EYEBROW = 'From us'
 const VIDEO_HEADING = 'Why we built Hardline'
 const VIDEO_LINE =
-  'The two of us, on camera: a two-inch change, communicated over the phone, $150,000 in rework — and why that happens on every job, every day.'
+  'The two of us, on camera: a two-inch change, communicated over the phone, $100,000 in rework — and why that happens on every job, every day.'
 
 // The bridge — carries the reader from the problem (the video) into the
 // solution (the how-it-works scene that follows).
-const BRIDGE_PRE = "That $150K call wasn't rare. Every problem on a jobsite starts the same way — "
+const BRIDGE_PRE = "That $100K call wasn't rare. Every problem on a jobsite starts the same way — "
 const BRIDGE_EM = 'as a conversation the tools never heard.'
 const BRIDGE_TURN = 'So we built the one that listens. Watch what happens when the field talks.'
 
