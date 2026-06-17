@@ -78,7 +78,7 @@ const QUESTIONS: Question[] = [
     tag: 'Value-add',
     type: 'open',
     field: 'valueAdd',
-    q: 'How would one of your portfolio companies describe what you actually contribute?',
+    q: 'How would one of your portfolio companies describe what you contribute?',
     help: 'Beyond the check — intros, network, operating help, etc.',
   },
 ]
