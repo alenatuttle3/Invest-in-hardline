@@ -1,7 +1,7 @@
 import Image from 'next/image'
 
 const SUBCOPY =
-  "We're Hardline, the first voice operations platform for the field. Rather than give the same intro pitch for the hundredth time, we built it once."
+  "We're Hardline, the first voice operations platform for the field. We get a lot of inbound right now and not a lot of spare hours, so instead of running the same intro call for the hundredth time, we put it here. Take a few minutes to see who we are. If it's a fit, we'd love to talk."
 
 export default function Hero() {
   return (
@@ -12,7 +12,7 @@ export default function Hero() {
             <p className="section-label mb-5">For prospective investors</p>
 
             <h1 className="hl-h1 text-4xl font-black text-[color:var(--hl-text)] md:text-6xl">
-              Spend 5 minutes getting up to speed on Hardline.
+              Get to know Hardline in 5 minutes.
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--hl-text)]">
