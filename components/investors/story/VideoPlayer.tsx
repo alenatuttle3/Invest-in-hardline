@@ -6,26 +6,46 @@ import { Play } from 'lucide-react'
 type VideoPlayerProps = {
   /** Poster shown before playback / while the real video is still TODO. */
   posterSrc: string
-  /** The video source. Empty for now — see TODO below. */
+  /** The video source — a YouTube URL or a direct video file (MP4, etc.). */
   src?: string
   caption?: string
 }
 
 /**
+ * Pulls the 11-char video id out of any common YouTube URL shape
+ * (youtu.be/ID, watch?v=ID, /embed/ID). Returns null for non-YouTube srcs.
+ */
+function youTubeId(src?: string): string | null {
+  if (!src) return null
+  const match = src.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/
+  )
+  return match ? match[1] : null
+}
+
+/**
  * 16:9 neumorphic video frame. While `src` is empty it renders an intentional,
  * finished-looking placeholder (poster + mint play button + caption) rather
- * than a broken embed. Once the real founders video exists, pass `src` and it
- * plays inline.
+ * than a broken embed. Once a real founders video exists, pass `src` — a
+ * YouTube link plays in an embedded iframe, any other URL plays inline.
  */
 export default function VideoPlayer({ posterSrc, src, caption = '2–3 min · our story' }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false)
-  // TODO: wire `src` to the real founders video (Loom/MP4/hosted embed URL).
   const hasVideo = Boolean(src)
+  const ytId = youTubeId(src)
 
   return (
     <figure className="group rounded-[22px] bg-[color:var(--hl-base)] p-2.5 shadow-neu-md">
       <div className="relative aspect-video w-full overflow-hidden rounded-[16px] bg-hardline-950 shadow-neu-inset">
-        {hasVideo && playing ? (
+        {hasVideo && playing && ytId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+            title="Founders video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        ) : hasVideo && playing ? (
           // eslint-disable-next-line jsx-a11y/media-has-caption
           <video
             src={src}

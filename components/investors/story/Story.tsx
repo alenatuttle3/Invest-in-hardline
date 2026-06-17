@@ -123,8 +123,11 @@ export default function Story() {
                 {VIDEO_LINE}
               </p>
               <div className="mt-8">
-                {/* TODO: swap posterSrc for a real still (founders-poster.jpg) and pass `src`. */}
-                <VideoPlayer posterSrc="/investors/founders-poster.svg" />
+                {/* TODO: swap posterSrc for a real still (founders-poster.jpg). */}
+                <VideoPlayer
+                  posterSrc="/investors/founders-poster.svg"
+                  src="https://youtu.be/ul9OjBiW27w"
+                />
               </div>
             </section>
           </ScrollAnimator>
