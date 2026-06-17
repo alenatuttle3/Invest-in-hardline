@@ -1,23 +1,23 @@
 'use client'
 
 import { useEffect } from 'react'
-import { CAL_LINK } from '@/lib/cal'
+import { CAL_LINK, CAL_NAMESPACE } from '@/lib/cal'
 
 declare global {
   interface Window {
     Cal?: {
       (...args: unknown[]): void
       loaded?: boolean
-      ns?: Record<string, unknown>
+      ns?: Record<string, (...args: unknown[]) => void>
       q?: unknown[]
       config?: Record<string, unknown>
     }
   }
 }
 
-// Loads the official Cal.com embed script once and initializes it. The script
-// uses event delegation, so any element carrying `data-cal-link` (added before
-// or after load) opens the booking modal on click.
+// Loads the official Cal.com embed script once and initializes the event's
+// namespace. The script uses event delegation, so any element carrying
+// `data-cal-link` + `data-cal-namespace` opens the booking modal on click.
 let calInitialized = false
 
 function useCalEmbed() {
@@ -63,12 +63,16 @@ function useCalEmbed() {
     })(window, 'https://app.cal.com/embed/embed.js', 'init')
     /* eslint-enable */
 
-    window.Cal?.('init', { origin: 'https://app.cal.com' })
+    window.Cal?.('init', CAL_NAMESPACE, { origin: 'https://app.cal.com' })
     if (window.Cal) {
       // Forward UTM / query params through to the booking, matching the
       // settings on the Cal.com event.
       window.Cal.config = window.Cal.config || {}
       window.Cal.config.forwardQueryParams = true
+      window.Cal.ns?.[CAL_NAMESPACE]?.('ui', {
+        hideEventTypeDetails: false,
+        layout: 'month_view',
+      })
     }
   }, [])
 }
@@ -89,7 +93,8 @@ export default function BookCall({ className, children }: BookCallProps) {
       type="button"
       className={className}
       data-cal-link={CAL_LINK}
-      data-cal-config='{"layout":"month_view"}'
+      data-cal-namespace={CAL_NAMESPACE}
+      data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
     >
       {children}
     </button>
