@@ -47,7 +47,7 @@ export default function AccessGate() {
       keepalive: true,
     }).catch(() => {})
 
-    router.push('/investors/story')
+    router.push('/story')
   }
 
   return (

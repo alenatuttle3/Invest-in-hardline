@@ -31,7 +31,7 @@ export default function QAPage() {
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-5">
-            <Link href="/investors/story" className="btn-primary">
+            <Link href="/story" className="btn-primary">
               ← Back to the story
             </Link>
             <a

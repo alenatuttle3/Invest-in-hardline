@@ -5,15 +5,15 @@ A gated, async-first investor funnel. Lets inbound investors get to know Hardlin
 ## Flow
 
 ```
-/investors            Landing — intro + access gate (name, email, fund)
+/            Landing — intro + access gate (name, email, fund)
   ↓ (gate unlocks the story)
-/investors/story      The story: videos, how it works, traction
+/story       The story: videos, how it works, traction
   ↓                         ↘ "Follow along" — one-click newsletter opt-in
-/investors/book       A couple optional questions, then book a call
+/book        A couple optional questions, then book a call
 ```
 
 The story and booking pages are hard-gated: visiting them without completing
-the access gate (tracked in `sessionStorage`) redirects back to `/investors`.
+the access gate (tracked in `sessionStorage`) redirects back to `/`.
 Anyone who finishes the gate can book — there's no hard qualification step.
 
 ## Running locally
@@ -43,10 +43,10 @@ This portal follows the **Hardline design system** (`DESIGN.md`):
 ```
 app/
   layout.tsx                  Montserrat + theme wiring + noindex metadata
-  page.tsx                    Redirects to /investors
-  investors/page.tsx          Landing page + access gate
-  investors/story/page.tsx    The story
-  investors/book/page.tsx     Pre-meeting questions + booking
+  page.tsx                    Landing page + access gate
+  story/page.tsx              The story
+  book/page.tsx               Pre-meeting questions + booking
+  qa/page.tsx                 Q&A (placeholder)
   api/qualifier/route.ts      Delivers submissions to Slack
 lib/qualify.ts                Form types + storage key
 lib/tier.ts                   Investor tier (gates the booking CTA)
@@ -55,7 +55,7 @@ styles/globals.css            Design tokens + neumorphic components
 
 ## Deploying
 
-This is a Next.js app. Recommended: deploy to Vercel, set a custom path on hardlineapp.com (e.g. `/raise` or a subdomain `investors.hardlineapp.com`).
+This is a Next.js app. Recommended: deploy to Vercel and point a subdomain at it (e.g. `invest.hardlineapp.com`). The funnel serves from the root, so the landing page is just `invest.hardlineapp.com`.
 
 The page is `noindex` by default — won't appear in search results.
 

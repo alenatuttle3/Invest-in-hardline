@@ -110,7 +110,7 @@ export default function BookingQuestions() {
   // Hard gate: booking lives behind the access form, same as the story.
   useEffect(() => {
     try {
-      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/investors')
+      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/')
     } catch {
       /* sessionStorage unavailable — fail open */
     }
@@ -256,7 +256,7 @@ export default function BookingQuestions() {
             {/* Footer */}
             <div className="mt-10 flex items-center justify-between">
               <Link
-                href="/investors/story"
+                href="/story"
                 className="text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
               >
                 ← Back to the story

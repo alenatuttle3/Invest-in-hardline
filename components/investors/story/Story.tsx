@@ -108,7 +108,7 @@ export default function Story() {
   // no captured access in this session, send them back to enter it.
   useEffect(() => {
     try {
-      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/investors')
+      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/')
     } catch {
       /* sessionStorage unavailable — fail open rather than trap the visitor */
     }
@@ -246,7 +246,7 @@ export default function Story() {
               </p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link href="/investors/book" className="btn-primary">
+                <Link href="/book" className="btn-primary">
                   {CTA_BOOK}
                 </Link>
                 <NewsletterSignup className="btn-outline-dark" />
@@ -257,7 +257,7 @@ export default function Story() {
           {/* Footer chrome — continuous with Stage 1 / Stage 3 */}
           <div className="flex items-center justify-between pt-2">
             <Link
-              href="/investors"
+              href="/"
               className="text-xs font-bold uppercase tracking-widest text-hardline-800 transition-colors hover:text-mint"
             >
               ← Back
