@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import BookCall from '@/components/CalEmbed'
+import { useRouter } from 'next/navigation'
+import NewsletterSignup from '@/components/investors/NewsletterSignup'
+import { ACCESS_KEY } from '@/lib/qualify'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
@@ -62,8 +64,8 @@ const TEAM_BACKERS =
   'Backed by Mucker Capital, Suffolk Tech, Nirman Ventures, and StandUp Ventures.'
 
 const CTA_SUB =
-  "If you believe in what we're building and have questions, let's meet."
-const CTA_BOOK = 'Schedule meeting →'
+  'Want to follow along as we build? Hop on the newsletter. Want to really get to know us? Grab a time and let’s talk.'
+const CTA_BOOK = 'Book a meeting →'
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="section-label mb-4">{children}</p>
@@ -100,6 +102,18 @@ function ReadingProgress() {
 }
 
 export default function Story() {
+  const router = useRouter()
+
+  // Hard gate: the story is only reachable after the access form. If there's
+  // no captured access in this session, send them back to enter it.
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/investors')
+    } catch {
+      /* sessionStorage unavailable — fail open rather than trap the visitor */
+    }
+  }, [router])
+
   return (
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
       <ReadingProgress />
@@ -231,8 +245,11 @@ export default function Story() {
                 {CTA_SUB}
               </p>
 
-              <div className="mt-8 flex justify-center">
-                <BookCall className="btn-primary">{CTA_BOOK}</BookCall>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link href="/investors/book" className="btn-primary">
+                  {CTA_BOOK}
+                </Link>
+                <NewsletterSignup className="btn-outline-dark" />
               </div>
             </div>
           </ScrollAnimator>
@@ -240,7 +257,7 @@ export default function Story() {
           {/* Footer chrome — continuous with Stage 1 / Stage 3 */}
           <div className="flex items-center justify-between pt-2">
             <Link
-              href="/investors/qualifier"
+              href="/investors"
               className="text-xs font-bold uppercase tracking-widest text-hardline-800 transition-colors hover:text-mint"
             >
               ← Back

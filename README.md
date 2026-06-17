@@ -1,18 +1,20 @@
 # Hardline Investor Portal
 
-A gated, async-first investor funnel. Qualifies inbound investors before they get on a call with Alena.
+A gated, async-first investor funnel. Lets inbound investors get to know Hardline on their own time before booking a call with Alena.
 
 ## Flow
 
 ```
-/investors            Landing page (the interactive "first call")
-  ↓
-/investors/qualifier  Stage 1 — the fit check (6 questions)
-  ↓ qualified                        ↓ not a fit
-/investors/story      Stage 2       /not-a-fit (graceful exit + follow-up)
-  ↓
-/investors/qa         Stage 3 — Q&A, then book a call
+/investors            Landing — intro + access gate (name, email, fund)
+  ↓ (gate unlocks the story)
+/investors/story      The story: videos, how it works, traction
+  ↓                         ↘ "Follow along" — one-click newsletter opt-in
+/investors/book       A couple optional questions, then book a call
 ```
+
+The story and booking pages are hard-gated: visiting them without completing
+the access gate (tracked in `sessionStorage`) redirects back to `/investors`.
+Anyone who finishes the gate can book — there's no hard qualification step.
 
 ## Running locally
 
@@ -42,12 +44,11 @@ This portal follows the **Hardline design system** (`DESIGN.md`):
 app/
   layout.tsx                  Montserrat + theme wiring + noindex metadata
   page.tsx                    Redirects to /investors
-  investors/page.tsx          Landing page
-  investors/qualifier/page.tsx  Stage 1 — the fit check
-  investors/story/page.tsx    Stage 2 — the story
-  investors/qa/page.tsx       Stage 3 — Q&A (placeholder)
-  not-a-fit/page.tsx          Graceful exit
-lib/qualify.ts                Routing logic + form types
+  investors/page.tsx          Landing page + access gate
+  investors/story/page.tsx    The story
+  investors/book/page.tsx     Pre-meeting questions + booking
+  api/qualifier/route.ts      Delivers submissions to Slack
+lib/qualify.ts                Form types + storage key
 lib/tier.ts                   Investor tier (gates the booking CTA)
 styles/globals.css            Design tokens + neumorphic components
 ```

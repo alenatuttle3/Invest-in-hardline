@@ -1,19 +1,27 @@
 import { NextResponse } from 'next/server'
-import type { InvestorFormData } from '@/lib/qualify'
+import type { InvestorFormData, SubmissionType } from '@/lib/qualify'
 
-// Delivers fit-check submissions to Slack via an incoming webhook — the most
+// Delivers investor submissions to Slack via an incoming webhook — the most
 // lightweight share target (one env var, no SDK). Set SLACK_WEBHOOK_URL to the
 // webhook of the channel that should receive submissions.
+//
+// Three kinds of submission flow through here:
+//   access     — someone entered name/email/fund to unlock the story
+//   questions  — pre-meeting answers, sent right before booking a call
+//   newsletter — someone opted into follow-along updates
 
 type Submission = {
+  type?: SubmissionType
   form: Partial<InvestorFormData>
-  result: string
 }
 
-const FIELDS: [keyof InvestorFormData, string][] = [
+const IDENTITY_FIELDS: [keyof InvestorFormData, string][] = [
   ['name', 'Name'],
-  ['firm', 'Firm'],
   ['email', 'Email'],
+  ['fund', 'Fund'],
+]
+
+const QUESTION_FIELDS: [keyof InvestorFormData, string][] = [
   ['stage', 'Q1 · First-check stage'],
   ['checkSize', 'Q2 · Typical check size'],
   ['evaluation', 'Q3 · How they evaluate seed-stage companies'],
@@ -21,6 +29,12 @@ const FIELDS: [keyof InvestorFormData, string][] = [
   ['role', 'Q5 · Lead capability'],
   ['valueAdd', 'Q6 · What they contribute beyond the check'],
 ]
+
+const HEADERS: Record<SubmissionType, string> = {
+  access: ':wave: *New investor unlocked the story*',
+  questions: ':calendar: *Investor is booking a call — pre-meeting answers*',
+  newsletter: ':newspaper: *Investor joined the newsletter*',
+}
 
 export async function POST(req: Request) {
   let payload: Submission
@@ -30,6 +44,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 })
   }
 
+  const type: SubmissionType = payload.type ?? 'access'
+
+  const fields =
+    type === 'questions' ? [...IDENTITY_FIELDS, ...QUESTION_FIELDS] : IDENTITY_FIELDS
+
   const webhook = process.env.SLACK_WEBHOOK_URL
   if (!webhook) {
     // Don't fail the visitor's flow over a missing config — log so it's
@@ -38,17 +57,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Delivery not configured' })
   }
 
-  const answers = FIELDS.flatMap(([field, label]) => {
+  const answers = fields.flatMap(([field, label]) => {
     const value = payload.form?.[field]
     const text = (Array.isArray(value) ? value.join(', ') : value)?.trim()
     return text ? [`*${label}*\n${text}`] : []
   })
 
-  const verdict =
-    payload.result === 'qualified' ? 'Qualified ✅' : `Routed: ${payload.result || 'unknown'}`
-  const text = [`:incoming_envelope: *New investor fit check* — ${verdict}`, ...answers].join(
-    '\n\n',
-  )
+  const text = [HEADERS[type] ?? HEADERS.access, ...answers].join('\n\n')
 
   const res = await fetch(webhook, {
     method: 'POST',

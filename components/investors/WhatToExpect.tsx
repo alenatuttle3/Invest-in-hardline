@@ -3,9 +3,9 @@ const HEADING = "Here's how the next five minutes go."
 const CARDS = [
   {
     n: '1',
-    title: 'Quick fit check',
+    title: 'Tell us who you are',
     duration: '30 seconds',
-    body: "A few questions to make sure we're a real fit before either of us blocks 30 minutes.",
+    body: 'Name, email, and your fund — that’s the whole gate. It unlocks the story.',
   },
   {
     n: '2',
@@ -15,9 +15,9 @@ const CARDS = [
   },
   {
     n: '3',
-    title: 'The deep dive',
-    duration: '30 min',
-    body: 'Set up time to dig in deep.',
+    title: 'If it’s a fit, let’s talk',
+    duration: 'When you’re ready',
+    body: 'A couple quick questions so we can get to know you, then grab a time on our calendar.',
   },
 ]
 
