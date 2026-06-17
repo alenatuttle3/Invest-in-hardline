@@ -106,7 +106,6 @@ export default function BookingQuestions() {
     stage: [],
     checkSize: formatRange(CHECK_LOW_DEFAULT, CHECK_HIGH_DEFAULT),
   })
-  const [submitted, setSubmitted] = useState(false)
 
   // Hard gate: booking lives behind the access form, same as the story.
   useEffect(() => {
@@ -133,9 +132,10 @@ export default function BookingQuestions() {
     update('checkSize', formatRange(low, high))
   }
 
-  // Anyone can book — the questions are optional. Continue merges in whatever
-  // the access gate captured, ships it to Slack, and reveals scheduling.
-  const handleContinue = () => {
+  // Anyone can book — the questions are optional. This fires on the same click
+  // that opens the Cal modal: merge in whatever the access gate captured and
+  // ship the answers to Slack.
+  const handleBook = () => {
     let access: Partial<InvestorFormData> = {}
     try {
       access = JSON.parse(sessionStorage.getItem(ACCESS_KEY) ?? '{}')
@@ -150,8 +150,6 @@ export default function BookingQuestions() {
       body: JSON.stringify({ type: 'questions', form: full }),
       keepalive: true,
     }).catch(() => {})
-
-    setSubmitted(true)
   }
 
   return (
@@ -166,18 +164,7 @@ export default function BookingQuestions() {
         </div>
         <div className="mb-8 border-b border-[color:var(--hl-hairline)]" />
 
-        {submitted ? (
-          <div className="card-dark text-center">
-            <h2 className="hl-h2 text-[color:var(--hl-text)]">Thanks — last step.</h2>
-            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-[color:var(--hl-text-muted)]">
-              Pick a time that works and we’ll see you then. Looking forward to it.
-            </p>
-            <div className="mt-8 flex justify-center">
-              <BookCall className="btn-primary">Pick a time →</BookCall>
-            </div>
-          </div>
-        ) : (
-          <>
+        <>
             <h1 className="hl-h2 text-[color:var(--hl-text)]">
               A couple questions to help us get to know you before we meet.
             </h1>
@@ -274,16 +261,15 @@ export default function BookingQuestions() {
               >
                 ← Back to the story
               </Link>
-              <button onClick={handleContinue} className="btn-primary">
-                Continue to scheduling →
-              </button>
+              <BookCall onClick={handleBook} className="btn-primary">
+                Book a time →
+              </BookCall>
             </div>
 
             <p className="mt-8 text-center text-xs text-hardline-300">
               Your answers are shared only with Alena. This page is not indexed by search engines.
             </p>
-          </>
-        )}
+        </>
       </div>
     </main>
   )

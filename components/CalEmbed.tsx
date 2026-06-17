@@ -80,17 +80,22 @@ function useCalEmbed() {
 type BookCallProps = {
   className?: string
   children: React.ReactNode
+  /** Runs on the same click that opens the modal (e.g. to submit a form). */
+  onClick?: () => void
 }
 
 /**
  * Opens the Cal.com booking modal on click. Reuse this anywhere a "book a call"
- * action is needed so the booking integration stays in one place.
+ * action is needed so the booking integration stays in one place. The Cal modal
+ * opens via `data-cal-link` event delegation, so an `onClick` handler runs
+ * alongside it on the same click.
  */
-export default function BookCall({ className, children }: BookCallProps) {
+export default function BookCall({ className, children, onClick }: BookCallProps) {
   useCalEmbed()
   return (
     <button
       type="button"
+      onClick={onClick}
       className={className}
       data-cal-link={CAL_LINK}
       data-cal-namespace={CAL_NAMESPACE}
