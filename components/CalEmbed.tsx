@@ -1,17 +1,23 @@
 'use client'
 
 import { useEffect } from 'react'
-import { CAL_LINK } from '@/lib/cal'
+import { CAL_LINK, CAL_NAMESPACE } from '@/lib/cal'
 
 declare global {
   interface Window {
-    Cal?: { (...args: unknown[]): void; loaded?: boolean; ns?: Record<string, unknown>; q?: unknown[] }
+    Cal?: {
+      (...args: unknown[]): void
+      loaded?: boolean
+      ns?: Record<string, (...args: unknown[]) => void>
+      q?: unknown[]
+      config?: Record<string, unknown>
+    }
   }
 }
 
-// Loads the official Cal.com embed script once and initializes it. The script
-// uses event delegation, so any element carrying `data-cal-link` (added before
-// or after load) opens the booking modal on click.
+// Loads the official Cal.com embed script once and initializes the event's
+// namespace. The script uses event delegation, so any element carrying
+// `data-cal-link` + `data-cal-namespace` opens the booking modal on click.
 let calInitialized = false
 
 function useCalEmbed() {
@@ -57,27 +63,43 @@ function useCalEmbed() {
     })(window, 'https://app.cal.com/embed/embed.js', 'init')
     /* eslint-enable */
 
-    window.Cal?.('init', { origin: 'https://cal.com' })
+    window.Cal?.('init', CAL_NAMESPACE, { origin: 'https://app.cal.com' })
+    if (window.Cal) {
+      // Forward UTM / query params through to the booking, matching the
+      // settings on the Cal.com event.
+      window.Cal.config = window.Cal.config || {}
+      window.Cal.config.forwardQueryParams = true
+      window.Cal.ns?.[CAL_NAMESPACE]?.('ui', {
+        hideEventTypeDetails: false,
+        layout: 'month_view',
+      })
+    }
   }, [])
 }
 
 type BookCallProps = {
   className?: string
   children: React.ReactNode
+  /** Runs on the same click that opens the modal (e.g. to submit a form). */
+  onClick?: () => void
 }
 
 /**
  * Opens the Cal.com booking modal on click. Reuse this anywhere a "book a call"
- * action is needed so the booking integration stays in one place.
+ * action is needed so the booking integration stays in one place. The Cal modal
+ * opens via `data-cal-link` event delegation, so an `onClick` handler runs
+ * alongside it on the same click.
  */
-export default function BookCall({ className, children }: BookCallProps) {
+export default function BookCall({ className, children, onClick }: BookCallProps) {
   useCalEmbed()
   return (
     <button
       type="button"
+      onClick={onClick}
       className={className}
       data-cal-link={CAL_LINK}
-      data-cal-config='{"layout":"month_view"}'
+      data-cal-namespace={CAL_NAMESPACE}
+      data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
     >
       {children}
     </button>

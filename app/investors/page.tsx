@@ -3,7 +3,7 @@ import Navbar from '@/components/Navbar'
 import Hero from '@/components/investors/Hero'
 import WhatToExpect from '@/components/investors/WhatToExpect'
 import WhyWeDoThis from '@/components/investors/WhyWeDoThis'
-import InvestorsCTA from '@/components/investors/InvestorsCTA'
+import AccessGate from '@/components/investors/AccessGate'
 
 export const metadata: Metadata = {
   title: 'Hardline — A different kind of first call',
@@ -23,7 +23,7 @@ export default function InvestorsPage() {
             instead of one per section. */}
         <div className="hl-dark hl-dark-rich">
           <WhyWeDoThis />
-          <InvestorsCTA />
+          <AccessGate />
         </div>
       </main>
     </>
