@@ -5,7 +5,13 @@ import { CAL_LINK } from '@/lib/cal'
 
 declare global {
   interface Window {
-    Cal?: { (...args: unknown[]): void; loaded?: boolean; ns?: Record<string, unknown>; q?: unknown[] }
+    Cal?: {
+      (...args: unknown[]): void
+      loaded?: boolean
+      ns?: Record<string, unknown>
+      q?: unknown[]
+      config?: Record<string, unknown>
+    }
   }
 }
 
@@ -57,7 +63,13 @@ function useCalEmbed() {
     })(window, 'https://app.cal.com/embed/embed.js', 'init')
     /* eslint-enable */
 
-    window.Cal?.('init', { origin: 'https://cal.com' })
+    window.Cal?.('init', { origin: 'https://app.cal.com' })
+    if (window.Cal) {
+      // Forward UTM / query params through to the booking, matching the
+      // settings on the Cal.com event.
+      window.Cal.config = window.Cal.config || {}
+      window.Cal.config.forwardQueryParams = true
+    }
   }, [])
 }
 
