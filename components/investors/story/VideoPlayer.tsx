@@ -24,10 +24,10 @@ function youTubeId(src?: string): string | null {
 }
 
 /**
- * 16:9 neumorphic video frame. While `src` is empty it renders an intentional,
- * finished-looking placeholder (poster + mint play button + caption) rather
- * than a broken embed. Once a real founders video exists, pass `src` — a
- * YouTube link plays in an embedded iframe, any other URL plays inline.
+ * 16:9 neumorphic video frame. A YouTube `src` is embedded directly (YouTube's
+ * own thumbnail + play button — no placeholder poster). A direct video file
+ * shows a poster with a play button until clicked. With no `src` at all it
+ * renders a finished-looking placeholder rather than a broken embed.
  */
 export default function VideoPlayer({ posterSrc, src, caption = '2–3 min · our story' }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false)
@@ -37,9 +37,9 @@ export default function VideoPlayer({ posterSrc, src, caption = '2–3 min · ou
   return (
     <figure className="group rounded-[22px] bg-[color:var(--hl-base)] p-2.5 shadow-neu-md">
       <div className="relative aspect-video w-full overflow-hidden rounded-[16px] bg-hardline-950 shadow-neu-inset">
-        {hasVideo && playing && ytId ? (
+        {ytId ? (
           <iframe
-            src={`https://www.youtube.com/embed/${ytId}?autoplay=1`}
+            src={`https://www.youtube.com/embed/${ytId}`}
             title="Founders video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
