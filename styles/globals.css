@@ -481,30 +481,22 @@ body {
   animation: hlModalIn 0.28s ease both;
 }
 
-/* Concentric rings radiating from the mic while it's actively listening. */
-@keyframes hlListenRing {
-  0% {
-    transform: scale(1);
-    opacity: 0.55;
-  }
-  70%,
+/* Live "listening" waveform — a row of mint bars bouncing like an equalizer. */
+@keyframes hlWave {
+  0%,
   100% {
-    transform: scale(1.9);
-    opacity: 0;
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
   }
 }
-.voice-listening::before,
-.voice-listening::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 2px solid var(--hl-mint);
-  animation: hlListenRing 1.8s ease-out infinite;
-  pointer-events: none;
+.voice-wave-bar {
+  transform-origin: center;
+  transform: scaleY(0.25);
 }
-.voice-listening::after {
-  animation-delay: 0.9s;
+.voice-wave-bar.is-active {
+  animation: hlWave 0.9s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -522,9 +514,9 @@ body {
     opacity: 1;
     transform: none;
   }
-  .voice-listening::before,
-  .voice-listening::after {
-    display: none;
+  .voice-wave-bar.is-active {
+    animation: none;
+    transform: scaleY(0.6);
   }
 }
 

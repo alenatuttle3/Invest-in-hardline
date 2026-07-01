@@ -509,7 +509,10 @@ export default function HowItWorks() {
 
   return (
     <section ref={rootRef} className="hl-howitworks" aria-label="How Hardline works">
-      <style>{CSS}</style>
+      {/* dangerouslySetInnerHTML (not children) so the server/client serialize
+          the CSS identically — inline url("…") quotes otherwise trip a
+          text-content hydration mismatch that re-renders the page client-side. */}
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="hiw-sticky">
         <canvas ref={canvasRef} className="hiw-canvas" />
 

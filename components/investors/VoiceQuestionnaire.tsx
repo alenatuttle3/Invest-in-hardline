@@ -84,6 +84,27 @@ function MicIcon({ className }: { className?: string }) {
   )
 }
 
+// Equalizer-style waveform. Bars bounce while listening, rest flat when paused.
+// Varied heights + staggered delays keep it from looking mechanical.
+const WAVE_BARS = [0.5, 0.8, 1, 0.65, 1, 0.8, 0.5]
+function Waveform({ active }: { active: boolean }) {
+  return (
+    <div className="flex h-9 items-center gap-[5px]" aria-hidden="true">
+      {WAVE_BARS.map((scale, i) => (
+        <span
+          key={i}
+          className={`voice-wave-bar w-[4px] rounded-full bg-mint${active ? ' is-active' : ''}`}
+          style={{
+            height: `${Math.round(scale * 100)}%`,
+            animationDelay: `${i * 0.09}s`,
+            animationDuration: `${0.75 + (i % 3) * 0.12}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 type Props = {
   onClose: () => void
   /** Ships the collected answers (e.g. to Slack). Called once, when they finish. */
@@ -299,12 +320,12 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
       aria-modal="true"
       aria-label="A few questions before we meet"
     >
-      {/* Backdrop */}
+      {/* Backdrop — just blur the page behind, no dark fill */}
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-[#050d09]/70 backdrop-blur-sm"
+        className="absolute inset-0 cursor-default bg-[rgba(12,26,18,0.06)] backdrop-blur-md"
       />
 
       {/* Card */}
@@ -363,11 +384,8 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
         {phase === 'question' && (
           <div>
             {/* Progress */}
-            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-              <span>
-                <span className="text-mint">{q.n}</span> / 0{QUESTIONS.length}
-              </span>
-              <span>{q.tag}</span>
+            <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+              <span className="text-mint">{q.n}</span> / 0{QUESTIONS.length}
             </div>
             <div className="mt-3 h-[3px] w-full overflow-hidden rounded-full bg-[color:var(--hl-hairline)]">
               <div
@@ -391,36 +409,31 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 placeholder={canVoice ? 'Start speaking — your words appear here…' : 'Type your answer…'}
                 className="hl-input resize-none text-[0.95rem] leading-relaxed"
               />
-              {/* Status line — no layout shift as it toggles */}
-              <div className="mt-2 flex min-h-[1.25rem] items-center gap-2 px-1 text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-                {listening ? (
-                  <>
-                    <span className="inline-block h-2 w-2 animate-ping rounded-full bg-mint" />
-                    Listening…
-                  </>
-                ) : (
-                  canVoice && (committed ? 'Paused — tap the mic to add more' : '')
-                )}
-              </div>
             </div>
 
-            {/* Mic control */}
+            {/* Listening indicator — a passive waveform with a pause control on
+                the side, so nothing reads as a button you must press to talk. */}
             {canVoice ? (
-              <div className="mt-2 flex flex-col items-center">
+              <div className="mt-5 flex items-center justify-center gap-4">
+                <Waveform active={listening} />
                 <button
                   type="button"
                   onClick={toggleMic}
-                  aria-label={listening ? 'Pause microphone' : 'Resume microphone'}
-                  aria-pressed={listening}
-                  className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-all ${
-                    listening ? 'voice-listening bg-mint text-white' : 'icon-neumorph-dark text-mint'
-                  }`}
+                  aria-label={listening ? 'Pause' : 'Resume'}
+                  aria-pressed={!listening}
+                  className="icon-neumorph-dark flex h-11 w-11 items-center justify-center rounded-full text-mint"
                 >
-                  <MicIcon className="h-6 w-6" />
+                  {listening ? (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+                      <rect x="6" y="5" width="4" height="14" rx="1.5" />
+                      <rect x="14" y="5" width="4" height="14" rx="1.5" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
+                      <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z" />
+                    </svg>
+                  )}
                 </button>
-                <span className="mt-3 text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-                  {listening ? 'Tap to pause' : 'Tap to speak'}
-                </span>
               </div>
             ) : (
               permission === 'denied' && (

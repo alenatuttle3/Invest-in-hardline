@@ -4,12 +4,17 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import NewsletterSignup from '@/components/investors/NewsletterSignup'
-import { ACCESS_KEY } from '@/lib/qualify'
+import VoiceQuestionnaire, { type VoiceAnswers } from '@/components/investors/VoiceQuestionnaire'
+import { ACCESS_KEY, type InvestorFormData } from '@/lib/qualify'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
 import MoatFlywheel from '@/components/investors/story/MoatFlywheel'
 import TeamPhoto from '@/components/investors/story/TeamPhoto'
+
+// Set by the /investors/book route before it redirects here, so the booking
+// pop-up opens over the (blurred) story rather than a blank page.
+const OPEN_BOOKING_KEY = 'openBooking'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
 const MARKER = 'Stage 2 of 3 · The Story'
@@ -24,7 +29,8 @@ const VIDEO_LINE =
 // solution (the how-it-works scene that follows).
 const BRIDGE_PRE = 'Every problem on a jobsite starts the same way: '
 const BRIDGE_EM = 'a conversation that disappeared.'
-const BRIDGE_TURN = 'We decided that was over.'
+const BRIDGE_TURN =
+  "For decades, the source of truth on every jobsite was one person's head. Hardline is the first system that remembers."
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
@@ -101,16 +107,42 @@ function ReadingProgress() {
 
 export default function Story() {
   const router = useRouter()
+  const [bookingOpen, setBookingOpen] = useState(false)
 
   // Hard gate: the story is only reachable after the access form. If there's
-  // no captured access in this session, send them back to enter it.
+  // no captured access in this session, send them back to enter it. Also open
+  // the booking pop-up if we arrived here via the /investors/book redirect.
   useEffect(() => {
     try {
-      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/investors')
+      if (!sessionStorage.getItem(ACCESS_KEY)) {
+        router.replace('/investors')
+        return
+      }
+      if (sessionStorage.getItem(OPEN_BOOKING_KEY) === '1') {
+        sessionStorage.removeItem(OPEN_BOOKING_KEY)
+        setBookingOpen(true)
+      }
     } catch {
       /* sessionStorage unavailable — fail open rather than trap the visitor */
     }
   }, [router])
+
+  // Ships the spoken pre-meeting answers to Slack, merged with the access-gate
+  // identity. Runs once, when the questionnaire finishes.
+  const submitAnswers = (answers: VoiceAnswers) => {
+    let access: Partial<InvestorFormData> = {}
+    try {
+      access = JSON.parse(sessionStorage.getItem(ACCESS_KEY) ?? '{}')
+    } catch {
+      access = {}
+    }
+    void fetch('/api/qualifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'questions', form: { ...access, ...answers } }),
+      keepalive: true,
+    }).catch(() => {})
+  }
 
   return (
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
@@ -242,9 +274,9 @@ export default function Story() {
               </p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link href="/investors/book" className="btn-primary">
+                <button type="button" onClick={() => setBookingOpen(true)} className="btn-primary">
                   {CTA_BOOK}
-                </Link>
+                </button>
                 <NewsletterSignup className="btn-outline-dark" />
               </div>
             </div>
@@ -264,6 +296,10 @@ export default function Story() {
           </div>
         </div>
       </div>
+
+      {bookingOpen && (
+        <VoiceQuestionnaire onClose={() => setBookingOpen(false)} onSubmit={submitAnswers} />
+      )}
     </main>
   )
 }
