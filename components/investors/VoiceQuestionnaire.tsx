@@ -106,6 +106,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
   const wantRef = useRef(false)
   const idxRef = useRef(0)
   const answersRef = useRef<VoiceAnswers>({})
+  const interimRef = useRef('')
   const submittedRef = useRef(false)
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
         answersRef.current = { ...answersRef.current, [field]: next }
         setAnswers(answersRef.current)
       }
+      interimRef.current = interimStr
       setInterim(interimStr)
     }
 
@@ -187,6 +189,21 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
     }
   }, [])
 
+  // Fold any still-interim words into the saved answer for the current question,
+  // so nothing spoken is lost when the mic pauses or we move on.
+  const commitInterim = useCallback(() => {
+    const add = interimRef.current.trim()
+    if (add) {
+      const field = QUESTIONS[idxRef.current].field
+      const prev = answersRef.current[field] ?? ''
+      const next = `${prev} ${add}`.replace(/\s+/g, ' ').trim()
+      answersRef.current = { ...answersRef.current, [field]: next }
+      setAnswers(answersRef.current)
+    }
+    interimRef.current = ''
+    setInterim('')
+  }, [])
+
   const stopListening = useCallback(() => {
     wantRef.current = false
     try {
@@ -195,8 +212,8 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
       /* noop */
     }
     setListening(false)
-    setInterim('')
-  }, [])
+    commitInterim()
+  }, [commitInterim])
 
   // --- Modal chrome: lock scroll, close on Escape --------------------------
   useEffect(() => {
@@ -236,9 +253,9 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
     setAnswers(answersRef.current)
   }
 
-  const goTo = (next: number) => {
-    setInterim('')
-    setIdx(next)
+  const goTo = (dest: number) => {
+    commitInterim() // save the current question's spoken tail before switching
+    setIdx(dest)
   }
 
   const finish = () => {
@@ -267,6 +284,13 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
   const q = QUESTIONS[idx]
   const progress = ((idx + 1) / QUESTIONS.length) * 100
   const canVoice = supported && permission === 'granted'
+
+  // While the mic is live the box mirrors speech in real time (committed words +
+  // the interim tail). Paused, it's just the saved answer and freely editable.
+  const committed = answers[q?.field] ?? ''
+  const boxValue = listening
+    ? committed + (interim ? (committed ? ' ' : '') + interim : '')
+    : committed
 
   return (
     <div
@@ -327,6 +351,12 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 ? 'Your browser will ask for mic access. Answers go only to Alena.'
                 : 'Answers go only to Alena.'}
             </p>
+
+            <BookCall
+              className="mt-6 text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
+            >
+              Skip — just book a time →
+            </BookCall>
           </div>
         )}
 
@@ -350,18 +380,27 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <h2 className="hl-h3 mt-6 text-[1.3rem] text-[color:var(--hl-text)]">{q.q}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--hl-text-muted)]">{q.blurb}</p>
 
-            {/* Live transcript / editable answer */}
+            {/* Live transcript / editable answer. While listening the field is
+                read-only and mirrors speech live; pause to edit by hand. */}
             <div className="mt-5">
               <textarea
-                value={answers[q.field] ?? ''}
+                value={boxValue}
+                readOnly={listening}
                 onChange={e => setAnswer(q.field, e.target.value)}
                 rows={3}
                 placeholder={canVoice ? 'Start speaking — your words appear here…' : 'Type your answer…'}
                 className="hl-input resize-none text-[0.95rem] leading-relaxed"
               />
-              {/* Interim (still-being-heard) words, ghosted under the field */}
-              <div className="mt-2 min-h-[1.25rem] px-1 text-sm italic text-hardline-300">
-                {listening && (interim || 'Listening…')}
+              {/* Status line — no layout shift as it toggles */}
+              <div className="mt-2 flex min-h-[1.25rem] items-center gap-2 px-1 text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+                {listening ? (
+                  <>
+                    <span className="inline-block h-2 w-2 animate-ping rounded-full bg-mint" />
+                    Listening…
+                  </>
+                ) : (
+                  canVoice && (committed ? 'Paused — tap the mic to add more' : '')
+                )}
               </div>
             </div>
 
@@ -429,7 +468,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[color:var(--hl-text-muted)]">
               Your answers are on their way to Alena. Grab a time and we&apos;ll make the call count.
             </p>
-            <BookCall onClick={onClose} className="btn-primary mt-7 w-full sm:w-auto">
+            <BookCall className="btn-primary mt-7 w-full sm:w-auto">
               Book a time →
             </BookCall>
           </div>
