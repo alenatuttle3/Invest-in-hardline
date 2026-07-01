@@ -221,10 +221,12 @@ export default function HowItWorks() {
     function computeHierarchy() {
       const nBottom = SYSTEMS.length + 1 // systems + chat
       if (!narrow) {
+        // Compact vertical span, aligned with the left copy block (not towering
+        // above it): apex sits lower and the tiers sit closer together.
         const cx = W * 0.72
-        apexPos = { x: cx, y: H * 0.1 }
-        const midY = H * 0.42
-        const botY = H * 0.72
+        apexPos = { x: cx, y: H * 0.25 }
+        const midY = H * 0.51
+        const botY = H * 0.78
         const colGap = Math.min(W * 0.082, 110)
         sysLayout = SYSTEMS.map((s, i) => ({
           key: s.key,
@@ -494,15 +496,23 @@ export default function HowItWorks() {
       const chatA = ramp(s2, 0.34, 0.66)
       const apexA = ramp(s2, 0.05, 0.3)
 
+      // Bottom-row labels are plain text (no backing pill) — nothing runs below
+      // these dots, so a pill would only clip the dots' glow.
+      ctx!.textAlign = 'center'
+      ctx!.textBaseline = 'alphabetic'
       const sysR = narrow ? 6 : 7
       sysLayout.forEach(s => {
         paintDot(s.x, s.y, sysR, s.color, sysA, true)
-        drawPillLabel(s.name, s.x, s.y + sysR + 13, sysA, '700 13px', '#1f3f33')
+        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.fillStyle = hexA('#1f3f33', sysA)
+        ctx!.fillText(s.name, s.x, s.y + sysR + 26)
       })
 
       if (!narrow) {
         paintDot(chatLayout.x, chatLayout.y, sysR, chatLayout.color, chatA, true)
-        drawPillLabel(chatLayout.name, chatLayout.x, chatLayout.y + sysR + 13, chatA, '700 12px', '#1f3f33')
+        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.fillStyle = hexA('#1f3f33', chatA)
+        ctx!.fillText(chatLayout.name, chatLayout.x, chatLayout.y + sysR + 26)
       }
 
       const apex = apexPos
