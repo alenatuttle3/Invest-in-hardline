@@ -466,12 +466,54 @@ body {
   animation: hlFadeUp 0.6s ease both;
 }
 
+/* Voice questionnaire modal — entrance + "listening" mic pulse */
+@keyframes hlModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-modal-in {
+  animation: hlModalIn 0.28s ease both;
+}
+
+/* Concentric rings radiating from the mic while it's actively listening. */
+@keyframes hlListenRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+.voice-listening::before,
+.voice-listening::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid var(--hl-mint);
+  animation: hlListenRing 1.8s ease-out infinite;
+  pointer-events: none;
+}
+.voice-listening::after {
+  animation-delay: 0.9s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .fade-up,
   .animate-fade-up,
+  .animate-modal-in,
   .card,
   .btn-primary,
   .btn-secondary {
@@ -479,6 +521,10 @@ body {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+  .voice-listening::before,
+  .voice-listening::after {
+    display: none;
   }
 }
 

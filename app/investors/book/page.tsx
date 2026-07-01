@@ -3,7 +3,7 @@ import BookingQuestions from '@/components/investors/BookingQuestions'
 
 export const metadata: Metadata = {
   title: 'Hardline — Book a meeting',
-  description: 'A couple quick questions, then grab a time on our calendar.',
+  description: 'Answer a few quick questions out loud, then grab a time on our calendar.',
   robots: 'noindex, nofollow',
 }
 
