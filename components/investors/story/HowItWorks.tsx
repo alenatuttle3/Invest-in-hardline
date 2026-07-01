@@ -10,13 +10,12 @@ import { useEffect, useRef } from 'react'
    freezes the ambient motion (pulse / particles) but keeps the
    scroll-mapped stages so the story still reads.
 
-   Three scroll stages:
+   Three scroll stages, each with copy pinned in the left panel:
      1 Capture      — a live call; nodes scatter in.
      2 Intelligence — nodes settle into a cross-linked knowledge map.
-     3 Automation   — the map resolves into a top-down hierarchy: Hardline at the
-                      apex, the downstream tech stack below it, and the artifacts
-                      it authors under each tool. Hardline holds the pen; every
-                      tool runs on what it captures.
+     3 Automation   — the map's authored artifacts (the workflow dots) slide out
+                      of the map into a hierarchy, then lines flow down into the
+                      systems of record and up to Hardline at the apex.
    ============================================================================= */
 
 type Cat = 'project' | 'phase' | 'person' | 'issue' | 'decision' | 'workflow'
@@ -28,6 +27,7 @@ type NodeDef = {
   x: number // % of map width
   y: number // % of map height
   label: string
+  dest?: string // stage-3 system this artifact flows into
   color?: string
 }
 
@@ -50,6 +50,9 @@ const CAT_RANK: Record<Cat, number> = {
   workflow: 1,
 }
 
+// The workflow ("highlighted") nodes are the artifacts Hardline authors; each
+// carries the system of record it flows into. They live in the map in stage 2,
+// then migrate into the stage-3 hierarchy.
 const NODES: NodeDef[] = [
   { id: 'proj_a', cat: 'project', imp: 3, x: 30, y: 18, label: 'Tower A — 22F' },
   { id: 'proj_b', cat: 'project', imp: 3, x: 70, y: 25, label: 'Parking Structure' },
@@ -72,13 +75,13 @@ const NODES: NodeDef[] = [
   { id: 'dec_pour', cat: 'decision', imp: 2, x: 36, y: 42, label: 'Pour date: Tue 7am' },
   { id: 'dec_sub', cat: 'decision', imp: 1, x: 60, y: 70, label: 'Sub swap approved' },
   { id: 'dec_rfi', cat: 'decision', imp: 2, x: 60, y: 18, label: 'RFI #47 resolved' },
-  { id: 'wf_log', cat: 'workflow', color: '#59af8c', imp: 3, x: 34, y: 32, label: 'Daily Log' },
-  { id: 'wf_rfi', cat: 'workflow', color: '#59af8c', imp: 2, x: 54, y: 38, label: 'RFI' },
-  { id: 'wf_task', cat: 'workflow', color: '#59af8c', imp: 2, x: 46, y: 58, label: 'Task' },
-  { id: 'wf_draw', cat: 'workflow', color: '#3c7a64', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
-  { id: 'wf_model', cat: 'workflow', color: '#3c7a64', imp: 1, x: 76, y: 52, label: 'Model Conflict' },
-  { id: 'wf_punch', cat: 'workflow', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Punch Item' },
-  { id: 'wf_insp', cat: 'workflow', color: '#1f3f33', imp: 1, x: 58, y: 86, label: 'Inspection' },
+  { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 3, x: 54, y: 38, label: 'RFI' },
+  { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 34, y: 32, label: 'Daily Report' },
+  { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
+  { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 58, y: 86, label: 'Inspection' },
+  { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Safety Report' },
+  { id: 'wf_model', cat: 'workflow', dest: 'constructable', color: '#4a8f74', imp: 2, x: 76, y: 52, label: 'Submittal' },
+  { id: 'wf_task', cat: 'workflow', dest: 'jobtread', color: '#6fc49f', imp: 2, x: 46, y: 58, label: 'Change Order' },
 ]
 
 const EDGES: [string, string][] = [
@@ -99,22 +102,17 @@ const EDGES: [string, string][] = [
   ['proj_a', 'proj_b'], ['elec', 'foundation'],
 ]
 
-// Stage 3 — the downstream stack. Hardline authors artifacts (the middle tier)
-// that flow into each system of record. The chat surfaces are a different kind
-// of downstream: pull anything from the same context on demand.
-type SystemDef = { name: string; color: string; artifacts: string[] }
+// Stage-3 destinations: the systems of record the artifacts flow into, plus a
+// chat cluster you can pull custom outputs from.
+type SystemDef = { key: string; name: string; color: string }
 const SYSTEMS: SystemDef[] = [
-  { name: 'Procore', color: '#59af8c', artifacts: ['RFI', 'Daily Report'] },
-  { name: 'Autodesk ACC', color: '#3c7a64', artifacts: ['Drawing Rev'] },
-  { name: 'Fieldwire', color: '#1f3f33', artifacts: ['Inspection', 'Safety Report'] },
-  { name: 'Constructable', color: '#4a8f74', artifacts: ['Submittal'] },
-  { name: 'JobTread', color: '#6fc49f', artifacts: ['Change Order'] },
+  { key: 'procore', name: 'Procore', color: '#59af8c' },
+  { key: 'acc', name: 'Autodesk ACC', color: '#3c7a64' },
+  { key: 'fieldwire', name: 'Fieldwire', color: '#1f3f33' },
+  { key: 'constructable', name: 'Constructable', color: '#4a8f74' },
+  { key: 'jobtread', name: 'JobTread', color: '#6fc49f' },
 ]
-const CHAT = {
-  names: ['Claude', 'ChatGPT'],
-  color: '#2c5a45',
-  bullets: ['Custom reports', 'Summaries', 'Ask anything'],
-}
+const CHAT = { name: 'Claude · ChatGPT', color: '#2c5a45', bullets: ['Custom reports', 'Summaries', 'Ask anything'] }
 
 const STEPS = [
   {
@@ -137,16 +135,8 @@ const STEPS = [
 const S1_END = 0.34
 const S2_END = 0.67
 
-type Pt = { x: number; y: number }
-type SystemLayout = { name: string; color: string; x: number; y: number }
-type ArtifactLayout = { label: string; color: string; x: number; y: number; sx: number; sy: number }
-type ChatLayout = {
-  color: string
-  nodes: { name: string; x: number; y: number }[]
-  bullets: string[]
-  bx: number
-  by: number
-}
+type SystemLayout = { key: string; name: string; color: string; x: number; y: number }
+type ChatLayout = { name: string; color: string; x: number; y: number; bullets: string[]; bx: number; by: number }
 
 export default function HowItWorks() {
   const rootRef = useRef<HTMLElement>(null)
@@ -165,13 +155,13 @@ export default function HowItWorks() {
     const labelEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-nodelabel'))
     const ghostEl = root.querySelector<HTMLElement>('.hiw-ghostnum')
     const phoneEl = root.querySelector<HTMLElement>('.hiw-phone')
-    const panelEl = root.querySelector<HTMLElement>('.hiw-panel')
 
     // ---- math helpers ----
     const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v))
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
     const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
     const easeOut5 = (t: number) => 1 - Math.pow(1 - t, 5)
+    const ramp = (v: number, a: number, b: number) => easeInOut(clamp((v - a) / (b - a)))
     const rng = (seed: number) => {
       const x = Math.sin(seed) * 43758.5453
       return x - Math.floor(x)
@@ -183,7 +173,7 @@ export default function HowItWorks() {
 
     const idx = new Map(NODES.map((n, i) => [n.id, i]))
 
-    // mutable per-node runtime state (the stage 1–2 knowledge map)
+    // mutable per-node runtime state
     const nodes = NODES.map((n, i) => ({
       def: n,
       color: n.color ?? CAT_COLOR[n.cat],
@@ -191,6 +181,8 @@ export default function HowItWorks() {
       sx: 0, sy: 0, // scatter start (px)
       tx: 0, ty: 0, // map target (px)
       px: 0, py: 0, // current (px)
+      hx: 0, hy: 0, // stage-3 artifact target (px)
+      destX: 0, destY: 0, // its system position (px)
       seed: i + 1,
     }))
 
@@ -198,11 +190,10 @@ export default function HowItWorks() {
     let H = 0
     let dpr = 1
     let narrow = false
-    let apexPos: Pt = { x: 0, y: 0 }
+    let apexPos = { x: 0, y: 0 }
     let apexR = 13
     let sysLayout: SystemLayout[] = []
-    let artLayout: ArtifactLayout[] = []
-    let chatLayout: ChatLayout = { color: CHAT.color, nodes: [], bullets: [], bx: 0, by: 0 }
+    let chatLayout: ChatLayout = { name: CHAT.name, color: CHAT.color, x: 0, y: 0, bullets: [], bx: 0, by: 0 }
 
     function layout() {
       dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -224,59 +215,80 @@ export default function HowItWorks() {
       computeHierarchy()
     }
 
-    // Stage-3 org chart, three tiers: Hardline (apex) → authored artifacts
-    // (middle) → systems of record (bottom), plus a chat cluster. Centered
-    // full-width — the step copy fades once the reader has entered the section.
+    // Stage-3 hierarchy — kept in the right column so the left panel copy stays
+    // legible, exactly like stages 1–2. Systems along the bottom, artifacts (the
+    // migrating workflow nodes) in the middle, Hardline at the apex.
     function computeHierarchy() {
-      const nBottom = SYSTEMS.length + 1 // systems + chat cluster
+      const nBottom = SYSTEMS.length + 1 // systems + chat
       if (!narrow) {
-        const cx = W * 0.5
+        const cx = W * 0.72
         apexPos = { x: cx, y: H * 0.1 }
-        const midY = H * 0.44
+        const midY = H * 0.42
         const botY = H * 0.72
-        const colGap = Math.min(W * 0.165, 210)
+        const colGap = Math.min(W * 0.082, 110)
         sysLayout = SYSTEMS.map((s, i) => ({
+          key: s.key,
           name: s.name,
           color: s.color,
           x: cx + (i - (nBottom - 1) / 2) * colGap,
           y: botY,
         }))
-        artLayout = []
-        SYSTEMS.forEach((s, i) => {
-          const sx = cx + (i - (nBottom - 1) / 2) * colGap
-          const k = s.artifacts.length
-          s.artifacts.forEach((label, j) => {
-            // Side by side above the system; both converge down into it.
-            const ax = k > 1 ? sx + (j - (k - 1) / 2) * 82 : sx
-            artLayout.push({ label, color: s.color, x: ax, y: midY, sx, sy: botY })
+        const sysPos: Record<string, { x: number; y: number }> = {}
+        sysLayout.forEach(s => (sysPos[s.key] = { x: s.x, y: s.y }))
+
+        // Artifact targets: group workflow nodes by their system, sit them above
+        // it (two side by side when a system has a pair).
+        const bySys: Record<string, typeof nodes> = {}
+        nodes.forEach(n => {
+          if (n.def.cat === 'workflow' && n.def.dest) (bySys[n.def.dest] ||= []).push(n)
+        })
+        Object.entries(bySys).forEach(([key, arr]) => {
+          const pos = sysPos[key]
+          if (!pos) return
+          const k = arr.length
+          arr.forEach((n, j) => {
+            n.hx = pos.x + (k > 1 ? (j - (k - 1) / 2) * 74 : 0)
+            n.hy = midY
+            n.destX = pos.x
+            n.destY = pos.y
           })
         })
+        // Zigzag the middle tier so the packed artifact labels clear each other.
+        nodes
+          .filter(n => n.def.cat === 'workflow')
+          .sort((a, b) => a.hx - b.hx)
+          .forEach((n, i) => (n.hy = midY - (i % 2) * 30))
+
         const chatX = cx + (SYSTEMS.length - (nBottom - 1) / 2) * colGap
-        chatLayout = {
-          color: CHAT.color,
-          nodes: CHAT.names.map((name, i) => ({ name, x: chatX + (i - (CHAT.names.length - 1) / 2) * 78, y: botY })),
-          bullets: CHAT.bullets,
-          bx: chatX - 46,
-          by: botY + 30,
-        }
+        chatLayout = { name: CHAT.name, color: CHAT.color, x: chatX, y: botY, bullets: CHAT.bullets, bx: chatX - 46, by: botY + 30 }
       } else {
-        // Mobile: the step text fills the top half, so a compact two-row layout
-        // of destinations lives in the lower area (no middle tier / bullets).
+        // Mobile: the step text fills the top half, so a compact chart lives in
+        // the lower area — apex + the artifacts and systems interleaved is too
+        // dense, so just show apex → systems (+ chat) with the artifacts folded
+        // into the destinations.
         const cx = W * 0.5
-        apexPos = { x: cx, y: H * 0.62 }
+        apexPos = { x: cx, y: H * 0.6 }
         const perRow = 3
         const colGap = Math.min(W * 0.27, 130)
         const rowY = [H * 0.78, H * 0.92]
-        const bottom = [...SYSTEMS.map(s => ({ name: s.name, color: s.color })), { name: 'AI Chat', color: CHAT.color }]
+        const bottom = [...SYSTEMS, { key: 'chat', name: 'AI Chat', color: CHAT.color }]
         sysLayout = bottom.map((b, i) => {
           const row = Math.floor(i / perRow)
           const col = i % perRow
-          // Small nudge on the second row so its links clear the first row's dots.
           const x = cx + (col - (perRow - 1) / 2) * colGap + (row === 1 ? colGap * 0.25 : 0)
-          return { name: b.name, color: b.color, x, y: rowY[row] }
+          return { key: b.key, name: b.name, color: b.color, x, y: rowY[row] }
         })
-        artLayout = []
-        chatLayout = { color: CHAT.color, nodes: [], bullets: [], bx: 0, by: 0 }
+        const sysPos: Record<string, { x: number; y: number }> = {}
+        sysLayout.forEach(s => (sysPos[s.key] = { x: s.x, y: s.y }))
+        nodes.forEach(n => {
+          if (n.def.cat === 'workflow' && n.def.dest && sysPos[n.def.dest]) {
+            n.hx = sysPos[n.def.dest].x
+            n.hy = sysPos[n.def.dest].y
+            n.destX = sysPos[n.def.dest].x
+            n.destY = sysPos[n.def.dest].y
+          }
+        })
+        chatLayout = { name: 'AI Chat', color: CHAT.color, x: 0, y: 0, bullets: [], bx: 0, by: 0 }
       }
     }
 
@@ -291,10 +303,7 @@ export default function HowItWorks() {
     function updateDom(stage: number) {
       if (stage === domStage) return
       domStage = stage
-      stepEls.forEach((el, i) => {
-        el.classList.toggle('is-active', i === stage)
-        el.style.opacity = '' // hand control back to CSS; draw() re-applies for stage 3
-      })
+      stepEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
       dotEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
       if (ghostEl) ghostEl.textContent = `0${stage + 1}`
     }
@@ -326,31 +335,37 @@ export default function HowItWorks() {
       const stage = p < S1_END ? 0 : p < S2_END ? 1 : 2
       updateDom(stage)
 
-      // In stage 3 the whole text panel (copy + its masking gradient) fades once
-      // it's been read, handing the full width to the org chart. Desktop only —
-      // on mobile the chart sits below the text.
-      if (panelEl && !narrow) {
-        panelEl.style.opacity = stage === 2 ? (1 - easeInOut(clamp((s2 - 0.32) / 0.28))).toFixed(3) : '1'
-      }
-
       ctx!.clearRect(0, 0, W, H)
 
-      // Stage 3 dissolves the whole knowledge map out and resolves the org chart
-      // in its place — the map's context is what the hierarchy runs on.
-      const blackout = easeInOut(clamp(s2 * 1.6))
+      // Stage 3: the map fades out, but the highlighted (workflow) dots stay and
+      // slide from their map spot into the hierarchy. Then the lines flow.
+      const blackout = easeInOut(clamp(s2 * 1.9)) // non-artifact map fades early
+      const toHier = easeInOut(clamp(s2 / 0.55)) // artifacts finish moving by ~55%
       const alphas: number[] = []
       nodes.forEach((n, i) => {
         const form = easeOut5(clamp((s1 - (i / nodes.length) * 0.12) / 0.88))
-        n.px = lerp(n.sx, n.tx, form)
-        n.py = lerp(n.sy, n.ty, form)
-        alphas[i] = clamp(form * 1.4) * (1 - blackout)
+        let px = lerp(n.sx, n.tx, form)
+        let py = lerp(n.sy, n.ty, form)
+        // Desktop: the highlighted artifact dots migrate into the hierarchy and
+        // persist. Mobile has no middle tier, so they fade out with the map.
+        const isArtifact = n.def.cat === 'workflow' && !narrow
+        if (toHier > 0 && isArtifact) {
+          px = lerp(px, n.hx, toHier)
+          py = lerp(py, n.hy, toHier)
+        }
+        n.px = px
+        n.py = py
+        let a = clamp(form * 1.4)
+        if (!isArtifact) a *= 1 - blackout
+        alphas[i] = a
       })
 
       drawHalos(s1 * (1 - blackout))
       drawEdges(alphas)
+      if (s2 > 0.001) drawHierarchyLinks(s2)
       drawNodes(alphas)
+      if (s2 > 0.001) drawHierarchyNodes(s2)
       updateLabels(alphas, s1)
-      if (s2 > 0.001) drawHierarchy(s2)
       if (phoneEl) phoneEl.style.opacity = phoneAlpha.toFixed(3)
     }
 
@@ -415,8 +430,8 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
-    // A vertical org-chart connector: leaves the parent going straight down,
-    // curves to the child. `drawT` reveals it progressively as you scroll.
+    // A vertical org-chart connector: leaves the parent going straight toward the
+    // child, curving in. `drawT` reveals it progressively so the lines "flow".
     function drawLink(
       x0: number, y0: number, x1: number, y1: number,
       color: string, alpha: number, width: number, drawT: number,
@@ -435,85 +450,77 @@ export default function HowItWorks() {
       ctx!.stroke()
     }
 
-    // Stage 3 — the hierarchy. Hardline at the apex; the artifacts it authors in
-    // the middle; the systems of record they flow into at the bottom, plus a
-    // chat cluster you can pull custom outputs from. Everything flows down.
-    function drawHierarchy(s2: number) {
+    // Stage 3 links (under the dots): once the artifacts have arrived, lines flow
+    // down into the systems and up to Hardline.
+    function drawHierarchyLinks(s2: number) {
       ctx!.save()
-      const apex = apexPos
-      const apexA = easeInOut(clamp((s2 - 0.02) / 0.26))
-      const artA = easeInOut(clamp((s2 - 0.1) / 0.4))
-      const sysA = easeInOut(clamp((s2 - 0.28) / 0.45))
-      const artDrawT = easeOut5(clamp((s2 - 0.08) / 0.5))
-      const sysDrawT = easeOut5(clamp((s2 - 0.26) / 0.55))
-
       ctx!.lineCap = 'round'
-      // apex → artifact, then artifact → its system of record
-      artLayout.forEach(a => {
-        drawLink(apex.x, apex.y, a.x, a.y, '#59af8c', 0.5 * artA, 1.7, artDrawT)
-        drawLink(a.x, a.y, a.sx, a.sy, a.color, 0.32 * sysA, 1, sysDrawT)
+      const apex = apexPos
+      const upA = ramp(s2, 0.48, 0.82)
+      const downA = ramp(s2, 0.54, 0.9)
+      const chatA = ramp(s2, 0.4, 0.7)
+      const upDrawT = easeOut5(clamp((s2 - 0.46) / 0.4))
+      const downDrawT = easeOut5(clamp((s2 - 0.52) / 0.4))
+
+      nodes.forEach(n => {
+        if (n.def.cat !== 'workflow') return
+        drawLink(apex.x, apex.y, n.px, n.py, '#59af8c', 0.5 * upA, 1.5, upDrawT) // up to Hardline
+        drawLink(n.px, n.py, n.destX, n.destY, n.color, 0.34 * downA, 1, downDrawT) // down to system
       })
-      // apex → chat surfaces (a different branch of downstream)
-      chatLayout.nodes.forEach(nd => {
-        drawLink(apex.x, apex.y, nd.x, nd.y, '#59af8c', 0.5 * sysA, 1.7, artDrawT)
-      })
-      // Mobile has no middle tier — link the apex straight to the destinations.
-      if (narrow) {
-        sysLayout.forEach(s => drawLink(apex.x, apex.y, s.x, s.y, '#59af8c', 0.5 * sysA, 2, sysDrawT))
+      if (!narrow) {
+        drawLink(apex.x, apex.y, chatLayout.x, chatLayout.y, '#59af8c', 0.5 * chatA, 1.6, upDrawT)
+      } else {
+        sysLayout.forEach(s => drawLink(apex.x, apex.y, s.x, s.y, '#59af8c', 0.5 * chatA, 1.8, downDrawT))
       }
 
       // Particles stream downward from the apex — Hardline powering the stack.
-      if (!reduced && artDrawT > 0.05) {
-        const streams = narrow
-          ? sysLayout.map(s => ({ x: s.x, y: s.y }))
-          : [...artLayout.map(a => ({ x: a.x, y: a.y })), ...chatLayout.nodes]
-        streams.forEach((t, si) => {
-          const my = (apex.y + t.y) / 2
-          for (let k = 0; k < 2; k++) {
-            const tt = ((animT * 0.35 + (k / 2 + si * 0.13)) % 1) * artDrawT
-            const x = bez(apex.x, apex.x, t.x, t.x, tt)
-            const y = bez(apex.y, my, my, t.y, tt)
-            ctx!.fillStyle = hexA('#59af8c', 0.8 * artA)
-            ctx!.beginPath()
-            ctx!.arc(x, y, 1.8, 0, Math.PI * 2)
-            ctx!.fill()
-          }
+      if (!reduced && upDrawT > 0.05) {
+        nodes.forEach((n, si) => {
+          if (n.def.cat !== 'workflow') return
+          const my = (apex.y + n.py) / 2
+          const t = ((animT * 0.35 + si * 0.14) % 1) * upDrawT
+          const x = bez(apex.x, apex.x, n.px, n.px, t)
+          const y = bez(apex.y, my, my, n.py, t)
+          ctx!.fillStyle = hexA('#59af8c', 0.75 * upA)
+          ctx!.beginPath()
+          ctx!.arc(x, y, 1.8, 0, Math.PI * 2)
+          ctx!.fill()
         })
       }
+      ctx!.restore()
+    }
 
-      // Artifact nodes (middle tier) + labels below them
-      const artR = 4
-      artLayout.forEach(a => {
-        paintDot(a.x, a.y, artR, a.color, artA, false)
-        drawPillLabel(a.label, a.x, a.y + artR + 11, artA, '600 11px', '#3c574e')
-      })
+    // Stage 3 nodes (over the links): systems, chat cluster, and the apex.
+    function drawHierarchyNodes(s2: number) {
+      ctx!.save()
+      const sysA = ramp(s2, 0.28, 0.6)
+      const chatA = ramp(s2, 0.34, 0.66)
+      const apexA = ramp(s2, 0.05, 0.3)
 
-      // System nodes (bottom tier) + labels below
-      const sysR = 7
+      const sysR = narrow ? 6 : 7
       sysLayout.forEach(s => {
         paintDot(s.x, s.y, sysR, s.color, sysA, true)
         drawPillLabel(s.name, s.x, s.y + sysR + 13, sysA, '700 13px', '#1f3f33')
       })
 
-      // Chat cluster — two nodes with a shared bullet list of on-demand outputs
-      chatLayout.nodes.forEach(nd => {
-        paintDot(nd.x, nd.y, sysR, chatLayout.color, sysA, true)
-        drawPillLabel(nd.name, nd.x, nd.y + sysR + 13, sysA, '700 13px', '#1f3f33')
-      })
-      chatLayout.bullets.forEach((b, i) => {
-        const by = chatLayout.by + 20 + i * 18
-        ctx!.fillStyle = hexA(chatLayout.color, 0.8 * sysA)
-        ctx!.beginPath()
-        ctx!.arc(chatLayout.bx, by, 2, 0, Math.PI * 2)
-        ctx!.fill()
-        ctx!.font = '500 12px Montserrat, system-ui, sans-serif'
-        ctx!.textAlign = 'left'
-        ctx!.textBaseline = 'middle'
-        ctx!.fillStyle = hexA('#3c574e', sysA)
-        ctx!.fillText(b, chatLayout.bx + 9, by + 0.5)
-      })
+      if (!narrow) {
+        paintDot(chatLayout.x, chatLayout.y, sysR, chatLayout.color, chatA, true)
+        drawPillLabel(chatLayout.name, chatLayout.x, chatLayout.y + sysR + 13, chatA, '700 12px', '#1f3f33')
+        chatLayout.bullets.forEach((b, i) => {
+          const by = chatLayout.by + 20 + i * 18
+          ctx!.fillStyle = hexA(chatLayout.color, 0.8 * chatA)
+          ctx!.beginPath()
+          ctx!.arc(chatLayout.bx, by, 2, 0, Math.PI * 2)
+          ctx!.fill()
+          ctx!.font = '500 12px Montserrat, system-ui, sans-serif'
+          ctx!.textAlign = 'left'
+          ctx!.textBaseline = 'middle'
+          ctx!.fillStyle = hexA('#3c574e', chatA)
+          ctx!.fillText(b, chatLayout.bx + 9, by + 0.5)
+        })
+      }
 
-      // The apex — visually heaviest.
+      const apex = apexPos
       paintApex(apex.x, apex.y, apexR, apexA)
       ctx!.textAlign = 'center'
       ctx!.textBaseline = 'alphabetic'
@@ -594,7 +601,8 @@ export default function HowItWorks() {
     }
 
     // Node labels are real (selectable) DOM, centered above each dot so edges
-    // pass under the text. They fade out with the map as stage 3 forms.
+    // pass under the text. The artifact labels ride along into the hierarchy;
+    // the rest of the map labels fade out with their dots.
     function updateLabels(alphas: number[], s1: number) {
       const reveal = clamp((s1 - 0.5) * 2)
       nodes.forEach((n, i) => {
