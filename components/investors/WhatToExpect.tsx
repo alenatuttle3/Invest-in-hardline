@@ -5,7 +5,7 @@ const CARDS = [
     n: '1',
     title: 'Tell us who you are',
     duration: '30 seconds',
-    body: 'Name, email, and your fund — that’s the whole gate. It unlocks the story.',
+    body: 'Name, email, and your fund. That’s the whole gate. It unlocks the story.',
   },
   {
     n: '2',

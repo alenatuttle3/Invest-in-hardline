@@ -21,16 +21,14 @@ const MARKER = 'Stage 2 of 3 · The Story'
 const READ_TIME = '~4 min'
 
 const VIDEO_EYEBROW = 'The origin'
-const VIDEO_HEADING = 'One phone call. A two-inch change. $100,000 gone.'
+const VIDEO_HEADING = 'One phone call. A two inch scope change. $100,000 gone.'
 const VIDEO_LINE =
   'The field runs on physical presence, visual judgment, and 70 phone calls a day. Not one of those conversations has ever been captured.'
 
 // The bridge — carries the reader from the problem (the video) into the
 // solution (the how-it-works scene that follows).
-const BRIDGE_PRE = 'Every problem on a jobsite starts the same way: '
-const BRIDGE_EM = 'a conversation that disappeared.'
-const BRIDGE_TURN =
-  "For decades, the source of truth on every jobsite was one person's head. Hardline is the first system that remembers."
+const BRIDGE_LEAD = "For decades, the source of truth on every jobsite was one person's head. "
+const BRIDGE_EM = 'Hardline is the first system that remembers.'
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
@@ -61,7 +59,7 @@ const MOAT_LEAD = 'Every call makes it smarter. Every day makes it harder to lea
 
 const WHYNOW_EYEBROW = 'Why now'
 const WHYNOW_QUOTE =
-  'Voice is becoming consensus as the interface of the jobsite. Hands are full, gloves are on, and the work never stops for a keyboard — the field was always going to talk. The technology finally listens.'
+  'Voice is becoming consensus as the interface of the jobsite. Hands are full, gloves are on, and the work never stops for a keyboard. The field was always going to talk. The technology finally listens.'
 
 const TEAM_EYEBROW = 'Why us'
 const TEAM_BACKERS =
@@ -180,11 +178,8 @@ export default function Story() {
           <ScrollAnimator>
             <section className="text-center">
               <p className="mx-auto max-w-2xl text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
-                {BRIDGE_PRE}
+                {BRIDGE_LEAD}
                 <span className="text-mint">{BRIDGE_EM}</span>
-              </p>
-              <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-hardline-800">
-                {BRIDGE_TURN}
               </p>
               <div className="mt-10 flex justify-center" aria-hidden="true">
                 <svg

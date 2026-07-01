@@ -27,7 +27,7 @@ const QUESTIONS: Q[] = [
     n: '01',
     tag: 'Stage',
     q: 'What stage do you usually write your first check at?',
-    blurb: 'Pre-seed, seed, Series A — wherever you typically come in.',
+    blurb: 'Pre-seed, seed, or Series A. Wherever you typically come in.',
   },
   {
     field: 'checkSize',
@@ -41,14 +41,14 @@ const QUESTIONS: Q[] = [
     n: '03',
     tag: 'Your bar',
     q: 'How do you evaluate seed-stage companies?',
-    blurb: "What matters most — and any hard revenue or traction bars before you'll invest.",
+    blurb: "What matters most, and any hard revenue or traction bars before you'll invest.",
   },
   {
     field: 'whyHardline',
     n: '04',
     tag: 'Why us',
     q: 'Why does Hardline look like a fit for your thesis?',
-    blurb: 'The wedge, the market, a portfolio parallel — whatever drew you in.',
+    blurb: 'The wedge, the market, a portfolio parallel, whatever drew you in.',
   },
   {
     field: 'role',
@@ -62,7 +62,7 @@ const QUESTIONS: Q[] = [
     n: '06',
     tag: 'Value-add',
     q: 'Beyond the check, what do you bring?',
-    blurb: 'Intros, network, operating help — how a portfolio company would describe you.',
+    blurb: 'Intros, network, operating help. How a portfolio company would describe you.',
   },
 ]
 
@@ -306,12 +306,10 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
   const progress = ((idx + 1) / QUESTIONS.length) * 100
   const canVoice = supported && permission === 'granted'
 
-  // While the mic is live the box mirrors speech in real time (committed words +
-  // the interim tail). Paused, it's just the saved answer and freely editable.
-  const committed = answers[q?.field] ?? ''
-  const boxValue = listening
-    ? committed + (interim ? (committed ? ' ' : '') + interim : '')
-    : committed
+  // The box always holds the saved answer and is always editable — type, edit,
+  // or delete anytime. Finalized speech appends to it; the not-yet-final tail
+  // shows as a ghost line below so live dictation never fights the cursor.
+  const answer = answers[q?.field] ?? ''
 
   return (
     <div
@@ -348,13 +346,13 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
               <MicIcon className="h-7 w-7" />
             </div>
             <h2 className="hl-h3 mt-6 text-[color:var(--hl-text)]">
-              A few quick questions — just talk.
+              A few quick questions. Just talk.
             </h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[color:var(--hl-text-muted)]">
               {supported ? (
                 <>
                   We&apos;ll ask six short questions. Answer out loud and Hardline transcribes as you
-                  go — the same way it works on site. Takes about 90 seconds.
+                  go, the same way it works on site. Takes about 90 seconds.
                 </>
               ) : (
                 <>
@@ -376,7 +374,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <BookCall
               className="mt-6 text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
             >
-              Skip — just book a time →
+              Skip and just book a time →
             </BookCall>
           </div>
         )}
@@ -398,17 +396,21 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <h2 className="hl-h3 mt-6 text-[1.3rem] text-[color:var(--hl-text)]">{q.q}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--hl-text-muted)]">{q.blurb}</p>
 
-            {/* Live transcript / editable answer. While listening the field is
-                read-only and mirrors speech live; pause to edit by hand. */}
+            {/* Answer box — always editable. Speak, type, edit, or delete. */}
             <div className="mt-5">
               <textarea
-                value={boxValue}
-                readOnly={listening}
+                value={answer}
                 onChange={e => setAnswer(q.field, e.target.value)}
                 rows={3}
-                placeholder={canVoice ? 'Start speaking — your words appear here…' : 'Type your answer…'}
+                placeholder={canVoice ? 'Start speaking, or type your answer…' : 'Type your answer…'}
                 className="hl-input resize-none text-[0.95rem] leading-relaxed"
               />
+              {/* Not-yet-final words, ghosted so they don't fight edits */}
+              {canVoice && (
+                <div className="mt-2 min-h-[1.1rem] px-1 text-sm italic leading-snug text-hardline-300">
+                  {listening && interim}
+                </div>
+              )}
             </div>
 
             {/* Listening indicator — a passive waveform with a pause control on
@@ -477,7 +479,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 <path d="M4 12.5l5 5L20 6" />
               </svg>
             </div>
-            <h2 className="hl-h3 mt-6 text-[color:var(--hl-text)]">Got it — thank you.</h2>
+            <h2 className="hl-h3 mt-6 text-[color:var(--hl-text)]">Got it. Thank you.</h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[color:var(--hl-text-muted)]">
               Your answers are on their way to Alena. Grab a time and we&apos;ll make the call count.
             </p>

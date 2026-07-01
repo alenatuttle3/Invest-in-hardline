@@ -135,12 +135,12 @@ const STEPS = [
   {
     tag: '01 / Capture',
     title: 'The field already talks. We made it count.',
-    body: "Hardline is the eyes and ears of the jobsite. Every call, site walk, and conversation — captured passively, whatever's already in hand. Works with your phone, smart glasses, walkie-talkies, and security feeds. If it happens on site, Hardline hears it.",
+    body: "Hardline is the eyes and ears of the jobsite. Every call, site walk, and conversation, captured passively with whatever's already in hand. Works with your phone, smart glasses, walkie-talkies, and security feeds. If it happens on site, Hardline hears it.",
   },
   {
     tag: '02 / Intelligence',
     title: 'Every job, finally with a memory.',
-    body: 'Projects, phases, subcontractors, issues, decisions — cross-linked in real time. The institutional knowledge that used to walk out the door when someone quit. Now it stays.',
+    body: 'Projects, phases, subcontractors, issues, and decisions, all cross-linked in real time. The institutional knowledge that used to walk out the door when someone quit. Now it stays.',
   },
   {
     tag: '03 / Automation',

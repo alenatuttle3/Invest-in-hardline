@@ -19,7 +19,7 @@ const STEPS = [
   {
     n: '04',
     title: 'Intelligence',
-    body: "The knowledge map becomes the job's context store — powering completely touchless project management.",
+    body: "The knowledge map becomes the job's context store, powering completely touchless project management.",
   },
 ]
 
