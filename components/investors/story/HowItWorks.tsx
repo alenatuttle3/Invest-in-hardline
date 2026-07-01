@@ -112,7 +112,9 @@ const SYSTEMS: SystemDef[] = [
   { key: 'constructable', name: 'Constructable', color: '#4a8f74' },
   { key: 'jobtread', name: 'JobTread', color: '#6fc49f' },
 ]
-const CHAT = { name: 'Claude · ChatGPT', color: '#2c5a45' }
+// Hardline's own MCP endpoint — a branch that only drops halfway (it's the
+// source, not a downstream tool), so anything can pull the same context.
+const MCP = { name: 'Hardline MCP', color: '#59af8c' }
 
 const STEPS = [
   {
@@ -136,7 +138,7 @@ const S1_END = 0.34
 const S2_END = 0.67
 
 type SystemLayout = { key: string; name: string; color: string; x: number; y: number }
-type ChatLayout = { name: string; color: string; x: number; y: number }
+type McpLayout = { name: string; color: string; x: number; y: number }
 
 export default function HowItWorks() {
   const rootRef = useRef<HTMLElement>(null)
@@ -193,7 +195,7 @@ export default function HowItWorks() {
     let apexPos = { x: 0, y: 0 }
     let apexR = 13
     let sysLayout: SystemLayout[] = []
-    let chatLayout: ChatLayout = { name: CHAT.name, color: CHAT.color, x: 0, y: 0 }
+    let mcpLayout: McpLayout = { name: MCP.name, color: MCP.color, x: 0, y: 0 }
 
     function layout() {
       dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -258,8 +260,10 @@ export default function HowItWorks() {
           })
         })
 
-        const chatX = cx + (SYSTEMS.length - (nBottom - 1) / 2) * colGap
-        chatLayout = { name: CHAT.name, color: CHAT.color, x: chatX, y: botY }
+        // Far-right MCP branch: same rightmost column, but it only drops to the
+        // middle tier (halfway) rather than to a system at the bottom.
+        const mcpX = cx + (SYSTEMS.length - (nBottom - 1) / 2) * colGap
+        mcpLayout = { name: MCP.name, color: MCP.color, x: mcpX, y: midY }
       } else {
         // Mobile: the step text fills the top half, so a compact chart lives in
         // the lower area — apex + the artifacts and systems interleaved is too
@@ -270,7 +274,7 @@ export default function HowItWorks() {
         const perRow = 3
         const colGap = Math.min(W * 0.27, 130)
         const rowY = [H * 0.78, H * 0.92]
-        const bottom = [...SYSTEMS, { key: 'chat', name: 'AI Chat', color: CHAT.color }]
+        const bottom = [...SYSTEMS, { key: 'mcp', name: 'Hardline MCP', color: MCP.color }]
         sysLayout = bottom.map((b, i) => {
           const row = Math.floor(i / perRow)
           const col = i % perRow
@@ -287,7 +291,7 @@ export default function HowItWorks() {
             n.destY = sysPos[n.def.dest].y
           }
         })
-        chatLayout = { name: 'AI Chat', color: CHAT.color, x: 0, y: 0 }
+        mcpLayout = { name: MCP.name, color: MCP.color, x: 0, y: 0 }
       }
     }
 
@@ -457,7 +461,7 @@ export default function HowItWorks() {
       const apex = apexPos
       const upA = ramp(s2, 0.48, 0.82)
       const downA = ramp(s2, 0.54, 0.9)
-      const chatA = ramp(s2, 0.4, 0.7)
+      const mcpA = ramp(s2, 0.4, 0.7)
       const upDrawT = easeOut5(clamp((s2 - 0.46) / 0.4))
       const downDrawT = easeOut5(clamp((s2 - 0.52) / 0.4))
 
@@ -467,9 +471,10 @@ export default function HowItWorks() {
         drawLink(n.px, n.py, n.destX, n.destY, n.color, 0.34 * downA, 1, downDrawT) // down to system
       })
       if (!narrow) {
-        drawLink(apex.x, apex.y, chatLayout.x, chatLayout.y, '#59af8c', 0.5 * chatA, 1.6, upDrawT)
+        // MCP branch: from the apex straight down to the halfway node.
+        drawLink(apex.x, apex.y, mcpLayout.x, mcpLayout.y, MCP.color, 0.5 * mcpA, 1.6, upDrawT)
       } else {
-        sysLayout.forEach(s => drawLink(apex.x, apex.y, s.x, s.y, '#59af8c', 0.5 * chatA, 1.8, downDrawT))
+        sysLayout.forEach(s => drawLink(apex.x, apex.y, s.x, s.y, '#59af8c', 0.5 * mcpA, 1.8, downDrawT))
       }
 
       // Particles stream downward from the apex — Hardline powering the stack.
@@ -489,11 +494,11 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
-    // Stage 3 nodes (over the links): systems, chat cluster, and the apex.
+    // Stage 3 nodes (over the links): systems, the MCP branch, and the apex.
     function drawHierarchyNodes(s2: number) {
       ctx!.save()
       const sysA = ramp(s2, 0.28, 0.6)
-      const chatA = ramp(s2, 0.34, 0.66)
+      const mcpA = ramp(s2, 0.34, 0.66)
       const apexA = ramp(s2, 0.05, 0.3)
 
       // Bottom-row labels are plain text (no backing pill) — nothing runs below
@@ -508,11 +513,12 @@ export default function HowItWorks() {
         ctx!.fillText(s.name, s.x, s.y + sysR + 26)
       })
 
+      // The MCP branch node sits at the halfway point; its label goes below it.
       if (!narrow) {
-        paintDot(chatLayout.x, chatLayout.y, sysR, chatLayout.color, chatA, true)
+        paintDot(mcpLayout.x, mcpLayout.y, sysR, mcpLayout.color, mcpA, true)
         ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
-        ctx!.fillStyle = hexA('#1f3f33', chatA)
-        ctx!.fillText(chatLayout.name, chatLayout.x, chatLayout.y + sysR + 26)
+        ctx!.fillStyle = hexA('#1f3f33', mcpA)
+        ctx!.fillText(mcpLayout.name, mcpLayout.x, mcpLayout.y + sysR + 26)
       }
 
       const apex = apexPos
