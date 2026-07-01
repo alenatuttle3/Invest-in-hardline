@@ -4,27 +4,31 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import NewsletterSignup from '@/components/investors/NewsletterSignup'
-import { ACCESS_KEY } from '@/lib/qualify'
+import VoiceQuestionnaire, { type VoiceAnswers } from '@/components/investors/VoiceQuestionnaire'
+import { ACCESS_KEY, type InvestorFormData } from '@/lib/qualify'
 import ScrollAnimator from '@/components/ScrollAnimator'
 import VideoPlayer from '@/components/investors/story/VideoPlayer'
 import HowItWorks from '@/components/investors/story/HowItWorks'
 import MoatFlywheel from '@/components/investors/story/MoatFlywheel'
 import TeamPhoto from '@/components/investors/story/TeamPhoto'
 
+// Set by the /investors/book route before it redirects here, so the booking
+// pop-up opens over the (blurred) story rather than a blank page.
+const OPEN_BOOKING_KEY = 'openBooking'
+
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
 const MARKER = 'Stage 2 of 3 · The Story'
 const READ_TIME = '~4 min'
 
-const VIDEO_EYEBROW = 'From us'
-const VIDEO_HEADING = 'Why we built Hardline'
+const VIDEO_EYEBROW = 'The origin'
+const VIDEO_HEADING = 'One phone call. A two inch scope change. $100,000 gone.'
 const VIDEO_LINE =
-  'The two of us, on camera: a two-inch change, communicated over the phone, $100,000 in rework — and why that happens on every job, every day.'
+  'The field runs on physical presence, visual judgment, and 70 phone calls a day. Not one of those conversations has ever been captured.'
 
 // The bridge — carries the reader from the problem (the video) into the
 // solution (the how-it-works scene that follows).
-const BRIDGE_PRE = "That $100K call wasn't rare. Every problem on a jobsite starts the same way — "
-const BRIDGE_EM = 'as a conversation the tools never heard.'
-const BRIDGE_TURN = 'So we built the one that listens. Watch what happens when the field talks.'
+const BRIDGE_LEAD = "For decades, the source of truth on every jobsite was one person's head. "
+const BRIDGE_EM = 'Hardline is the first system that remembers.'
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
@@ -51,13 +55,11 @@ const TRACTION_STATS = [
 ]
 
 const MOAT_EYEBROW = 'Why this compounds'
-const MOAT_LEAD = 'The data & intelligence is the moat.'
-const MOAT_SUB =
-  'Every conversation makes the map smarter — and the longer Hardline runs, the more expensive it is to leave.'
+const MOAT_LEAD = 'Every call makes it smarter. Every day makes it harder to leave.'
 
 const WHYNOW_EYEBROW = 'Why now'
 const WHYNOW_QUOTE =
-  'Voice is becoming consensus as the interface of the jobsite. Hands are full, gloves are on, and the work never stops for a keyboard — the field was always going to talk. The technology finally listens.'
+  'Voice is becoming consensus as the interface of the jobsite. Hands are full, gloves are on, and the work never stops for a keyboard. The field was always going to talk. The technology finally listens.'
 
 const TEAM_EYEBROW = 'Why us'
 const TEAM_BACKERS =
@@ -103,16 +105,42 @@ function ReadingProgress() {
 
 export default function Story() {
   const router = useRouter()
+  const [bookingOpen, setBookingOpen] = useState(false)
 
   // Hard gate: the story is only reachable after the access form. If there's
-  // no captured access in this session, send them back to enter it.
+  // no captured access in this session, send them back to enter it. Also open
+  // the booking pop-up if we arrived here via the /investors/book redirect.
   useEffect(() => {
     try {
-      if (!sessionStorage.getItem(ACCESS_KEY)) router.replace('/investors')
+      if (!sessionStorage.getItem(ACCESS_KEY)) {
+        router.replace('/investors')
+        return
+      }
+      if (sessionStorage.getItem(OPEN_BOOKING_KEY) === '1') {
+        sessionStorage.removeItem(OPEN_BOOKING_KEY)
+        setBookingOpen(true)
+      }
     } catch {
       /* sessionStorage unavailable — fail open rather than trap the visitor */
     }
   }, [router])
+
+  // Ships the spoken pre-meeting answers to Slack, merged with the access-gate
+  // identity. Runs once, when the questionnaire finishes.
+  const submitAnswers = (answers: VoiceAnswers) => {
+    let access: Partial<InvestorFormData> = {}
+    try {
+      access = JSON.parse(sessionStorage.getItem(ACCESS_KEY) ?? '{}')
+    } catch {
+      access = {}
+    }
+    void fetch('/api/qualifier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'questions', form: { ...access, ...answers } }),
+      keepalive: true,
+    }).catch(() => {})
+  }
 
   return (
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
@@ -150,11 +178,8 @@ export default function Story() {
           <ScrollAnimator>
             <section className="text-center">
               <p className="mx-auto max-w-2xl text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
-                {BRIDGE_PRE}
+                {BRIDGE_LEAD}
                 <span className="text-mint">{BRIDGE_EM}</span>
-              </p>
-              <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-hardline-800">
-                {BRIDGE_TURN}
               </p>
               <div className="mt-10 flex justify-center" aria-hidden="true">
                 <svg
@@ -185,15 +210,12 @@ export default function Story() {
             <section>
               <Eyebrow>{MOAT_EYEBROW}</Eyebrow>
               <h2 className="hl-h3 text-[color:var(--hl-text)]">{MOAT_LEAD}</h2>
-              <p className="mt-3 max-w-xl text-lg leading-relaxed text-[color:var(--hl-text)]">
-                {MOAT_SUB}
-              </p>
 
               <MoatFlywheel />
             </section>
           </ScrollAnimator>
 
-          {/* 5 · Traction */}
+          {/* 5 · Traction — hidden
           <ScrollAnimator>
             <section>
               <p className="text-xl font-bold leading-relaxed text-[color:var(--hl-text)]">
@@ -220,6 +242,7 @@ export default function Story() {
               </div>
             </section>
           </ScrollAnimator>
+          */}
 
           {/* 6 · Why us — one photo of the three of us, tagged like a photo */}
           <ScrollAnimator>
@@ -246,9 +269,9 @@ export default function Story() {
               </p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link href="/investors/book" className="btn-primary">
+                <button type="button" onClick={() => setBookingOpen(true)} className="btn-primary">
                   {CTA_BOOK}
-                </Link>
+                </button>
                 <NewsletterSignup className="btn-outline-dark" />
               </div>
             </div>
@@ -268,6 +291,10 @@ export default function Story() {
           </div>
         </div>
       </div>
+
+      {bookingOpen && (
+        <VoiceQuestionnaire onClose={() => setBookingOpen(false)} onSubmit={submitAnswers} />
+      )}
     </main>
   )
 }

@@ -6,7 +6,7 @@ import { ACCESS_KEY, type InvestorFormData } from '@/lib/qualify'
 
 const HEADLINE = 'Get to know us in five minutes.'
 const SUB =
-  'Name, email, and your fund — then the story is yours. If it clicks, booking a call is one step away.'
+  'Name, email, and your fund, then the story is yours. If it clicks, booking a call is one step away.'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

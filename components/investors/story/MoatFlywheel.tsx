@@ -13,13 +13,13 @@ const STEPS = [
   {
     n: '02',
     title: 'Immediate value',
-    body: 'Most construction tech is built for someone else. Hardline pays off for the user on the first call.',
+    body: 'Pays off for the user on the first call.',
   },
   { n: '03', title: 'Stickiness', body: 'Every conversation raises the switching cost.' },
   {
     n: '04',
     title: 'Intelligence',
-    body: "The knowledge map becomes the job's context store — powering completely touchless project management.",
+    body: "The knowledge map becomes the job's context store, powering completely touchless project management.",
   },
 ]
 

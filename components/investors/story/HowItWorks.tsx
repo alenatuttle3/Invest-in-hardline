@@ -9,6 +9,13 @@ import { useEffect, useRef } from 'react'
    only runs the rAF loop while the section is on screen. prefers-reduced-motion
    freezes the ambient motion (pulse / particles) but keeps the
    scroll-mapped stages so the story still reads.
+
+   Three scroll stages, each with copy pinned in the left panel:
+     1 Capture      — a live call; nodes scatter in.
+     2 Intelligence — nodes settle into a cross-linked knowledge map.
+     3 Automation   — the map's authored artifacts (the workflow dots) slide out
+                      of the map into a hierarchy, then lines flow down into the
+                      systems of record and up to Hardline at the apex.
    ============================================================================= */
 
 type Cat = 'project' | 'phase' | 'person' | 'issue' | 'decision' | 'workflow'
@@ -20,7 +27,7 @@ type NodeDef = {
   x: number // % of map width
   y: number // % of map height
   label: string
-  dest?: 'procore' | 'acc' | 'fieldwire'
+  dest?: string // stage-3 system this artifact flows into
   color?: string
 }
 
@@ -43,6 +50,9 @@ const CAT_RANK: Record<Cat, number> = {
   workflow: 1,
 }
 
+// The workflow ("highlighted") nodes are the artifacts Hardline authors; each
+// carries the system of record it flows into. They live in the map in stage 2,
+// then migrate into the stage-3 hierarchy.
 const NODES: NodeDef[] = [
   { id: 'proj_a', cat: 'project', imp: 3, x: 30, y: 18, label: 'Tower A — 22F' },
   { id: 'proj_b', cat: 'project', imp: 3, x: 70, y: 25, label: 'Parking Structure' },
@@ -65,13 +75,13 @@ const NODES: NodeDef[] = [
   { id: 'dec_pour', cat: 'decision', imp: 2, x: 36, y: 42, label: 'Pour date: Tue 7am' },
   { id: 'dec_sub', cat: 'decision', imp: 1, x: 60, y: 70, label: 'Sub swap approved' },
   { id: 'dec_rfi', cat: 'decision', imp: 2, x: 60, y: 18, label: 'RFI #47 resolved' },
-  { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 3, x: 34, y: 32, label: 'Daily Log' },
-  { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 54, y: 38, label: 'RFI' },
-  { id: 'wf_task', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 46, y: 58, label: 'Task' },
+  { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 3, x: 54, y: 38, label: 'RFI' },
+  { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 34, y: 32, label: 'Daily Report' },
   { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
-  { id: 'wf_model', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 1, x: 76, y: 52, label: 'Model Conflict' },
-  { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Punch Item' },
-  { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 1, x: 58, y: 86, label: 'Inspection' },
+  { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 58, y: 86, label: 'Inspection' },
+  { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Safety Report' },
+  { id: 'wf_model', cat: 'workflow', dest: 'constructable', color: '#4a8f74', imp: 2, x: 76, y: 52, label: 'Submittal' },
+  { id: 'wf_task', cat: 'workflow', dest: 'jobtread', color: '#6fc49f', imp: 2, x: 46, y: 58, label: 'Change Order' },
 ]
 
 const EDGES: [string, string][] = [
@@ -92,66 +102,43 @@ const EDGES: [string, string][] = [
   ['proj_a', 'proj_b'], ['elec', 'foundation'],
 ]
 
-type Integration = {
-  key: 'procore' | 'acc' | 'fieldwire'
-  name: string
-  dot: string
-  border: string
-  topOffset: number // px from vertical center
-  items: string[]
-  group: string[]
-}
-const INTEGRATIONS: Integration[] = [
-  {
-    key: 'procore',
-    name: 'Procore',
-    dot: '#59af8c',
-    border: 'rgba(89,175,140,0.35)',
-    topOffset: -210,
-    items: ['→ Daily Log drafted', '→ RFI #47 created', '→ Task assigned'],
-    group: ['wf_log', 'wf_rfi', 'wf_task'],
-  },
-  {
-    key: 'acc',
-    name: 'Autodesk ACC',
-    dot: '#3c7a64',
-    border: 'rgba(60,122,100,0.32)',
-    topOffset: -36,
-    items: ['→ Drawing rev flagged', '→ Model conflict noted'],
-    group: ['wf_draw', 'wf_model'],
-  },
-  {
-    key: 'fieldwire',
-    name: 'Fieldwire',
-    dot: '#1f3f33',
-    border: 'rgba(31,63,51,0.28)',
-    topOffset: 140,
-    items: ['→ Punch item logged', '→ Inspection task set'],
-    group: ['wf_punch', 'wf_insp'],
-  },
+// Stage-3 destinations: the systems of record the artifacts flow into, plus a
+// chat cluster you can pull custom outputs from.
+type SystemDef = { key: string; name: string; color: string }
+const SYSTEMS: SystemDef[] = [
+  { key: 'procore', name: 'Procore', color: '#59af8c' },
+  { key: 'acc', name: 'Autodesk ACC', color: '#3c7a64' },
+  { key: 'fieldwire', name: 'Fieldwire', color: '#1f3f33' },
+  { key: 'constructable', name: 'Constructable', color: '#4a8f74' },
+  { key: 'jobtread', name: 'JobTread', color: '#6fc49f' },
 ]
+// Hardline's own MCP endpoint — a branch that only drops halfway (it's the
+// source, not a downstream tool), so anything can pull the same context.
+const MCP = { name: 'Hardline MCP', color: '#59af8c' }
 
 const STEPS = [
   {
     tag: '01 / Capture',
-    title: 'Every conversation. Automatically.',
-    body: 'Hardline captures inbound and outbound calls, site meetings, and every field conversation — no new phone number, no behavior change. Hardline ingests audio, photos, and video, and is compatible with cell phones, Meta AI glasses, and walkie-talkies.',
+    title: 'The field already talks. We made it count.',
+    body: "Hardline is the eyes and ears of the jobsite. Every call, site walk, and conversation, captured passively with whatever's already in hand. Works with your phone, smart glasses, walkie-talkies, and security feeds. If it happens on site, Hardline hears it.",
   },
   {
     tag: '02 / Intelligence',
-    title: 'A personalized knowledge map for every user.',
-    body: "Projects, phases, subcontractors, issues, and decisions — all cross-linked in real time. The institutional knowledge that lives in one person's head, finally structured, searchable, and sharable.",
+    title: 'Every job, finally with a memory.',
+    body: 'Projects, phases, subcontractors, issues, and decisions, all cross-linked in real time. The institutional knowledge that used to walk out the door when someone quit. Now it stays.',
   },
   {
     tag: '03 / Automation',
-    title: 'Straight into the tools that run the job.',
-    body: 'Hardline powers touchless workflows — daily log updated, task created, punch item closed out, safety form filed — the moment the conversation ends.',
+    title: 'Hardline holds the authoring pen. Every tool on the job runs on what we capture.',
+    body: "The field conversation is where every decision is made. Hardline captures it first and writes it into every system the project depends on. Not just an integration, the source of truth for the field. And users don't need to lift a finger.",
   },
 ]
 
 const S1_END = 0.34
 const S2_END = 0.67
-const BADGE_W = 230
+
+type SystemLayout = { key: string; name: string; color: string; x: number; y: number }
+type McpLayout = { name: string; color: string; x: number; y: number }
 
 export default function HowItWorks() {
   const rootRef = useRef<HTMLElement>(null)
@@ -167,7 +154,6 @@ export default function HowItWorks() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const stepEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-step'))
     const dotEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-dot'))
-    const badgeEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-badge'))
     const labelEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-nodelabel'))
     const ghostEl = root.querySelector<HTMLElement>('.hiw-ghostnum')
     const phoneEl = root.querySelector<HTMLElement>('.hiw-phone')
@@ -177,6 +163,7 @@ export default function HowItWorks() {
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t
     const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
     const easeOut5 = (t: number) => 1 - Math.pow(1 - t, 5)
+    const ramp = (v: number, a: number, b: number) => easeInOut(clamp((v - a) / (b - a)))
     const rng = (seed: number) => {
       const x = Math.sin(seed) * 43758.5453
       return x - Math.floor(x)
@@ -196,13 +183,19 @@ export default function HowItWorks() {
       sx: 0, sy: 0, // scatter start (px)
       tx: 0, ty: 0, // map target (px)
       px: 0, py: 0, // current (px)
+      hx: 0, hy: 0, // stage-3 artifact target (px)
+      destX: 0, destY: 0, // its system position (px)
       seed: i + 1,
     }))
 
     let W = 0
     let H = 0
     let dpr = 1
-    const badgeAnchor: Record<string, { x: number; y: number }> = {}
+    let narrow = false
+    let apexPos = { x: 0, y: 0 }
+    let apexR = 13
+    let sysLayout: SystemLayout[] = []
+    let mcpLayout: McpLayout = { name: MCP.name, color: MCP.color, x: 0, y: 0 }
 
     function layout() {
       dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -211,6 +204,8 @@ export default function HowItWorks() {
       canvas!.width = Math.round(W * dpr)
       canvas!.height = Math.round(H * dpr)
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0)
+      narrow = W < 760
+      apexR = narrow ? 10 : 13
 
       for (const n of nodes) {
         n.tx = W * 0.02 + (n.def.x / 100) * W * 0.96
@@ -219,11 +214,84 @@ export default function HowItWorks() {
         n.sy = (0.08 + rng(n.seed * 78.233 + 1) * (0.92 - 0.08)) * H
       }
 
-      // integration anchors = left-middle of each DOM badge
-      for (const integ of INTEGRATIONS) {
-        const ax = W - 36 - BADGE_W
-        const ay = H / 2 + integ.topOffset + 18
-        badgeAnchor[integ.key] = { x: ax, y: ay }
+      computeHierarchy()
+    }
+
+    // Stage-3 hierarchy — kept in the right column so the left panel copy stays
+    // legible, exactly like stages 1–2. Systems along the bottom, artifacts (the
+    // migrating workflow nodes) in the middle, Hardline at the apex.
+    function computeHierarchy() {
+      const nBottom = SYSTEMS.length + 1 // systems + chat
+      if (!narrow) {
+        // Compact vertical span, aligned with the left copy block (not towering
+        // above it): apex sits lower and the tiers sit closer together.
+        const cx = W * 0.72
+        apexPos = { x: cx, y: H * 0.25 }
+        const midY = H * 0.51
+        const botY = H * 0.78
+        const colGap = Math.min(W * 0.082, 110)
+        sysLayout = SYSTEMS.map((s, i) => ({
+          key: s.key,
+          name: s.name,
+          color: s.color,
+          x: cx + (i - (nBottom - 1) / 2) * colGap,
+          y: botY,
+        }))
+        const sysPos: Record<string, { x: number; y: number }> = {}
+        sysLayout.forEach(s => (sysPos[s.key] = { x: s.x, y: s.y }))
+
+        // Artifact targets: group workflow nodes by their system, sit them above
+        // it (two side by side when a system has a pair).
+        const bySys: Record<string, typeof nodes> = {}
+        nodes.forEach(n => {
+          if (n.def.cat === 'workflow' && n.def.dest) (bySys[n.def.dest] ||= []).push(n)
+        })
+        // Each system's artifacts stack straight above it, so every connector is
+        // a clean vertical column — down into the system, up to Hardline — with
+        // nothing crossing.
+        Object.entries(bySys).forEach(([key, arr]) => {
+          const pos = sysPos[key]
+          if (!pos) return
+          arr.forEach((n, j) => {
+            n.hx = pos.x
+            n.hy = midY - j * 40
+            n.destX = pos.x
+            n.destY = pos.y
+          })
+        })
+
+        // Far-right MCP branch: same rightmost column, but it only drops to the
+        // middle tier (halfway) rather than to a system at the bottom.
+        const mcpX = cx + (SYSTEMS.length - (nBottom - 1) / 2) * colGap
+        mcpLayout = { name: MCP.name, color: MCP.color, x: mcpX, y: midY }
+      } else {
+        // Mobile: the step text fills the top half, so a compact chart lives in
+        // the lower area — apex + the artifacts and systems interleaved is too
+        // dense, so just show apex → systems (+ chat) with the artifacts folded
+        // into the destinations.
+        const cx = W * 0.5
+        apexPos = { x: cx, y: H * 0.6 }
+        const perRow = 3
+        const colGap = Math.min(W * 0.27, 130)
+        const rowY = [H * 0.78, H * 0.92]
+        const bottom = [...SYSTEMS, { key: 'mcp', name: 'Hardline MCP', color: MCP.color }]
+        sysLayout = bottom.map((b, i) => {
+          const row = Math.floor(i / perRow)
+          const col = i % perRow
+          const x = cx + (col - (perRow - 1) / 2) * colGap + (row === 1 ? colGap * 0.25 : 0)
+          return { key: b.key, name: b.name, color: b.color, x, y: rowY[row] }
+        })
+        const sysPos: Record<string, { x: number; y: number }> = {}
+        sysLayout.forEach(s => (sysPos[s.key] = { x: s.x, y: s.y }))
+        nodes.forEach(n => {
+          if (n.def.cat === 'workflow' && n.def.dest && sysPos[n.def.dest]) {
+            n.hx = sysPos[n.def.dest].x
+            n.hy = sysPos[n.def.dest].y
+            n.destX = sysPos[n.def.dest].x
+            n.destY = sysPos[n.def.dest].y
+          }
+        })
+        mcpLayout = { name: MCP.name, color: MCP.color, x: 0, y: 0 }
       }
     }
 
@@ -235,20 +303,12 @@ export default function HowItWorks() {
 
     // DOM state we only touch on change
     let domStage = -1
-    let badgesIn = false
-
-    function updateDom(stage: number, s2: number) {
-      if (stage !== domStage) {
-        domStage = stage
-        stepEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
-        dotEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
-        if (ghostEl) ghostEl.textContent = `0${stage + 1}`
-      }
-      const shouldIn = s2 > 0.28
-      if (shouldIn !== badgesIn) {
-        badgesIn = shouldIn
-        badgeEls.forEach(el => el.classList.toggle('is-in', shouldIn))
-      }
+    function updateDom(stage: number) {
+      if (stage === domStage) return
+      domStage = stage
+      stepEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
+      dotEls.forEach((el, i) => el.classList.toggle('is-active', i === stage))
+      if (ghostEl) ghostEl.textContent = `0${stage + 1}`
     }
 
     // ---- drawing ----
@@ -276,29 +336,38 @@ export default function HowItWorks() {
         s2 = easeInOut(t)
       }
       const stage = p < S1_END ? 0 : p < S2_END ? 1 : 2
-      updateDom(stage, s2)
+      updateDom(stage)
 
       ctx!.clearRect(0, 0, W, H)
 
-      // node current positions + alphas. Nodes settle at their map positions
-      // and stay there; in stage 3 everything that doesn't wire to a system
-      // simply fades out, leaving the workflow nodes (and their links to the
-      // integrations) in focus.
-      const blackout = easeInOut(clamp(s2 * 1.4))
+      // Stage 3: the map fades out, but the highlighted (workflow) dots stay and
+      // slide from their map spot into the hierarchy. Then the lines flow.
+      const blackout = easeInOut(clamp(s2 * 1.9)) // non-artifact map fades early
+      const toHier = easeInOut(clamp(s2 / 0.55)) // artifacts finish moving by ~55%
       const alphas: number[] = []
       nodes.forEach((n, i) => {
         const form = easeOut5(clamp((s1 - (i / nodes.length) * 0.12) / 0.88))
-        n.px = lerp(n.sx, n.tx, form)
-        n.py = lerp(n.sy, n.ty, form)
+        let px = lerp(n.sx, n.tx, form)
+        let py = lerp(n.sy, n.ty, form)
+        // Desktop: the highlighted artifact dots migrate into the hierarchy and
+        // persist. Mobile has no middle tier, so they fade out with the map.
+        const isArtifact = n.def.cat === 'workflow' && !narrow
+        if (toHier > 0 && isArtifact) {
+          px = lerp(px, n.hx, toHier)
+          py = lerp(py, n.hy, toHier)
+        }
+        n.px = px
+        n.py = py
         let a = clamp(form * 1.4)
-        if (n.def.cat !== 'workflow') a *= 1 - blackout
+        if (!isArtifact) a *= 1 - blackout
         alphas[i] = a
       })
 
       drawHalos(s1 * (1 - blackout))
       drawEdges(alphas)
-      if (s2 > 0.001) drawAutomation(s2)
-      drawNodes(alphas, s1)
+      if (s2 > 0.001) drawHierarchyLinks(s2)
+      drawNodes(alphas)
+      if (s2 > 0.001) drawHierarchyNodes(s2)
       updateLabels(alphas, s1)
       if (phoneEl) phoneEl.style.opacity = phoneAlpha.toFixed(3)
     }
@@ -322,9 +391,8 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
-    // Edges are solid quadratic arcs. Bowing each line away from the straight
-    // chord (alternating sides) keeps them from tracking straight through
-    // node labels and stacking on top of one another.
+    // Knowledge-map edges — solid quadratic arcs, bowed alternately so they
+    // don't stack. They fade out with their endpoints as stage 3 takes over.
     function drawEdges(alphas: number[]) {
       ctx!.save()
       ctx!.lineCap = 'round'
@@ -353,102 +421,189 @@ export default function HowItWorks() {
       ctx!.restore()
     }
 
-    function drawAutomation(s2: number) {
+    function drawNodes(alphas: number[]) {
       ctx!.save()
-      const drawT = easeOut5(clamp((s2 - 0.1) / 0.9))
-      for (const integ of INTEGRATIONS) {
-        const anchor = badgeAnchor[integ.key]
-        const grp = integ.group.map(id => nodes[idx.get(id)!])
-        // Trunk originates from the group's primary node so the line touches a dot.
-        const origin = grp[0]
-        const p0x = origin.px
-        const p0y = origin.py
-        const p3x = anchor.x
-        const p3y = anchor.y
-        const p1x = lerp(p0x, p3x, 0.45)
-        const p1y = p0y
-        const p2x = p3x - 26
-        const p2y = p3y
-        // feeders (each secondary node -> badge; the origin is served by the
-        // trunk). Solid curves that flatten into the badge like the trunk does.
-        ctx!.lineWidth = 1
-        for (const n of grp) {
-          if (n === origin) continue
-          ctx!.strokeStyle = hexA(n.color, 0.35 * s2)
-          ctx!.beginPath()
-          ctx!.moveTo(n.px, n.py)
-          ctx!.bezierCurveTo(
-            lerp(n.px, anchor.x, 0.45),
-            n.py,
-            anchor.x - 26,
-            anchor.y,
-            anchor.x,
-            anchor.y,
-          )
-          ctx!.stroke()
-        }
-        // trunk
-        ctx!.lineWidth = 2
-        ctx!.strokeStyle = hexA(integ.dot, 0.55 * drawT)
-        ctx!.beginPath()
-        ctx!.moveTo(p0x, p0y)
-        const steps = 24
-        for (let s = 1; s <= steps; s++) {
-          const t = (s / steps) * drawT
-          ctx!.lineTo(bez(p0x, p1x, p2x, p3x, t), bez(p0y, p1y, p2y, p3y, t))
-        }
-        ctx!.stroke()
-        // particles
-        if (!reduced && drawT > 0.05) {
-          for (let k = 0; k < 5; k++) {
-            const t = ((animT * 0.4 + k / 5) % 1) * drawT
-            const x = bez(p0x, p1x, p2x, p3x, t)
-            const y = bez(p0y, p1y, p2y, p3y, t)
-            ctx!.fillStyle = hexA(integ.dot, 0.9)
-            ctx!.beginPath()
-            ctx!.arc(x, y, 2.2, 0, Math.PI * 2)
-            ctx!.fill()
-          }
-        }
-      }
-      ctx!.restore()
-    }
-
-    function drawNodes(alphas: number[], s1: number) {
-      ctx!.save()
-      ctx!.textAlign = 'left'
-      ctx!.textBaseline = 'middle'
       nodes.forEach((n, i) => {
         const a = alphas[i]
         if (a <= 0.02) return
         const pulse = reduced ? 1 : 1 + 0.08 * Math.sin(animT * 2 + i)
         const r = n.r * pulse
-        // glow
-        const g = ctx!.createRadialGradient(n.px, n.py, 0, n.px, n.py, r * 4)
-        g.addColorStop(0, hexA(n.color, 0.5 * a))
-        g.addColorStop(1, hexA(n.color, 0))
-        ctx!.fillStyle = g
-        ctx!.fillRect(n.px - r * 4, n.py - r * 4, r * 8, r * 8)
-        // core
-        ctx!.fillStyle = hexA(n.color, a)
-        ctx!.beginPath()
-        ctx!.arc(n.px, n.py, r, 0, Math.PI * 2)
-        ctx!.fill()
-        // ring for imp3 / workflow
-        if (n.def.imp === 3 || n.def.cat === 'workflow') {
-          ctx!.strokeStyle = hexA('#1f3f33', 0.4 * a)
-          ctx!.lineWidth = 1
-          ctx!.beginPath()
-          ctx!.arc(n.px, n.py, r + 3, 0, Math.PI * 2)
-          ctx!.stroke()
-        }
+        paintDot(n.px, n.py, r, n.color, a, n.def.imp === 3 || n.def.cat === 'workflow')
       })
       ctx!.restore()
     }
 
-    // Node labels are real (selectable) DOM positioned over the canvas,
-    // centered above each dot so edges (which run dot-to-dot) pass under
-    // the text instead of through it.
+    // A vertical org-chart connector: leaves the parent going straight toward the
+    // child, curving in. `drawT` reveals it progressively so the lines "flow".
+    function drawLink(
+      x0: number, y0: number, x1: number, y1: number,
+      color: string, alpha: number, width: number, drawT: number,
+    ) {
+      if (alpha <= 0.01 || drawT <= 0.01) return
+      const my = (y0 + y1) / 2
+      ctx!.strokeStyle = hexA(color, alpha)
+      ctx!.lineWidth = width
+      ctx!.beginPath()
+      ctx!.moveTo(x0, y0)
+      const steps = 20
+      for (let s = 1; s <= steps; s++) {
+        const t = (s / steps) * drawT
+        ctx!.lineTo(bez(x0, x0, x1, x1, t), bez(y0, my, my, y1, t))
+      }
+      ctx!.stroke()
+    }
+
+    // Stage 3 links (under the dots): once the artifacts have arrived, lines flow
+    // down into the systems and up to Hardline.
+    function drawHierarchyLinks(s2: number) {
+      ctx!.save()
+      ctx!.lineCap = 'round'
+      const apex = apexPos
+      const upA = ramp(s2, 0.48, 0.82)
+      const downA = ramp(s2, 0.54, 0.9)
+      const mcpA = ramp(s2, 0.4, 0.7)
+      const upDrawT = easeOut5(clamp((s2 - 0.46) / 0.4))
+      const downDrawT = easeOut5(clamp((s2 - 0.52) / 0.4))
+
+      nodes.forEach(n => {
+        if (n.def.cat !== 'workflow') return
+        drawLink(apex.x, apex.y, n.px, n.py, '#59af8c', 0.5 * upA, 1.5, upDrawT) // up to Hardline
+        drawLink(n.px, n.py, n.destX, n.destY, n.color, 0.34 * downA, 1, downDrawT) // down to system
+      })
+      if (!narrow) {
+        // MCP branch: from the apex straight down to the halfway node.
+        drawLink(apex.x, apex.y, mcpLayout.x, mcpLayout.y, MCP.color, 0.5 * mcpA, 1.6, upDrawT)
+      } else {
+        sysLayout.forEach(s => drawLink(apex.x, apex.y, s.x, s.y, '#59af8c', 0.5 * mcpA, 1.8, downDrawT))
+      }
+
+      // Particles stream downward from the apex — Hardline powering the stack.
+      if (!reduced && upDrawT > 0.05) {
+        nodes.forEach((n, si) => {
+          if (n.def.cat !== 'workflow') return
+          const my = (apex.y + n.py) / 2
+          const t = ((animT * 0.35 + si * 0.14) % 1) * upDrawT
+          const x = bez(apex.x, apex.x, n.px, n.px, t)
+          const y = bez(apex.y, my, my, n.py, t)
+          ctx!.fillStyle = hexA('#59af8c', 0.75 * upA)
+          ctx!.beginPath()
+          ctx!.arc(x, y, 1.8, 0, Math.PI * 2)
+          ctx!.fill()
+        })
+      }
+      ctx!.restore()
+    }
+
+    // Stage 3 nodes (over the links): systems, the MCP branch, and the apex.
+    function drawHierarchyNodes(s2: number) {
+      ctx!.save()
+      const sysA = ramp(s2, 0.28, 0.6)
+      const mcpA = ramp(s2, 0.34, 0.66)
+      const apexA = ramp(s2, 0.05, 0.3)
+
+      // Bottom-row labels are plain text (no backing pill) — nothing runs below
+      // these dots, so a pill would only clip the dots' glow.
+      ctx!.textAlign = 'center'
+      ctx!.textBaseline = 'alphabetic'
+      const sysR = narrow ? 6 : 7
+      sysLayout.forEach(s => {
+        paintDot(s.x, s.y, sysR, s.color, sysA, true)
+        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.fillStyle = hexA('#1f3f33', sysA)
+        ctx!.fillText(s.name, s.x, s.y + sysR + 26)
+      })
+
+      // The MCP branch node sits at the halfway point; its label goes below it.
+      if (!narrow) {
+        paintDot(mcpLayout.x, mcpLayout.y, sysR, mcpLayout.color, mcpA, true)
+        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.fillStyle = hexA('#1f3f33', mcpA)
+        ctx!.fillText(mcpLayout.name, mcpLayout.x, mcpLayout.y + sysR + 26)
+      }
+
+      const apex = apexPos
+      paintApex(apex.x, apex.y, apexR, apexA)
+      ctx!.textAlign = 'center'
+      ctx!.textBaseline = 'alphabetic'
+      ctx!.font = '700 16px Montserrat, system-ui, sans-serif'
+      ctx!.fillStyle = hexA('#1f3f33', apexA)
+      ctx!.fillText('Hardline', apex.x, apex.y - apexR - 13)
+      ctx!.restore()
+    }
+
+    // Centered label with a soft sage backing pill, so the connector lines
+    // reading beneath it stay legible.
+    function drawPillLabel(text: string, x: number, y: number, a: number, font: string, color: string) {
+      if (a <= 0.02) return
+      ctx!.font = `${font} Montserrat, system-ui, sans-serif`
+      ctx!.textAlign = 'center'
+      ctx!.textBaseline = 'middle'
+      const w = ctx!.measureText(text).width
+      const padX = 5
+      const h = 16
+      ctx!.fillStyle = hexA('#dde6e2', 0.82 * a)
+      roundRect(x - w / 2 - padX, y - h / 2, w + padX * 2, h, 5)
+      ctx!.fill()
+      ctx!.fillStyle = hexA(color, a)
+      ctx!.fillText(text, x, y + 0.5)
+    }
+
+    function roundRect(x: number, y: number, w: number, h: number, r: number) {
+      ctx!.beginPath()
+      ctx!.moveTo(x + r, y)
+      ctx!.arcTo(x + w, y, x + w, y + h, r)
+      ctx!.arcTo(x + w, y + h, x, y + h, r)
+      ctx!.arcTo(x, y + h, x, y, r)
+      ctx!.arcTo(x, y, x + w, y, r)
+      ctx!.closePath()
+    }
+
+    function paintDot(x: number, y: number, r: number, color: string, a: number, ring: boolean) {
+      if (a <= 0.02) return
+      const g = ctx!.createRadialGradient(x, y, 0, x, y, r * 4)
+      g.addColorStop(0, hexA(color, 0.5 * a))
+      g.addColorStop(1, hexA(color, 0))
+      ctx!.fillStyle = g
+      ctx!.fillRect(x - r * 4, y - r * 4, r * 8, r * 8)
+      ctx!.fillStyle = hexA(color, a)
+      ctx!.beginPath()
+      ctx!.arc(x, y, r, 0, Math.PI * 2)
+      ctx!.fill()
+      if (ring) {
+        ctx!.strokeStyle = hexA('#1f3f33', 0.4 * a)
+        ctx!.lineWidth = 1
+        ctx!.beginPath()
+        ctx!.arc(x, y, r + 3, 0, Math.PI * 2)
+        ctx!.stroke()
+      }
+    }
+
+    function paintApex(x: number, y: number, r: number, a: number) {
+      if (a <= 0.02) return
+      const rr = r * (reduced ? 1 : 1 + 0.05 * Math.sin(animT * 2))
+      const g = ctx!.createRadialGradient(x, y, 0, x, y, rr * 5)
+      g.addColorStop(0, hexA('#59af8c', 0.55 * a))
+      g.addColorStop(1, hexA('#59af8c', 0))
+      ctx!.fillStyle = g
+      ctx!.fillRect(x - rr * 5, y - rr * 5, rr * 10, rr * 10)
+      ctx!.fillStyle = hexA('#59af8c', a)
+      ctx!.beginPath()
+      ctx!.arc(x, y, rr, 0, Math.PI * 2)
+      ctx!.fill()
+      ctx!.fillStyle = hexA('#e8f4ee', 0.9 * a)
+      ctx!.beginPath()
+      ctx!.arc(x, y, rr * 0.4, 0, Math.PI * 2)
+      ctx!.fill()
+      ctx!.strokeStyle = hexA('#1f3f33', 0.5 * a)
+      ctx!.lineWidth = 1.5
+      ctx!.beginPath()
+      ctx!.arc(x, y, rr + 4, 0, Math.PI * 2)
+      ctx!.stroke()
+    }
+
+    // Node labels are real (selectable) DOM, centered above each dot so edges
+    // pass under the text. The artifact labels ride along into the hierarchy;
+    // the rest of the map labels fade out with their dots.
     function updateLabels(alphas: number[], s1: number) {
       const reveal = clamp((s1 - 0.5) * 2)
       nodes.forEach((n, i) => {
@@ -509,7 +664,10 @@ export default function HowItWorks() {
 
   return (
     <section ref={rootRef} className="hl-howitworks" aria-label="How Hardline works">
-      <style>{CSS}</style>
+      {/* dangerouslySetInnerHTML (not children) so the server/client serialize
+          the CSS identically — inline url("…") quotes otherwise trip a
+          text-content hydration mismatch that re-renders the page client-side. */}
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="hiw-sticky">
         <canvas ref={canvasRef} className="hiw-canvas" />
 
@@ -539,29 +697,6 @@ export default function HowItWorks() {
         <div className="hiw-dots" aria-hidden="true">
           {STEPS.map((s, i) => (
             <span key={s.tag} className={`hiw-dot${i === 0 ? ' is-active' : ''}`} />
-          ))}
-        </div>
-
-        <div className="hiw-badges" aria-hidden="true">
-          {INTEGRATIONS.map(integ => (
-            <div
-              key={integ.key}
-              className="hiw-badge"
-              style={{
-                top: `calc(50% + ${integ.topOffset}px)`,
-                borderColor: integ.border,
-              }}
-            >
-              <div className="hiw-badge-head">
-                <span className="hiw-badge-dot" style={{ background: integ.dot }} />
-                {integ.name}
-              </div>
-              {integ.items.map(it => (
-                <div key={it} className="hiw-badge-item">
-                  {it}
-                </div>
-              ))}
-            </div>
           ))}
         </div>
 
@@ -598,22 +733,12 @@ const CSS = `
 .hl-howitworks .hiw-dots { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 4; }
 .hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(31,63,51,0.18); transition: all .4s ease; }
 .hl-howitworks .hiw-dot.is-active { background: #59af8c; transform: scale(1.5); box-shadow: 0 0 12px rgba(89,175,140,0.85); }
-.hl-howitworks .hiw-badges { position: absolute; right: 36px; top: 0; bottom: 0; width: ${BADGE_W}px; z-index: 3; pointer-events: none; }
-.hl-howitworks .hiw-badge { position: absolute; right: 0; width: ${BADGE_W}px; background: #dde6e2; border: 1px solid rgba(31,63,51,0.1); border-radius: 18px; padding: 14px 16px; box-shadow: 8px 8px 18px #b3bfbb, -8px -8px 18px #ffffff; opacity: 0; transform: translateX(22px); transition: opacity .5s ease, transform .5s ease; pointer-events: auto; }
-.hl-howitworks .hiw-badge.is-in { opacity: 1; transform: none; }
-.hl-howitworks .hiw-badge:nth-child(1) { transition-delay: 0s; }
-.hl-howitworks .hiw-badge:nth-child(2) { transition-delay: .1s; }
-.hl-howitworks .hiw-badge:nth-child(3) { transition-delay: .2s; }
-.hl-howitworks .hiw-badge-head { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; color: #1f3f33; margin-bottom: 8px; }
-.hl-howitworks .hiw-badge-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.hl-howitworks .hiw-badge-item { font-size: 13.5px; color: #7e908c; line-height: 1.75; }
 .hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #1f3f33; opacity: 0.05; z-index: 1; pointer-events: none; user-select: none; }
 @media (max-width: 760px) {
   .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #dde6e2 0%, #dde6e2 48%, rgba(221,230,226,0.85) 72%, rgba(221,230,226,0) 100%); }
-  .hl-howitworks .hiw-badges { display: none; }
   .hl-howitworks .hiw-ghostnum { font-size: 96px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hl-howitworks .hiw-step, .hl-howitworks .hiw-dot, .hl-howitworks .hiw-badge { transition: none; }
+  .hl-howitworks .hiw-step, .hl-howitworks .hiw-dot { transition: none; }
 }
 `
