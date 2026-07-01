@@ -15,16 +15,16 @@ import TeamPhoto from '@/components/investors/story/TeamPhoto'
 const MARKER = 'Stage 2 of 3 · The Story'
 const READ_TIME = '~4 min'
 
-const VIDEO_EYEBROW = 'From us'
-const VIDEO_HEADING = 'Why we built Hardline'
+const VIDEO_EYEBROW = 'The origin'
+const VIDEO_HEADING = 'One phone call. A two-inch change. $100,000 gone.'
 const VIDEO_LINE =
-  'The two of us, on camera: a two-inch change, communicated over the phone, $100,000 in rework — and why that happens on every job, every day.'
+  'The field runs on physical presence, visual judgment, and 70 phone calls a day. Not one of those conversations has ever been captured.'
 
 // The bridge — carries the reader from the problem (the video) into the
 // solution (the how-it-works scene that follows).
-const BRIDGE_PRE = "That $100K call wasn't rare. Every problem on a jobsite starts the same way — "
-const BRIDGE_EM = 'as a conversation the tools never heard.'
-const BRIDGE_TURN = 'So we built the one that listens. Watch what happens when the field talks.'
+const BRIDGE_PRE = 'Every problem on a jobsite starts the same way: '
+const BRIDGE_EM = 'a conversation that disappeared.'
+const BRIDGE_TURN = 'We decided that was over.'
 
 const TRACTION_LEAD =
   "It lands the second the user turns Hardline on: phone calls don't need adoption — they already happen."
@@ -51,9 +51,7 @@ const TRACTION_STATS = [
 ]
 
 const MOAT_EYEBROW = 'Why this compounds'
-const MOAT_LEAD = 'The data & intelligence is the moat.'
-const MOAT_SUB =
-  'Every conversation makes the map smarter — and the longer Hardline runs, the more expensive it is to leave.'
+const MOAT_LEAD = 'Every call makes it smarter. Every day makes it harder to leave.'
 
 const WHYNOW_EYEBROW = 'Why now'
 const WHYNOW_QUOTE =
@@ -185,9 +183,6 @@ export default function Story() {
             <section>
               <Eyebrow>{MOAT_EYEBROW}</Eyebrow>
               <h2 className="hl-h3 text-[color:var(--hl-text)]">{MOAT_LEAD}</h2>
-              <p className="mt-3 max-w-xl text-lg leading-relaxed text-[color:var(--hl-text)]">
-                {MOAT_SUB}
-              </p>
 
               <MoatFlywheel />
             </section>

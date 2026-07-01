@@ -134,18 +134,18 @@ const INTEGRATIONS: Integration[] = [
 const STEPS = [
   {
     tag: '01 / Capture',
-    title: 'Every conversation. Automatically.',
-    body: 'Hardline captures inbound and outbound calls, site meetings, and every field conversation — no new phone number, no behavior change. Hardline ingests audio, photos, and video, and is compatible with cell phones, Meta AI glasses, and walkie-talkies.',
+    title: 'The field already talks. We made it count.',
+    body: "Hardline is the eyes and ears of the jobsite. Every call, site walk, and conversation — captured passively, whatever's already in hand. Works with your phone, smart glasses, walkie-talkies, and security feeds. If it happens on site, Hardline hears it.",
   },
   {
     tag: '02 / Intelligence',
-    title: 'A personalized knowledge map for every user.',
-    body: "Projects, phases, subcontractors, issues, and decisions — all cross-linked in real time. The institutional knowledge that lives in one person's head, finally structured, searchable, and sharable.",
+    title: 'Every job, finally with a memory.',
+    body: 'Projects, phases, subcontractors, issues, decisions — cross-linked in real time. The institutional knowledge that used to walk out the door when someone quit. Now it stays.',
   },
   {
     tag: '03 / Automation',
-    title: 'Straight into the tools that run the job.',
-    body: 'Hardline powers touchless workflows — daily log updated, task created, punch item closed out, safety form filed — the moment the conversation ends.',
+    title: 'No logging after the fact. The job documents itself.',
+    body: 'Daily log updated. RFI created. Punch item closed. The moment the conversation ends, Hardline is already writing.',
   },
 ]
 
