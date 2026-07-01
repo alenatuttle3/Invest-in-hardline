@@ -112,7 +112,7 @@ const SYSTEMS: SystemDef[] = [
   { key: 'constructable', name: 'Constructable', color: '#4a8f74' },
   { key: 'jobtread', name: 'JobTread', color: '#6fc49f' },
 ]
-const CHAT = { name: 'Claude · ChatGPT', color: '#2c5a45', bullets: ['Custom reports', 'Summaries', 'Ask anything'] }
+const CHAT = { name: 'Claude · ChatGPT', color: '#2c5a45' }
 
 const STEPS = [
   {
@@ -136,7 +136,7 @@ const S1_END = 0.34
 const S2_END = 0.67
 
 type SystemLayout = { key: string; name: string; color: string; x: number; y: number }
-type ChatLayout = { name: string; color: string; x: number; y: number; bullets: string[]; bx: number; by: number }
+type ChatLayout = { name: string; color: string; x: number; y: number }
 
 export default function HowItWorks() {
   const rootRef = useRef<HTMLElement>(null)
@@ -193,7 +193,7 @@ export default function HowItWorks() {
     let apexPos = { x: 0, y: 0 }
     let apexR = 13
     let sysLayout: SystemLayout[] = []
-    let chatLayout: ChatLayout = { name: CHAT.name, color: CHAT.color, x: 0, y: 0, bullets: [], bx: 0, by: 0 }
+    let chatLayout: ChatLayout = { name: CHAT.name, color: CHAT.color, x: 0, y: 0 }
 
     function layout() {
       dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -242,25 +242,22 @@ export default function HowItWorks() {
         nodes.forEach(n => {
           if (n.def.cat === 'workflow' && n.def.dest) (bySys[n.def.dest] ||= []).push(n)
         })
+        // Each system's artifacts stack straight above it, so every connector is
+        // a clean vertical column — down into the system, up to Hardline — with
+        // nothing crossing.
         Object.entries(bySys).forEach(([key, arr]) => {
           const pos = sysPos[key]
           if (!pos) return
-          const k = arr.length
           arr.forEach((n, j) => {
-            n.hx = pos.x + (k > 1 ? (j - (k - 1) / 2) * 74 : 0)
-            n.hy = midY
+            n.hx = pos.x
+            n.hy = midY - j * 40
             n.destX = pos.x
             n.destY = pos.y
           })
         })
-        // Zigzag the middle tier so the packed artifact labels clear each other.
-        nodes
-          .filter(n => n.def.cat === 'workflow')
-          .sort((a, b) => a.hx - b.hx)
-          .forEach((n, i) => (n.hy = midY - (i % 2) * 30))
 
         const chatX = cx + (SYSTEMS.length - (nBottom - 1) / 2) * colGap
-        chatLayout = { name: CHAT.name, color: CHAT.color, x: chatX, y: botY, bullets: CHAT.bullets, bx: chatX - 46, by: botY + 30 }
+        chatLayout = { name: CHAT.name, color: CHAT.color, x: chatX, y: botY }
       } else {
         // Mobile: the step text fills the top half, so a compact chart lives in
         // the lower area — apex + the artifacts and systems interleaved is too
@@ -288,7 +285,7 @@ export default function HowItWorks() {
             n.destY = sysPos[n.def.dest].y
           }
         })
-        chatLayout = { name: 'AI Chat', color: CHAT.color, x: 0, y: 0, bullets: [], bx: 0, by: 0 }
+        chatLayout = { name: 'AI Chat', color: CHAT.color, x: 0, y: 0 }
       }
     }
 
@@ -506,18 +503,6 @@ export default function HowItWorks() {
       if (!narrow) {
         paintDot(chatLayout.x, chatLayout.y, sysR, chatLayout.color, chatA, true)
         drawPillLabel(chatLayout.name, chatLayout.x, chatLayout.y + sysR + 13, chatA, '700 12px', '#1f3f33')
-        chatLayout.bullets.forEach((b, i) => {
-          const by = chatLayout.by + 20 + i * 18
-          ctx!.fillStyle = hexA(chatLayout.color, 0.8 * chatA)
-          ctx!.beginPath()
-          ctx!.arc(chatLayout.bx, by, 2, 0, Math.PI * 2)
-          ctx!.fill()
-          ctx!.font = '500 12px Montserrat, system-ui, sans-serif'
-          ctx!.textAlign = 'left'
-          ctx!.textBaseline = 'middle'
-          ctx!.fillStyle = hexA('#3c574e', chatA)
-          ctx!.fillText(b, chatLayout.bx + 9, by + 0.5)
-        })
       }
 
       const apex = apexPos
