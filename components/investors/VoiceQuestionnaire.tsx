@@ -306,10 +306,19 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
   const progress = ((idx + 1) / QUESTIONS.length) * 100
   const canVoice = supported && permission === 'granted'
 
-  // The box always holds the saved answer and is always editable — type, edit,
-  // or delete anytime. Finalized speech appends to it; the not-yet-final tail
-  // shows as a ghost line below so live dictation never fights the cursor.
-  const answer = answers[q?.field] ?? ''
+  // The box shows the live transcript inline (committed words + the not-yet-final
+  // tail) and stays editable — type, edit, or delete anytime. Editing folds any
+  // pending interim into the saved answer so nothing is lost or duplicated.
+  const committed = answers[q?.field] ?? ''
+  const boxValue = listening && interim ? `${committed}${committed ? ' ' : ''}${interim}` : committed
+
+  const onEdit = (value: string) => {
+    if (interimRef.current) {
+      interimRef.current = ''
+      setInterim('')
+    }
+    setAnswer(q.field, value)
+  }
 
   return (
     <div
@@ -396,21 +405,15 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <h2 className="hl-h3 mt-6 text-[1.3rem] text-[color:var(--hl-text)]">{q.q}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--hl-text-muted)]">{q.blurb}</p>
 
-            {/* Answer box — always editable. Speak, type, edit, or delete. */}
+            {/* Answer box — live transcript appears inline; always editable. */}
             <div className="mt-5">
               <textarea
-                value={answer}
-                onChange={e => setAnswer(q.field, e.target.value)}
+                value={boxValue}
+                onChange={e => onEdit(e.target.value)}
                 rows={3}
                 placeholder={canVoice ? 'Start speaking, or type your answer…' : 'Type your answer…'}
                 className="hl-input resize-none text-[0.95rem] leading-relaxed"
               />
-              {/* Not-yet-final words, ghosted so they don't fight edits */}
-              {canVoice && (
-                <div className="mt-2 min-h-[1.1rem] px-1 text-sm italic leading-snug text-hardline-300">
-                  {listening && interim}
-                </div>
-              )}
             </div>
 
             {/* Listening indicator — a passive waveform with a pause control on
