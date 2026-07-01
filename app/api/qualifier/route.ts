@@ -78,6 +78,10 @@ export async function POST(req: Request) {
 
   const type: SubmissionType = payload.type ?? 'access'
 
+  // Durable backstop: log every submission in full, up front, so the answers are
+  // always recoverable from server logs even if Slack delivery later fails.
+  console.log('[qualifier] submission received:', JSON.stringify({ type, form: payload.form }))
+
   const fields =
     type === 'questions' ? [...IDENTITY_FIELDS, ...QUESTION_FIELDS] : IDENTITY_FIELDS
 
