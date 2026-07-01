@@ -193,7 +193,7 @@ export default function Story() {
             </section>
           </ScrollAnimator>
 
-          {/* 5 · Traction */}
+          {/* 5 · Traction — hidden
           <ScrollAnimator>
             <section>
               <p className="text-xl font-bold leading-relaxed text-[color:var(--hl-text)]">
@@ -220,6 +220,7 @@ export default function Story() {
               </div>
             </section>
           </ScrollAnimator>
+          */}
 
           {/* 6 · Why us — one photo of the three of us, tagged like a photo */}
           <ScrollAnimator>
