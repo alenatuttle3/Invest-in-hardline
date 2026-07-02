@@ -120,6 +120,10 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
   const [answers, setAnswers] = useState<VoiceAnswers>({})
   const [interim, setInterim] = useState('')
   const [listening, setListening] = useState(false)
+  // Set when the speech engine stops and won't restart (common on Safari/iOS).
+  // Without this the waveform keeps animating while nothing is captured, so the
+  // investor talks into a void — instead we tell them to type.
+  const [voiceStalled, setVoiceStalled] = useState(false)
 
   // Refs the recognition callbacks read so the single long-lived instance always
   // routes speech to the question that's currently on screen.
@@ -179,7 +183,12 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
         try {
           rec.start()
         } catch {
-          /* already starting — ignore */
+          // Restart failed — the engine has stopped and won't come back this
+          // session (Safari does this after it auto-stops). Stop pretending to
+          // listen and nudge the visitor to type so nothing is lost.
+          wantRef.current = false
+          setListening(false)
+          setVoiceStalled(true)
         }
       } else {
         setListening(false)
@@ -202,6 +211,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
     const rec = recRef.current
     if (!rec) return
     wantRef.current = true
+    setVoiceStalled(false)
     try {
       rec.start()
       setListening(true)
@@ -418,7 +428,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
 
             {/* Listening indicator — a passive waveform with a pause control on
                 the side, so nothing reads as a button you must press to talk. */}
-            {canVoice ? (
+            {canVoice && !voiceStalled ? (
               <div className="mt-5 flex items-center justify-center gap-4">
                 <Waveform active={listening} />
                 <button
@@ -438,6 +448,20 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                       <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z" />
                     </svg>
                   )}
+                </button>
+              </div>
+            ) : voiceStalled ? (
+              <div className="mt-5 flex items-center justify-center gap-4">
+                <p className="rounded-input bg-[rgba(255,255,255,0.04)] px-4 py-3 text-xs leading-relaxed text-hardline-300">
+                  Voice stopped on this browser — type your answer below, or tap to try again.
+                </p>
+                <button
+                  type="button"
+                  onClick={startListening}
+                  aria-label="Retry voice"
+                  className="icon-neumorph-dark flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-mint"
+                >
+                  <MicIcon className="h-5 w-5" />
                 </button>
               </div>
             ) : (

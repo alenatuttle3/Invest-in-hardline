@@ -91,7 +91,23 @@ export async function POST(req: Request) {
     return text ? [`*${label}*\n${text}`] : []
   })
 
-  const text = [HEADERS[type] ?? HEADERS.access, ...answers].join('\n\n')
+  // Flag a 'questions' submission that arrived with none of the six answers
+  // filled in. That means capture failed on the investor's side (e.g. voice
+  // transcription never produced text), not that they had nothing to say —
+  // surface it loudly so it's caught and followed up on, instead of looking
+  // like a normal identity-only ping.
+  const answersMissing =
+    type === 'questions' &&
+    QUESTION_FIELDS.every(([field]) => {
+      const value = payload.form?.[field]
+      return !(Array.isArray(value) ? value.join('').trim() : value?.trim())
+    })
+
+  const warning = answersMissing
+    ? ':warning: _No pre-meeting answers came through — capture likely failed on their device. Reach out directly._'
+    : null
+
+  const text = [HEADERS[type] ?? HEADERS.access, ...(warning ? [warning] : []), ...answers].join('\n\n')
 
   const webhook = process.env.SLACK_WEBHOOK_URL?.trim()
   if (!webhook) {
