@@ -379,12 +379,6 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 ? 'Your browser will ask for mic access. Answers go only to Alena.'
                 : 'Answers go only to Alena.'}
             </p>
-
-            <BookCall
-              className="mt-6 text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
-            >
-              Skip and just book a time →
-            </BookCall>
           </div>
         )}
 
