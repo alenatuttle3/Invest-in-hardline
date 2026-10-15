@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 import '../styles/globals.css'
 
 const montserrat = Montserrat({
@@ -22,7 +23,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="dark" className={montserrat.variable}>
-      <body className="hl-dark">{children}</body>
+      <body className="hl-dark">
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
