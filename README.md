@@ -27,31 +27,20 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Design system
 
-This portal follows the **Hardline design system** (`DESIGN.md`):
+This portal follows the **Hardline "Field Record" design system**, the same
+one hardlineapp.com ships:
 
-- **Neumorphic (soft-UI)** surfaces — soft extruded shadows on a single-hue
-  surface, switched between a dark forest (`#1F3F33`) and light sage (`#DDE6E2`)
-  via `.hl-dark` / `.hl-light` token aliases.
-- **One accent** — mint (`#59AF8C`) for CTAs, eyebrows, active states, stats.
-- **Montserrat only** — loaded in `app/layout.tsx` via `next/font`.
-- Tokens, neumorphic components (`.btn-*`, `.card`, `.hl-input`, `.hl-chip`,
-  `.icon-neumorph`), and motion live in `styles/globals.css`; the color and
-  neumorphic shadow scales live in `tailwind.config.js`.
-
-### File structure
-
-```
-app/
-  layout.tsx                  Montserrat + theme wiring + noindex metadata
-  page.tsx                    Redirects to /investors
-  investors/page.tsx          Landing page + access gate
-  investors/story/page.tsx    The story
-  investors/book/page.tsx     Pre-meeting questions + booking
-  api/qualifier/route.ts      Delivers submissions to Slack
-lib/qualify.ts                Form types + storage key
-lib/tier.ts                   Investor tier (gates the booking CTA)
-styles/globals.css            Design tokens + neumorphic components
-```
+- **Flat and printed**: Paper (`#F5F4F1`) in the reading middle, Deep Field
+  (`#0B1F17`) at the ends, Forest (`#1F3F33`) for ink and dark panels. 1px
+  hairlines instead of shadows; no gradients, glows or blur.
+- **4px radius** everywhere; circles only for true dots.
+- **Mint** (`#59AF8C`) means documented: the get-started CTA, the selection
+  mark, accents on dark. Never small text on light. Forest is the booking CTA.
+- **Montserrat only**, self-hosted (`app/fonts/Montserrat-Variable.woff2`, via
+  `next/font/local`). Size-led headings at weight 400; nothing below 15px.
+- Tokens and the component classes (`.btn-*`, `.card`, `.hl-input`, `.hl-mark`,
+  `.section-container` rails, `.hl-section` rhythm) live in `styles/globals.css`;
+  the palette, radii and 15px type floor live in `tailwind.config.js`.
 
 ## Deploying
 
