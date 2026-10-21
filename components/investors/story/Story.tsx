@@ -13,7 +13,7 @@ import MoatFlywheel from '@/components/investors/story/MoatFlywheel'
 import TeamPhoto from '@/components/investors/story/TeamPhoto'
 
 // Set by the /investors/book route before it redirects here, so the booking
-// pop-up opens over the (blurred) story rather than a blank page.
+// pop-up opens over the (dimmed) story rather than a blank page.
 const OPEN_BOOKING_KEY = 'openBooking'
 
 // --- Copy (kept as constants so JSX text stays free of unescaped entities) ---
@@ -96,7 +96,7 @@ function ReadingProgress() {
   return (
     <div className="fixed inset-x-0 top-0 z-50 h-[3px]" aria-hidden="true">
       <div
-        className="h-full rounded-r-full bg-mint transition-[width] duration-150 ease-out"
+        className="h-full bg-mint transition-[width] duration-150 ease-out"
         style={{ width: `${(p * 100).toFixed(2)}%` }}
       />
     </div>
@@ -148,8 +148,8 @@ export default function Story() {
       <div className="mx-auto w-full max-w-[720px] px-6 py-14 md:py-16">
         {/* Top marker */}
         <header className="flex items-end justify-between gap-4">
-          <span className="section-label inline-block border-b-2 border-mint pb-2">{MARKER}</span>
-          <span className="text-[11px] font-bold uppercase tracking-widest text-hardline-800">
+          <span className="section-label">{MARKER}</span>
+          <span className="hl-mono text-[15px] font-medium uppercase tracking-[0.12em] text-hardline-300">
             {READ_TIME}
           </span>
         </header>
@@ -160,8 +160,8 @@ export default function Story() {
           <ScrollAnimator>
             <section>
               <Eyebrow>{VIDEO_EYEBROW}</Eyebrow>
-              <h1 className="hl-h2 text-[color:var(--hl-text)]">{VIDEO_HEADING}</h1>
-              <p className="mt-3 max-w-xl text-lg leading-relaxed text-[color:var(--hl-text)]">
+              <h1 className="hl-h2">{VIDEO_HEADING}</h1>
+              <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-[color:var(--hl-text)]">
                 {VIDEO_LINE}
               </p>
               <div className="mt-8">
@@ -177,9 +177,9 @@ export default function Story() {
           {/* 2 · The bridge — problem video → solution scene */}
           <ScrollAnimator>
             <section className="text-center">
-              <p className="mx-auto max-w-2xl text-2xl font-medium leading-snug tracking-tight text-[color:var(--hl-text)] md:text-[1.75rem] md:leading-snug">
+              <p className="mx-auto max-w-2xl text-2xl font-normal leading-snug tracking-[-0.02em] text-deep-field md:text-[1.75rem] md:leading-[1.3]">
                 {BRIDGE_LEAD}
-                <span className="text-mint">{BRIDGE_EM}</span>
+                <span className="hl-mark">{BRIDGE_EM}</span>
               </p>
               <div className="mt-10 flex justify-center" aria-hidden="true">
                 <svg
@@ -209,7 +209,7 @@ export default function Story() {
           <ScrollAnimator>
             <section>
               <Eyebrow>{MOAT_EYEBROW}</Eyebrow>
-              <h2 className="hl-h3 text-[color:var(--hl-text)]">{MOAT_LEAD}</h2>
+              <h2 className="hl-h3">{MOAT_LEAD}</h2>
 
               <MoatFlywheel />
             </section>
@@ -225,13 +225,13 @@ export default function Story() {
               <div className="mt-10 grid gap-5 sm:grid-cols-3">
                 {TRACTION_STATS.map(s => (
                   <div key={s.label} className="flex flex-col gap-4">
-                    <p className="whitespace-nowrap text-center text-[15px] font-extrabold uppercase leading-snug tracking-[0.12em] text-mint">
+                    <p className="whitespace-nowrap text-center text-[15px] font-semibold uppercase leading-snug tracking-[0.12em] text-forest">
                       {s.takeaway[0]}
                       <br />
                       {s.takeaway[1]}
                     </p>
                     <div className="card flex-1">
-                      <p className="text-4xl font-black leading-none text-[color:var(--hl-text)]">
+                      <p className="hl-mono text-[52px] font-normal leading-none text-deep-field">
                         {s.value}
                       </p>
                       <p className="mt-3 text-sm font-bold text-[color:var(--hl-text)]">{s.label}</p>
@@ -258,9 +258,9 @@ export default function Story() {
 
           {/* 7 · The close — why now and booking, one dark container */}
           <ScrollAnimator>
-            <div className="hl-dark hl-dark-rich overflow-hidden rounded-[22px] px-8 py-12 text-center md:px-14 md:py-16">
+            <div className="hl-dark hl-dark-rich overflow-hidden rounded-[4px] px-8 py-12 text-center md:px-14 md:py-16">
               <p className="section-label">{WHYNOW_EYEBROW}</p>
-              <p className="mx-auto mt-5 max-w-xl text-xl font-medium leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
+              <p className="mx-auto mt-5 max-w-xl text-xl font-semibold leading-relaxed text-[color:var(--hl-text)] md:text-2xl md:leading-relaxed">
                 {WHYNOW_QUOTE}
               </p>
 
@@ -269,7 +269,7 @@ export default function Story() {
               </p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <button type="button" onClick={() => setBookingOpen(true)} className="btn-primary">
+                <button type="button" onClick={() => setBookingOpen(true)} className="btn-demo">
                   {CTA_BOOK}
                 </button>
                 <NewsletterSignup className="btn-outline-dark" />
@@ -281,11 +281,11 @@ export default function Story() {
           <div className="flex items-center justify-between pt-2">
             <Link
               href="/investors"
-              className="text-xs font-bold uppercase tracking-widest text-hardline-800 transition-colors hover:text-mint"
+              className="text-xs font-medium uppercase tracking-[0.12em] text-forest transition-colors hover:text-mint"
             >
               ← Back
             </Link>
-            <span className="text-[11px] uppercase tracking-widest text-hardline-800">
+            <span className="text-[15px] uppercase tracking-[0.12em] text-hardline-300">
               Investor-only · not indexed
             </span>
           </div>

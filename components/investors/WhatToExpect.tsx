@@ -24,25 +24,31 @@ const CARDS = [
 export default function WhatToExpect() {
   return (
     <section className="hl-light bg-[color:var(--hl-base)]">
-      <div className="section-container py-20 md:py-28">
+      <div className="section-container hl-section">
         <p className="section-label mb-4">What to expect</p>
-        <h2 className="hl-h2 mb-12 max-w-xl text-[color:var(--hl-text)]">{HEADING}</h2>
+        <h2 className="hl-h2 mb-12 max-w-xl md:mb-16">{HEADING}</h2>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {CARDS.map(c => (
-            <div key={c.n} className="card flex flex-col gap-4">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-mint font-semibold text-white shadow-neu-sm">
+        {/* Bare hairline grid, not cards: a top rule, columns split by 1px. */}
+        <div className="grid border-t border-[color:var(--rule-warm)] md:grid-cols-3">
+          {CARDS.map((c, i) => (
+            <div
+              key={c.n}
+              className={`flex flex-col gap-4 border-b border-[color:var(--rule-warm)] py-8 md:border-b-0 md:px-8 md:py-10 ${
+                i === 0 ? 'md:pl-0' : 'md:border-l'
+              } ${i === CARDS.length - 1 ? 'border-b-0 md:pr-0' : ''}`}
+            >
+              <span className="hl-mono text-[32px] font-normal leading-none text-deep-field">
                 {c.n}
               </span>
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="hl-h3 text-[color:var(--hl-text)]">{c.title}</h3>
+                <h3 className="text-[21px] font-semibold leading-snug text-[color:var(--hl-text)]">{c.title}</h3>
                 {c.duration && (
-                  <span className="whitespace-nowrap text-xs font-bold uppercase tracking-widest text-mint">
+                  <span className="hl-mono whitespace-nowrap text-xs font-medium uppercase tracking-[0.12em] text-hardline-300">
                     {c.duration}
                   </span>
                 )}
               </div>
-              <p className="leading-relaxed text-hardline-800">{c.body}</p>
+              <p className="leading-relaxed text-[color:var(--hl-text)]">{c.body}</p>
             </div>
           ))}
         </div>

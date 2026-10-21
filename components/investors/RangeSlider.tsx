@@ -57,7 +57,7 @@ export default function RangeSlider({
         />
       </div>
 
-      <div className="mt-2 flex justify-between text-[11px] text-[color:var(--hl-text-muted)]">
+      <div className="mt-2 flex justify-between text-[15px] text-[color:var(--hl-text-muted)]">
         <span>{format(min)}</span>
         <span>{format(max)}</span>
       </div>

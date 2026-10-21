@@ -15,17 +15,17 @@ export default function QAPage() {
     <main className="hl-light min-h-screen bg-[color:var(--hl-base)]">
       <div className="mx-auto w-full max-w-[720px] px-6 py-14 md:py-16">
         <header className="flex items-end justify-between gap-4">
-          <span className="section-label inline-block border-b-2 border-mint pb-2">
+          <span className="section-label">
             Stage 3 of 3 · Q&amp;A
           </span>
-          <span className="text-[11px] font-bold uppercase tracking-widest text-hardline-800">
+          <span className="hl-mono text-[15px] font-medium uppercase tracking-[0.12em] text-hardline-300">
             ~5 min
           </span>
         </header>
         <div className="mt-3 border-b border-[color:var(--hl-hairline)]" />
 
         <div className="pt-14 text-center">
-          <h1 className="hl-h2 text-[color:var(--hl-text)]">Ask us anything</h1>
+          <h1 className="hl-h2">Ask us anything</h1>
           <p className="mx-auto mt-4 max-w-md text-[color:var(--hl-text)]">
             The ones every investor asks us — moat, pricing, GTM — are on their way here.
           </p>
@@ -36,7 +36,7 @@ export default function QAPage() {
             </Link>
             <a
               href="mailto:alena@hardlineapp.com?subject=Hardline%20investor%20question"
-              className="text-sm font-medium text-hardline-800 underline-offset-4 transition-colors hover:text-mint hover:underline"
+              className="text-sm font-medium text-forest underline underline-offset-4 transition-colors hover:text-mint"
             >
               have a question now? email us
             </a>

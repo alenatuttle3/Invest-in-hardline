@@ -24,7 +24,7 @@ function youTubeId(src?: string): string | null {
 }
 
 /**
- * 16:9 neumorphic video frame. A YouTube `src` is embedded directly (YouTube's
+ * 16:9 video frame: 4px radius, 1px hairline, no shadow. A YouTube `src` is embedded directly (YouTube's
  * own thumbnail + play button — no placeholder poster). A direct video file
  * shows a poster with a play button until clicked. With no `src` at all it
  * renders a finished-looking placeholder rather than a broken embed.
@@ -35,8 +35,8 @@ export default function VideoPlayer({ posterSrc, src, caption = '2–3 min · ou
   const ytId = youTubeId(src)
 
   return (
-    <figure className="group rounded-[22px] bg-[color:var(--hl-base)] p-2.5 shadow-neu-md">
-      <div className="relative aspect-video w-full overflow-hidden rounded-[16px] bg-hardline-950 shadow-neu-inset">
+    <figure className="group">
+      <div className="relative aspect-video w-full overflow-hidden rounded-[4px] border border-[color:var(--rule-light)] bg-deep-field">
         {ytId ? (
           <iframe
             src={`https://www.youtube.com/embed/${ytId}`}
@@ -67,13 +67,13 @@ export default function VideoPlayer({ posterSrc, src, caption = '2–3 min · ou
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
             />
-            <span className="absolute inset-0 bg-gradient-to-t from-hardline-950/70 via-hardline-950/10 to-transparent" />
+            <span className="absolute inset-0" style={{ background: 'var(--scrim-footage)' }} />
 
-            <span className="absolute left-1/2 top-1/2 flex h-[68px] w-[68px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[color:var(--hl-base)] text-mint shadow-neu transition-transform duration-200 group-hover:scale-105">
+            <span className="absolute left-1/2 top-1/2 flex h-[68px] w-[68px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-mint text-deep-field transition-transform duration-200 group-hover:scale-105">
               <Play className="ml-0.5 h-7 w-7" fill="currentColor" strokeWidth={0} />
             </span>
 
-            <span className="absolute bottom-3 left-3 rounded-full bg-[color:var(--hl-base)] px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-[color:var(--hl-text)] shadow-neu-sm">
+            <span className="absolute bottom-3 left-3 rounded-[4px] border border-[color:var(--rule-dark)] bg-deep-field px-3 py-1 text-[15px] font-medium uppercase tracking-[0.08em] text-paper">
               {caption}
             </span>
           </button>

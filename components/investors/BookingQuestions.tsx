@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ACCESS_KEY } from '@/lib/qualify'
 
 // The booking questionnaire is now a pop-up that lives on the story page, so it
-// can blur the story behind it. This legacy route just flags the pop-up to open
+// can dim the story behind it. This legacy route just flags the pop-up to open
 // and sends visitors to the story.
 export default function BookingQuestions() {
   const router = useRouter()

@@ -51,9 +51,9 @@ export default function AccessGate() {
   }
 
   return (
-    <section id="start" className="scroll-mt-20">
-      <div className="section-container py-20 text-center md:py-28">
-        <h2 className="hl-h2 text-[color:var(--hl-text)]">{HEADLINE}</h2>
+    <section id="start" className="scroll-mt-20 border-t border-[color:var(--rule-dark)]">
+      <div className="section-container hl-section text-center">
+        <h2 className="hl-h2">{HEADLINE}</h2>
         <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[color:var(--hl-text-muted)]">
           {SUB}
         </p>
@@ -87,7 +87,7 @@ export default function AccessGate() {
             className="hl-input"
           />
 
-          {error && <p className="text-sm font-semibold text-[#e8a08a]">{error}</p>}
+          {error && <p className="text-sm font-semibold text-clay-light">{error}</p>}
 
           <button type="submit" className="btn-primary w-full">
             Show me the story →

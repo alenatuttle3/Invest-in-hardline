@@ -11,11 +11,11 @@ export default function Hero() {
           <div>
             <p className="section-label mb-5">For prospective investors</p>
 
-            <h1 className="hl-h1 text-4xl font-black text-[color:var(--hl-text)] md:text-6xl">
+            <h1 className="hl-h1 text-4xl md:text-6xl">
               Get to know Hardline in 5 minutes.
             </h1>
 
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[color:var(--hl-text)]">
+            <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-[color:var(--paper-80)]">
               {SUBCOPY}
             </p>
           </div>

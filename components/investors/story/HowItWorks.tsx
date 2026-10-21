@@ -31,11 +31,11 @@ type NodeDef = {
   color?: string
 }
 
-// Brand-tonal palette: one hue family (forest → mint → sage) so the map reads
-// as part of the light neumorphic system used across the site.
+// Brand palette (Field Record greens) so the map reads as part of the
+// paper-and-forest system used across the site.
 const CAT_COLOR: Record<Cat, string> = {
   project: '#1f3f33',
-  phase: '#2c5a45',
+  phase: '#2a5243',
   person: '#7e908c',
   issue: '#59af8c',
   decision: '#6fc49f',
@@ -77,10 +77,10 @@ const NODES: NodeDef[] = [
   { id: 'dec_rfi', cat: 'decision', imp: 2, x: 60, y: 18, label: 'RFI #47 resolved' },
   { id: 'wf_rfi', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 3, x: 54, y: 38, label: 'RFI' },
   { id: 'wf_log', cat: 'workflow', dest: 'procore', color: '#59af8c', imp: 2, x: 34, y: 32, label: 'Daily Report' },
-  { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#3c7a64', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
+  { id: 'wf_draw', cat: 'workflow', dest: 'acc', color: '#3c574e', imp: 2, x: 68, y: 30, label: 'Drawing Rev' },
   { id: 'wf_insp', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 58, y: 86, label: 'Inspection' },
   { id: 'wf_punch', cat: 'workflow', dest: 'fieldwire', color: '#1f3f33', imp: 2, x: 42, y: 74, label: 'Safety Report' },
-  { id: 'wf_model', cat: 'workflow', dest: 'constructable', color: '#4a8f74', imp: 2, x: 76, y: 52, label: 'Submittal' },
+  { id: 'wf_model', cat: 'workflow', dest: 'constructable', color: '#7e908c', imp: 2, x: 76, y: 52, label: 'Submittal' },
   { id: 'wf_task', cat: 'workflow', dest: 'jobtread', color: '#6fc49f', imp: 2, x: 46, y: 58, label: 'Change Order' },
 ]
 
@@ -107,9 +107,9 @@ const EDGES: [string, string][] = [
 type SystemDef = { key: string; name: string; color: string }
 const SYSTEMS: SystemDef[] = [
   { key: 'procore', name: 'Procore', color: '#59af8c' },
-  { key: 'acc', name: 'Autodesk ACC', color: '#3c7a64' },
+  { key: 'acc', name: 'Autodesk ACC', color: '#3c574e' },
   { key: 'fieldwire', name: 'Fieldwire', color: '#1f3f33' },
-  { key: 'constructable', name: 'Constructable', color: '#4a8f74' },
+  { key: 'constructable', name: 'Constructable', color: '#7e908c' },
   { key: 'jobtread', name: 'JobTread', color: '#6fc49f' },
 ]
 // Hardline's own MCP endpoint — a branch that only drops halfway (it's the
@@ -152,6 +152,9 @@ export default function HowItWorks() {
     if (!ctx) return
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // next/font registers Montserrat under a hashed family name, so canvas text
+    // has to use the resolved stack rather than the literal 'Montserrat'.
+    const FONT = getComputedStyle(root).fontFamily
     const stepEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-step'))
     const dotEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-dot'))
     const labelEls = Array.from(root.querySelectorAll<HTMLElement>('.hiw-nodelabel'))
@@ -508,7 +511,7 @@ export default function HowItWorks() {
       const sysR = narrow ? 6 : 7
       sysLayout.forEach(s => {
         paintDot(s.x, s.y, sysR, s.color, sysA, true)
-        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.font = `600 15px ${FONT}`
         ctx!.fillStyle = hexA('#1f3f33', sysA)
         ctx!.fillText(s.name, s.x, s.y + sysR + 26)
       })
@@ -516,7 +519,7 @@ export default function HowItWorks() {
       // The MCP branch node sits at the halfway point; its label goes below it.
       if (!narrow) {
         paintDot(mcpLayout.x, mcpLayout.y, sysR, mcpLayout.color, mcpA, true)
-        ctx!.font = '700 13px Montserrat, system-ui, sans-serif'
+        ctx!.font = `600 15px ${FONT}`
         ctx!.fillStyle = hexA('#1f3f33', mcpA)
         ctx!.fillText(mcpLayout.name, mcpLayout.x, mcpLayout.y + sysR + 26)
       }
@@ -525,24 +528,24 @@ export default function HowItWorks() {
       paintApex(apex.x, apex.y, apexR, apexA)
       ctx!.textAlign = 'center'
       ctx!.textBaseline = 'alphabetic'
-      ctx!.font = '700 16px Montserrat, system-ui, sans-serif'
-      ctx!.fillStyle = hexA('#1f3f33', apexA)
+      ctx!.font = `600 17px ${FONT}`
+      ctx!.fillStyle = hexA('#0b1f17', apexA)
       ctx!.fillText('Hardline', apex.x, apex.y - apexR - 13)
       ctx!.restore()
     }
 
-    // Centered label with a soft sage backing pill, so the connector lines
+    // Centered label with a paper backing pill, so the connector lines
     // reading beneath it stay legible.
     function drawPillLabel(text: string, x: number, y: number, a: number, font: string, color: string) {
       if (a <= 0.02) return
-      ctx!.font = `${font} Montserrat, system-ui, sans-serif`
+      ctx!.font = `${font} ${FONT}`
       ctx!.textAlign = 'center'
       ctx!.textBaseline = 'middle'
       const w = ctx!.measureText(text).width
       const padX = 5
       const h = 16
-      ctx!.fillStyle = hexA('#dde6e2', 0.82 * a)
-      roundRect(x - w / 2 - padX, y - h / 2, w + padX * 2, h, 5)
+      ctx!.fillStyle = hexA('#f5f4f1', 0.82 * a)
+      roundRect(x - w / 2 - padX, y - h / 2, w + padX * 2, h, 4)
       ctx!.fill()
       ctx!.fillStyle = hexA(color, a)
       ctx!.fillText(text, x, y + 0.5)
@@ -590,7 +593,7 @@ export default function HowItWorks() {
       ctx!.beginPath()
       ctx!.arc(x, y, rr, 0, Math.PI * 2)
       ctx!.fill()
-      ctx!.fillStyle = hexA('#e8f4ee', 0.9 * a)
+      ctx!.fillStyle = hexA('#f5f4f1', 0.9 * a)
       ctx!.beginPath()
       ctx!.arc(x, y, rr * 0.4, 0, Math.PI * 2)
       ctx!.fill()
@@ -717,25 +720,25 @@ function hexA(hex: string, a: number) {
 }
 
 const CSS = `
-.hl-howitworks { position: relative; height: 500vh; background: #dde6e2; color: #1f3f33; font-family: var(--hl-font), system-ui, sans-serif; }
+.hl-howitworks { position: relative; height: 500vh; background: #f5f4f1; color: #1f3f33; font-family: var(--hl-font), sans-serif; border-top: 1px solid rgba(31,63,51,0.16); border-bottom: 1px solid rgba(31,63,51,0.16); }
 .hl-howitworks .hiw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 .hl-howitworks .hiw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; filter: drop-shadow(14px 14px 30px rgba(179,191,187,0.8)); }
+.hl-howitworks .hiw-phone { position: absolute; left: 70%; top: 50%; transform: translate(-50%, -50%); height: min(78vh, 760px); aspect-ratio: 1080 / 1920; background-image: url("/investors/hardline-call.gif"); background-repeat: no-repeat; background-position: center; background-size: contain; z-index: 2; pointer-events: none; opacity: 1; }
 @media (max-width: 760px) { .hl-howitworks .hiw-phone { left: 50%; height: min(62vh, 560px); } }
 .hl-howitworks .hiw-labels { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 13px; font-weight: 600; line-height: 16px; color: #3c574e; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
-.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 46%; max-width: 620px; padding: 0 clamp(28px, 5vw, 72px) 0 clamp(56px, 9vw, 140px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #dde6e2 0%, #dde6e2 62%, rgba(221,230,226,0.9) 80%, rgba(221,230,226,0) 100%); }
+.hl-howitworks .hiw-nodelabel { position: absolute; top: 0; left: 0; white-space: nowrap; font-size: 15px; font-weight: 500; line-height: 16px; color: #3c574e; opacity: 0; pointer-events: auto; will-change: transform, opacity; }
+.hl-howitworks .hiw-panel { position: absolute; left: 0; top: 0; bottom: 0; width: 46%; max-width: 620px; padding: 0 clamp(28px, 5vw, 72px) 0 clamp(56px, 9vw, 140px); display: flex; flex-direction: column; justify-content: center; z-index: 3; pointer-events: none; background: linear-gradient(90deg, #f5f4f1 0%, #f5f4f1 62%, rgba(245,244,241,0.9) 80%, rgba(245,244,241,0) 100%); }
 .hl-howitworks .hiw-step { position: absolute; left: clamp(56px, 9vw, 140px); right: clamp(28px, 5vw, 72px); opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; }
 .hl-howitworks .hiw-step.is-active { opacity: 1; transform: none; pointer-events: auto; }
-.hl-howitworks .hiw-tag { font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #59af8c; font-weight: 700; margin: 0 0 18px; }
-.hl-howitworks .hiw-title { font-family: var(--hl-font), system-ui, sans-serif; font-weight: 500; letter-spacing: -0.01em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.1; margin: 0 0 18px; color: #1f3f33; }
-.hl-howitworks .hiw-body { font-size: clamp(16px, 1.2vw, 19px); line-height: 1.65; color: #7e908c; max-width: 40ch; margin: 0; }
+.hl-howitworks .hiw-tag { font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: #7e908c; font-weight: 500; font-variant-numeric: tabular-nums; margin: 0 0 18px; }
+.hl-howitworks .hiw-title { font-family: var(--hl-font), sans-serif; font-weight: 400; letter-spacing: -0.025em; font-size: clamp(28px, 3.3vw, 46px); line-height: 1.08; margin: 0 0 18px; color: #0b1f17; text-wrap: pretty; }
+.hl-howitworks .hiw-body { font-size: clamp(16px, 1.2vw, 19px); line-height: 1.6; color: #1f3f33; max-width: 40ch; margin: 0; }
 .hl-howitworks .hiw-dots { position: absolute; left: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 14px; z-index: 4; }
 .hl-howitworks .hiw-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(31,63,51,0.18); transition: all .4s ease; }
-.hl-howitworks .hiw-dot.is-active { background: #59af8c; transform: scale(1.5); box-shadow: 0 0 12px rgba(89,175,140,0.85); }
-.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), system-ui, sans-serif; font-weight: 800; font-size: 150px; line-height: 1; color: #1f3f33; opacity: 0.05; z-index: 1; pointer-events: none; user-select: none; }
+.hl-howitworks .hiw-dot.is-active { background: #59af8c; transform: scale(1.5); }
+.hl-howitworks .hiw-ghostnum { position: absolute; right: 5%; bottom: 2%; font-family: var(--hl-font), sans-serif; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; font-size: 150px; line-height: 1; color: #1f3f33; opacity: 0.06; z-index: 1; pointer-events: none; user-select: none; }
 @media (max-width: 760px) {
-  .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #dde6e2 0%, #dde6e2 48%, rgba(221,230,226,0.85) 72%, rgba(221,230,226,0) 100%); }
+  .hl-howitworks .hiw-panel { width: 100%; max-width: none; justify-content: flex-start; padding-top: 13vh; background: linear-gradient(180deg, #f5f4f1 0%, #f5f4f1 48%, rgba(245,244,241,0.85) 72%, rgba(245,244,241,0) 100%); }
   .hl-howitworks .hiw-ghostnum { font-size: 96px; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -99,7 +99,7 @@ export default function MoatFlywheel() {
             className="mx-auto block w-[300px] max-w-full md:absolute md:left-1/2 md:top-1/2 md:w-[400px] md:-translate-x-1/2 md:-translate-y-1/2"
           >
             {/* faint full track */}
-            <circle cx={C} cy={C} r={R} fill="none" stroke="rgba(31,63,51,0.1)" strokeWidth="1.5" />
+            <circle cx={C} cy={C} r={R} fill="none" stroke="rgba(31,63,51,0.16)" strokeWidth="1" />
 
             {/* arcs draw clockwise as you scroll */}
             {NODE_DEG.map((d, i) => (
@@ -129,13 +129,13 @@ export default function MoatFlywheel() {
             })}
 
             {/* center label */}
-            <text x={C} y={C - 12} textAnchor="middle" fontSize="15" fontWeight="700" fill="#1f3f33" letterSpacing="2">
+            <text x={C} y={C - 14} textAnchor="middle" fontSize="17" fontWeight="600" fill="#0b1f17" letterSpacing="2">
               DATA &amp;
             </text>
-            <text x={C} y={C + 10} textAnchor="middle" fontSize="15" fontWeight="700" fill="#1f3f33" letterSpacing="2">
+            <text x={C} y={C + 10} textAnchor="middle" fontSize="17" fontWeight="600" fill="#0b1f17" letterSpacing="2">
               INTELLIGENCE
             </text>
-            <text x={C} y={C + 34} textAnchor="middle" fontSize="11" fontWeight="700" fill="#59af8c" letterSpacing="3">
+            <text x={C} y={C + 38} textAnchor="middle" fontSize="16" fontWeight="500" fill="#7e908c" letterSpacing="3">
               THE MOAT
             </text>
 
@@ -150,8 +150,7 @@ export default function MoatFlywheel() {
           </svg>
 
           {/* step cards — circle corners on desktop, stacked on mobile. As a
-              card fades in it also warms toward the mint accent: a mint wash
-              over the base plus a mint keyline on the card shadow. */}
+              card fades in its hairline turns mint: documented. */}
           <div className="mt-6 grid gap-4 md:mt-0 md:block">
             {STEPS.map((s, i) => {
               const on = nodeOn(i)
@@ -161,18 +160,14 @@ export default function MoatFlywheel() {
                   className={`card md:absolute md:w-[230px] ${CORNERS[i]}`}
                   style={{
                     opacity: on ? 1 : 0.4,
-                    backgroundColor: on
-                      ? 'color-mix(in srgb, var(--hl-mint) 12%, var(--hl-base))'
-                      : undefined,
-                    boxShadow: on
-                      ? '10px 10px 22px var(--hl-sd), -10px -10px 22px var(--hl-sl), 0 0 0 1px rgba(89,175,140,0.45)'
-                      : undefined,
-                    transition: 'opacity .4s ease, background-color .4s ease, box-shadow .4s ease',
+                    backgroundColor: on ? '#ffffff' : undefined,
+                    borderColor: on ? 'var(--hl-mint)' : undefined,
+                    transition: 'opacity .4s ease, background-color .4s ease, border-color .4s ease',
                   }}
                 >
-                  <p className="text-xs font-bold text-mint">{s.n}</p>
-                  <p className="mt-1.5 text-base font-bold text-[color:var(--hl-text)]">{s.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-hardline-800">{s.body}</p>
+                  <p className="hl-mono text-xs font-medium text-hardline-300">{s.n}</p>
+                  <p className="mt-1.5 text-base font-semibold text-deep-field">{s.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-[color:var(--hl-text)]">{s.body}</p>
                 </div>
               )
             })}

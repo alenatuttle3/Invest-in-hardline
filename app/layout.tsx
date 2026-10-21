@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
-import { Montserrat } from 'next/font/google'
+import localFont from 'next/font/local'
 import '../styles/globals.css'
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
+// Self-hosted Montserrat variable (100–900), the same file hardlineapp.com ships.
+const montserrat = localFont({
+  src: './fonts/Montserrat-Variable.woff2',
+  weight: '100 900',
   variable: '--hl-font',
   display: 'swap',
 })

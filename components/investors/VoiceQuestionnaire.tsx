@@ -93,7 +93,7 @@ function Waveform({ active }: { active: boolean }) {
       {WAVE_BARS.map((scale, i) => (
         <span
           key={i}
-          className={`voice-wave-bar w-[4px] rounded-full bg-mint${active ? ' is-active' : ''}`}
+          className={`voice-wave-bar w-[4px] rounded-[1px] bg-mint-400${active ? ' is-active' : ''}`}
           style={{
             height: `${Math.round(scale * 100)}%`,
             animationDelay: `${i * 0.09}s`,
@@ -327,16 +327,16 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
       aria-modal="true"
       aria-label="A few questions before we meet"
     >
-      {/* Backdrop — just blur the page behind, no dark fill */}
+      {/* Backdrop — a flat Deep Field scrim over the story (no blur) */}
       <button
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-[rgba(12,26,18,0.06)] backdrop-blur-md"
+        className="absolute inset-0 cursor-default bg-[rgba(11,31,23,0.72)]"
       />
 
       {/* Card */}
-      <div className="hl-dark hl-dark-rich animate-modal-in relative w-full max-w-lg overflow-hidden rounded-[22px] p-7 shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:p-9">
+      <div className="hl-dark hl-dark-rich animate-modal-in relative w-full max-w-lg overflow-hidden rounded-[4px] border border-[color:var(--rule-dark)] p-7 sm:p-9">
         {/* Close */}
         <button
           type="button"
@@ -351,10 +351,10 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
 
         {phase === 'permission' && (
           <div className="flex flex-col items-center text-center">
-            <div className="icon-neumorph-dark h-16 w-16 text-mint">
+            <div className="icon-neumorph-dark h-16 w-16">
               <MicIcon className="h-7 w-7" />
             </div>
-            <h2 className="hl-h3 mt-6 text-[color:var(--hl-text)]">
+            <h2 className="hl-h3 mt-6">
               A few quick questions. Just talk.
             </h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[color:var(--hl-text-muted)]">
@@ -374,14 +374,14 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
             <button type="button" onClick={enableMic} className="btn-primary mt-7 w-full sm:w-auto">
               {supported ? 'Enable microphone & start' : 'Start'}
             </button>
-            <p className="mt-4 text-xs text-hardline-300">
+            <p className="mt-4 text-xs text-[color:var(--hl-text-muted)]">
               {supported
                 ? 'Your browser will ask for mic access. Answers go only to Alena.'
                 : 'Answers go only to Alena.'}
             </p>
 
             <BookCall
-              className="mt-6 text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
+              className="mt-6 text-sm font-medium text-[color:var(--hl-text-muted)] transition-colors hover:text-mint-400"
             >
               Skip and just book a time →
             </BookCall>
@@ -391,18 +391,18 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
         {phase === 'question' && (
           <div>
             {/* Progress */}
-            <div className="text-[11px] font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
-              <span className="text-mint">{q.n}</span> / 0{QUESTIONS.length}
+            <div className="hl-mono text-[15px] font-medium uppercase tracking-[0.12em] text-[color:var(--hl-text-muted)]">
+              <span className="text-mint-400">{q.n}</span> / 0{QUESTIONS.length}
             </div>
-            <div className="mt-3 h-[3px] w-full overflow-hidden rounded-full bg-[color:var(--hl-hairline)]">
+            <div className="mt-3 h-[3px] w-full overflow-hidden bg-[color:var(--hl-hairline)]">
               <div
-                className="h-full rounded-full bg-mint transition-[width] duration-300 ease-out"
+                className="h-full bg-mint transition-[width] duration-300 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
 
             {/* Question */}
-            <h2 className="hl-h3 mt-6 text-[1.3rem] text-[color:var(--hl-text)]">{q.q}</h2>
+            <h2 className="hl-h3 mt-6 !text-[1.375rem]">{q.q}</h2>
             <p className="mt-2 text-sm leading-relaxed text-[color:var(--hl-text-muted)]">{q.blurb}</p>
 
             {/* Answer box — live transcript appears inline; always editable. */}
@@ -412,7 +412,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 onChange={e => onEdit(e.target.value)}
                 rows={3}
                 placeholder={canVoice ? 'Start speaking, or type your answer…' : 'Type your answer…'}
-                className="hl-input resize-none text-[0.95rem] leading-relaxed"
+                className="hl-input resize-none leading-relaxed"
               />
             </div>
 
@@ -426,7 +426,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                   onClick={toggleMic}
                   aria-label={listening ? 'Pause' : 'Resume'}
                   aria-pressed={!listening}
-                  className="icon-neumorph-dark flex h-11 w-11 items-center justify-center rounded-full text-mint"
+                  className="icon-neumorph-dark flex h-11 w-11 items-center justify-center rounded-full"
                 >
                   {listening ? (
                     <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
@@ -442,7 +442,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
               </div>
             ) : (
               permission === 'denied' && (
-                <p className="mt-1 rounded-input bg-[rgba(255,255,255,0.04)] px-4 py-3 text-xs leading-relaxed text-hardline-300">
+                <p className="mt-1 rounded-input border border-dashed border-[color:rgba(255,255,255,0.32)] px-4 py-3 text-xs leading-relaxed text-[color:var(--hl-text-muted)]">
                   Microphone access is off, so go ahead and type. To use voice, allow mic access in
                   your browser and reopen this.
                 </p>
@@ -455,7 +455,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 type="button"
                 onClick={back}
                 disabled={idx === 0}
-                className="text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors enabled:hover:text-[color:var(--hl-text)] disabled:opacity-30"
+                className="text-sm font-medium text-[color:var(--hl-text-muted)] transition-colors enabled:hover:text-[color:var(--hl-text)] disabled:opacity-30"
               >
                 ← Back
               </button>
@@ -463,7 +463,7 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
                 <button
                   type="button"
                   onClick={next}
-                  className="text-xs font-bold uppercase tracking-widest text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
+                  className="text-sm font-medium text-[color:var(--hl-text-muted)] transition-colors hover:text-[color:var(--hl-text)]"
                 >
                   Skip
                 </button>
@@ -477,16 +477,16 @@ export default function VoiceQuestionnaire({ onClose, onSubmit }: Props) {
 
         {phase === 'done' && (
           <div className="flex flex-col items-center text-center">
-            <div className="icon-neumorph-dark h-16 w-16 text-mint">
+            <div className="icon-neumorph-dark h-16 w-16">
               <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 12.5l5 5L20 6" />
               </svg>
             </div>
-            <h2 className="hl-h3 mt-6 text-[color:var(--hl-text)]">Got it. Thank you.</h2>
+            <h2 className="hl-h3 mt-6">Got it. Thank you.</h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-[color:var(--hl-text-muted)]">
               Your answers are on their way to Alena. Grab a time and we&apos;ll make the call count.
             </p>
-            <BookCall className="btn-primary mt-7 w-full sm:w-auto">
+            <BookCall className="btn-demo mt-7 w-full sm:w-auto">
               Book a time →
             </BookCall>
           </div>

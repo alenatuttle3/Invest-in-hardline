@@ -19,8 +19,7 @@ export default function InvestorsPage() {
       <main>
         <Hero />
         <WhatToExpect />
-        {/* One shared rich surface so the dark band gets a single soft glow
-            instead of one per section. */}
+        {/* One shared Deep Field band for the letter and the gate. */}
         <div className="hl-dark hl-dark-rich">
           <WhyWeDoThis />
           <AccessGate />

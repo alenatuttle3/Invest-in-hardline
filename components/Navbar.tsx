@@ -15,11 +15,10 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Flat #0c1a12 (the rich surface's edge color) so the header reads as one
-  // seamless band with the hero — the soft glow only appears once, below.
+  // Deep Field, square, hairline bottom rule — the same nav as hardlineapp.com.
   return (
     <header
-      className={`hl-dark sticky top-0 z-50 bg-[#0c1a12] transition-transform duration-300 ${
+      className={`hl-dark sticky top-0 z-50 border-b border-[color:var(--rule-dark)] bg-deep-field transition-transform duration-300 ${
         hidden ? '-translate-y-full' : 'translate-y-0'
       }`}
     >
@@ -28,10 +27,10 @@ export default function Navbar() {
           <Image
             src="/hardline-logo.png"
             alt="Hardline"
-            width={150}
-            height={23}
+            width={184}
+            height={28}
             priority
-            className="h-[23px] w-auto"
+            className="h-[28px] w-auto"
           />
         </Link>
       </nav>

@@ -8,15 +8,6 @@ import { useState } from 'react'
 const PHOTO: string | null = '/investors/team/founders.png'
 const PHOTO_ALT = 'Karly, Kimball, and Alena — the Hardline founding team'
 
-// Fades the photo's top and side edges fully out so it dissolves into the
-// page background; the bottom edge stays crisp so we aren't cut off at the
-// knees. Two gradients (one per axis) intersected, because a single radial
-// mask can't hit zero alpha at the edge midpoints without swallowing the
-// whole photo.
-const PHOTO_MASK =
-  'linear-gradient(to right, transparent, #000 22%, #000 78%, transparent), ' +
-  'linear-gradient(to bottom, transparent, #000 18%, #000)'
-
 type Member = {
   name: string
   role: string
@@ -68,7 +59,7 @@ export default function TeamPhoto() {
   return (
     <div>
       {/* Heading — each clause belongs to one person */}
-      <h2 className="hl-h3 text-[color:var(--hl-text)]">
+      <h2 className="hl-h3">
         {TEAM.map((m, i) => (
           <button
             key={m.name}
@@ -76,7 +67,7 @@ export default function TeamPhoto() {
             {...bind(i)}
             aria-label={`${m.tag} — ${m.name}`}
             className={`mr-[0.4em] cursor-pointer transition-colors duration-200 ${
-              active === i ? 'text-mint' : active !== null ? 'opacity-50' : ''
+              active === i ? 'hl-mark' : active !== null ? 'opacity-50' : ''
             }`}
           >
             {m.tag}
@@ -95,17 +86,11 @@ export default function TeamPhoto() {
             <img
               src={PHOTO}
               alt={PHOTO_ALT}
-              className="block aspect-[4/3] w-full object-cover"
-              style={{
-                WebkitMaskImage: PHOTO_MASK,
-                maskImage: PHOTO_MASK,
-                WebkitMaskComposite: 'source-in',
-                maskComposite: 'intersect',
-              }}
+              className="block aspect-[4/3] w-full rounded-[4px] object-cover"
             />
           ) : (
-            <div className="flex aspect-[4/3] w-full items-end justify-center rounded-card bg-[color:var(--hl-base)] pb-6 shadow-neu-inset">
-              <p className="px-6 text-center text-xs font-semibold uppercase tracking-widest text-[color:var(--hl-text-muted)]">
+            <div className="flex aspect-[4/3] w-full items-end justify-center rounded-card border border-dashed border-[color:rgba(31,63,51,0.38)] pb-6">
+              <p className="px-6 text-center text-xs font-semibold uppercase tracking-[0.12em] text-[color:var(--hl-text-muted)]">
                 Group photo goes here · public/investors/team/founders.png
               </p>
             </div>
@@ -121,16 +106,12 @@ export default function TeamPhoto() {
               style={{ left: `${m.pin.x}%`, top: `${m.pin.y}%` }}
             >
               <span
-                className={`block h-3 w-3 rounded-full bg-mint transition-all duration-200 ${
-                  active === i
-                    ? 'scale-150 shadow-[0_0_0_6px_rgba(89,175,140,0.25)]'
-                    : active !== null
-                      ? 'opacity-40 shadow-[0_0_0_4px_rgba(89,175,140,0.15)]'
-                      : 'shadow-[0_0_0_4px_rgba(89,175,140,0.2)]'
+                className={`block h-3 w-3 rounded-full border border-deep-field bg-mint transition-all duration-200 ${
+                  active === i ? 'scale-150' : active !== null ? 'opacity-40' : ''
                 }`}
               />
               <span
-                className={`pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-full bg-mint px-3 py-1 text-[11px] font-bold text-white transition-opacity duration-200 ${
+                className={`pointer-events-none absolute bottom-full left-1/2 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-[4px] bg-deep-field px-3 py-1 text-[15px] font-semibold text-paper transition-opacity duration-200 ${
                   active === i ? 'opacity-100' : 'opacity-0'
                 }`}
               >
@@ -147,18 +128,18 @@ export default function TeamPhoto() {
               <button
                 type="button"
                 {...bind(i)}
-                className={`w-full rounded-card px-5 py-4 text-left transition-all duration-200 ${
-                  active === i ? 'bg-[color:var(--hl-base)] shadow-neu' : ''
+                className={`w-full rounded-card border px-5 py-4 text-left transition-all duration-200 ${
+                  active === i ? 'border-mint bg-white' : 'border-transparent'
                 }`}
               >
-                <p className="text-[11px] font-bold uppercase tracking-widest text-mint">{m.tag}</p>
+                <p className="text-[15px] font-medium uppercase tracking-[0.12em] text-hardline-300">{m.tag}</p>
                 <p className="mt-1.5 text-base font-bold text-[color:var(--hl-text)]">
                   {m.name}
-                  <span className="ml-2 text-xs font-semibold uppercase tracking-wider text-hardline-800">
+                  <span className="ml-2 text-xs font-medium uppercase tracking-[0.08em] text-hardline-300">
                     {m.role}
                   </span>
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-hardline-800">{m.bio}</p>
+                <p className="mt-1 text-sm leading-relaxed text-[color:var(--hl-text)]">{m.bio}</p>
               </button>
             </li>
           ))}

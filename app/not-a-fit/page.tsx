@@ -20,7 +20,7 @@ export default function NotAFitPage() {
     <main className="hl-dark min-h-screen flex items-center justify-center px-6">
       <div className="max-w-md text-center space-y-6 animate-fade-up">
         <p className="section-label-dark">Hardline</p>
-        <h1 className="hl-h2 !text-2xl">
+        <h1 className="hl-h3">
           Probably not the right fit right now
         </h1>
         {reason && (
@@ -33,13 +33,13 @@ export default function NotAFitPage() {
         )}
         <p className="text-hardline-300 text-xs leading-relaxed">
           This isn&apos;t a hard no forever. If the timing or parameters change, reach out directly to{' '}
-          <a href="mailto:alena@hardlineapp.com" className="text-mint hover:underline">
+          <a href="mailto:alena@hardlineapp.com" className="text-paper underline underline-offset-4 transition-colors hover:text-mint-400">
             alena@hardlineapp.com
           </a>
         </p>
         <Link
           href="https://hardlineapp.com"
-          className="inline-block text-xs text-hardline-300 hover:text-[color:var(--hl-text)] transition-colors mt-4"
+          className="inline-block text-xs text-[color:var(--paper-70)] hover:text-[color:var(--hl-text)] transition-colors mt-4"
         >
           ← Back to hardlineapp.com
         </Link>
